@@ -1,8 +1,11 @@
 val scala2Version = "2.13.6"
 // val zioVersion = "2.0.0-M2"
 val zioVersion                 = "1.0.12"
+val zioMagicVersion            = "0.3.10"
 val testcontainersScalaVersion = "0.39.12"
 val mysqlConnnectorJVersion    = "8.0.27"
+val slf4jVersion               = "1.7.32"
+val logbackVersion             = "1.2.6"
 
 ThisBuild / version := "0.1.0"
 
@@ -24,7 +27,6 @@ lazy val kafka =
     .settings(
       libraryDependencies ++= Seq(
         "com.dimafeng" %% "testcontainers-scala-kafka" % testcontainersScalaVersion
-
       )
     )
 
@@ -37,13 +39,21 @@ lazy val commonSettings =
     name := "testcontainers-for-zio",
     scalaVersion := scala2Version,
     organization := "io.github.scottweaver",
-    libraryDependencies ++= Seq(
-      "dev.zio"      %% "zio"                       % zioVersion,
-      "com.dimafeng" %% "testcontainers-scala-core" % testcontainersScalaVersion,
-      "dev.zio"      %% "zio-test"                  % zioVersion % Test,
-      "dev.zio"      %% "zio-test-sbt"              % zioVersion % Test
+    // Prevent slf4j 2.x from ruining EVERYTHING :(
+    dependencyOverrides ++= Seq(
+      "org.slf4j" % "slf4j-api" % slf4jVersion
     ),
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+    libraryDependencies ++= Seq(
+      "dev.zio"              %% "zio"                       % zioVersion,
+      "com.dimafeng"         %% "testcontainers-scala-core" % testcontainersScalaVersion,
+      "dev.zio"              %% "zio-test"                  % zioVersion,
+      "org.slf4j"            % "slf4j-api"                  % slf4jVersion,
+      "ch.qos.logback"       % "logback-classic"            % logbackVersion % Test,
+      // "io.github.kitlangton" %% "zio-magic"                 % zioMagicVersion % Test,
+      "dev.zio"              %% "zio-test-sbt"              % zioVersion % Test
+    ),
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    Test / fork := true
   )
 
 lazy val commandAliases =

@@ -15,9 +15,14 @@ object ZMySQLContainer {
     password: String
   )
 
-  type Provides = Has[JdbcInfo] with Has[Connection with AutoCloseable]
+  type Provides = Has[JdbcInfo] with Has[Connection] with Has[Connection with AutoCloseable] with Has[MySQLContainer]
 
-  def live(containerVersion: String = "latest"): ZLayer[Any, Nothing, Provides] = {
+  def live(
+    containerVersion: String = "latest",
+    databaseName: Option[String] = None,
+    username: Option[String] = None,
+    password: Option[String] = None
+  ): ZLayer[Any, Nothing, Provides] = {
 
     def makeManagedConnection(container: MySQLContainer) =
       ZManaged.make(
@@ -38,7 +43,12 @@ object ZMySQLContainer {
     val makeManagedContainer =
       ZManaged.make(
         ZIO.effect {
-          val container = MySQLContainer(mysqlImageVersion = DockerImageName.parse(s"mysql:$containerVersion"))
+          val container = new MySQLContainer(
+            mysqlImageVersion = Some(DockerImageName.parse(s"mysql:$containerVersion")),
+            databaseName = databaseName,
+            mysqlUsername = username,
+            mysqlPassword = password
+          )
           container.start()
           container
         }.orDie
@@ -63,7 +73,7 @@ object ZMySQLContainer {
           password = container.password
         )
 
-        Has(jdbcInfo) ++ Has(conn)
+        Has(jdbcInfo) ++ Has(conn) ++ Has(container)
       }
 
     }
