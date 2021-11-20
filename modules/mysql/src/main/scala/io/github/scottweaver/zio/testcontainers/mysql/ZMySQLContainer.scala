@@ -5,24 +5,30 @@ import com.dimafeng.testcontainers.MySQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.sql.DriverManager
 import java.sql.Connection
-
+import io.github.scottweaver.jdbc.JdbcInfo
 object ZMySQLContainer {
 
-  final case class JdbcInfo(
-    driverClassName: String,
-    jdbcUrl: String,
+  final case class Settings(
+    imageVersion: String,
+    databaseName: String,
     username: String,
     password: String
   )
 
+  object Settings {
+    val default = ZLayer.succeed(
+      Settings(
+        "latest",
+        MySQLContainer.defaultDatabaseName,
+        MySQLContainer.defaultUsername,
+        MySQLContainer.defaultPassword
+      )
+    )
+  }
+
   type Provides = Has[JdbcInfo] with Has[Connection] with Has[Connection with AutoCloseable] with Has[MySQLContainer]
 
-  def live(
-    containerVersion: String = "latest",
-    databaseName: Option[String] = None,
-    username: Option[String] = None,
-    password: Option[String] = None
-  ): ZLayer[Any, Nothing, Provides] = {
+  val live: ZLayer[Has[Settings], Nothing, Provides] = {
 
     def makeManagedConnection(container: MySQLContainer) =
       ZManaged.make(
@@ -40,17 +46,16 @@ object ZMySQLContainer {
           .ignore
       )
 
-    val makeManagedContainer =
+    def makeManagedContainer(settings: Settings) =
       ZManaged.make(
         ZIO.effect {
-          val container = new MySQLContainer(
-            mysqlImageVersion = Some(DockerImageName.parse(s"mysql:$containerVersion")),
-            databaseName = databaseName,
-            mysqlUsername = username,
-            mysqlPassword = password
+          val containerDef = MySQLContainer.Def(
+            dockerImageName = DockerImageName.parse(s"mysql:${settings.imageVersion}"),
+            databaseName = settings.databaseName,
+            username = settings.username,
+            password = settings.password
           )
-          container.start()
-          container
+          containerDef.start()
         }.orDie
       )(container =>
         ZIO
@@ -61,7 +66,8 @@ object ZMySQLContainer {
 
     ZLayer.fromManagedMany {
       for {
-        container <- makeManagedContainer
+        settings  <- ZIO.service[Settings].toManaged_
+        container <- makeManagedContainer(settings)
         conn      <- makeManagedConnection(container)
 
       } yield {

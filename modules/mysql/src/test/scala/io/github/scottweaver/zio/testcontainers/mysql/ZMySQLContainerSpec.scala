@@ -5,6 +5,7 @@ import zio.test._
 import zio.test.Assertion._
 import java.sql.Connection
 import com.dimafeng.testcontainers.MySQLContainer
+import io.github.scottweaver.jdbc.JdbcInfo
 
 object ZMySQLContainerSpec extends DefaultRunnableSpec {
   def spec =
@@ -22,7 +23,7 @@ object ZMySQLContainerSpec extends DefaultRunnableSpec {
         val testCase = for {
           conn      <- ZIO.service[Connection]
           container <- ZIO.service[MySQLContainer]
-          jdbcInfo  <- ZIO.service[ZMySQLContainer.JdbcInfo]
+          jdbcInfo  <- ZIO.service[JdbcInfo]
           result    <- sqlTestQuery(conn)
         } yield {
           assert(result)(equalTo(1)) &&
@@ -37,6 +38,6 @@ object ZMySQLContainerSpec extends DefaultRunnableSpec {
 
       }
     ).provideLayerShared(
-      ZMySQLContainer.live()
+      ZMySQLContainer.Settings.default >>> ZMySQLContainer.live
     )
 }
