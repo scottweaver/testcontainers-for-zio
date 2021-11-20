@@ -11,10 +11,10 @@ val logbackVersion             = "1.2.6"
 ThisBuild / version := "0.1.0"
 ThisBuild / organization := "io.github.scottweaver"
 
-lazy val jdbcCommon = project
-  .in(file("modules/jdbc-common"))
+lazy val models = project
+  .in(file("modules/models"))
   .settings(settings)
-  .settings(name := "jdbc-common")
+  .settings(name := "models")
 
 lazy val flyway = project
   .in(file("modules/flyway"))
@@ -32,7 +32,7 @@ lazy val mysql =
         "mysql"        % "mysql-connector-java"        % mysqlConnnectorJVersion
       )
     )
-    .dependsOn(jdbcCommon)
+    .dependsOn(models)
 
 lazy val kafka =
   project
