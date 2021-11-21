@@ -1,6 +1,7 @@
 # Scala CircleCI 2.0 configuration file
 # See: https://circleci.com/docs/2.0/sample-config/
 version: 2
+machine: true
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
