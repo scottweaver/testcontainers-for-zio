@@ -53,3 +53,11 @@ jobs:
 
       # run tests!
       - run: cat /dev/null | sbt test:test
+
+workflows:
+  standard:
+    jobs:
+      - build
+        filters:
+          branches:
+            only: main
