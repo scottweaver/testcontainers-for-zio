@@ -104,22 +104,34 @@ lazy val commonSettings  =
     Test / fork        := true
   )
 
-lazy val publishSettings = Seq(
-  pomIncludeRepository := { _ => false },
-  publishTo            := {
-    val nexus = "https://s01.oss.sonatype.org/"
-    if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-    else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-  },
-  publishMavenStyle    := true
-)
+lazy val publishSettings = {
 
-lazy val commandAliases  =
+  lazy val sonatypeUsername = sys.env("SONATYPE_USERNAME")
+  lazy val sonatypePassword = sys.env("SONATYPE_PASSWORD")
+
+  Seq(
+    credentials += Credentials(
+      "Sonatype Nexus Repository Manager",
+      "s01.oss.sonatype.org",
+      sonatypeUsername,
+      sonatypePassword
+    ),
+    pomIncludeRepository := { _ => false },
+    publishTo            := {
+      val nexus = "https://s01.oss.sonatype.org/"
+      if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    },
+    publishMavenStyle    := true
+  )
+}
+
+lazy val commandAliases =
   addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
-    addCommandAlias("publishAll", "models/publishSigned; mysql/publishSigned; kafka/publishSigned")
+    addCommandAlias("publishAll", "+ models/publishSigned; + mysql/publishSigned; + kafka/publishSigned")
 
-lazy val stdOptions      = Seq(
+lazy val stdOptions     = Seq(
   "-encoding",
   "UTF-8",
   "-explaintypes",
@@ -137,7 +149,7 @@ lazy val stdOptions      = Seq(
   "-Xfatal-warnings"
 )
 
-lazy val stdOpts213      = Seq(
+lazy val stdOpts213     = Seq(
   "-Xlint:_,-type-parameter-shadow,-byname-implicit",
   "-Xsource:2.13",
   "-Ywarn-numeric-widen",

@@ -16,17 +16,42 @@ executors:
       # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
       TERM: dumb
+  machine-exec:
+    # 'machine' required to be able to run tests that use Testcontainers
+    machine:
+      image: ubuntu-2004:202010-01
 
-commands: 
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+      # Disable Ryuk to prevent it from interfering with the build.
+      TESTCONTAINERS_RYUK_DISABLED: "true"
+
+commands:
+  install-openjdk:
+    # Install OpenJDK 11
+    # See: https://circleci.com/docs/2.0/configuration-reference/#install-openjdk-11
+    steps:
+      - run:
+          name: Install OpenJDK 11
+          command: |
+            sudo apt-get update && sudo apt-get install openjdk-11-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
+            java -version
+  docker-remote:
+    steps:
+      - setup_remote_docker:
+          version: 19.03.13
   sbt:
     parameters:
       task:
         default: "compile"
         type: string
     steps:
-      - setup_remote_docker:
-          version: 19.03.13
-
       - checkout
 
       # Download and cache dependencies
@@ -43,69 +68,51 @@ commands:
             - ~/.m2
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
-
-
 jobs:
   compile:
     executor: docker-exec
     steps:
-     - sbt:
-        task: "compile"
-  
+      - docker-remote
+      - sbt:
+          task: "compile"
+
   publish-all:
     executor: docker-exec
     steps:
+      - docker-remote
       - sbt:
-        task: "publishAll"
+          task: "importPgpKey publishAll"
 
   test:
-   # 'machine' required to be able to run tests that use Testcontainers
-    machine:
-      image: ubuntu-2004:202010-01
-
-    working_directory: ~/repo
-
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
-      # Disable Ryuk to prevent it from interfering with the build.
-      TESTCONTAINERS_RYUK_DISABLED: true
-
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    executor: machine-exec
     steps:
-      - run:
-          name: Install OpenJDK 11
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-11-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
-            java -version
+      - install-openjdk
+      - sbt:
+          task: "test"
 
-
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run: cat /dev/null | sbt test:compile
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies--{{ checksum "build.sbt" }}
-
-      # run tests!
-      - run: cat /dev/null | sbt test:test
-
-  standard:
+workflows:
+  version: 2
+  test:
     jobs:
-      - compile:
+      - test:
           filters:
             branches:
-              only: circle-ci-work
+              only: main
+  release:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      - publish-all:
+          context:
+            - SONATYPE_PUBLISHING
+          requires:
+            - test
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
