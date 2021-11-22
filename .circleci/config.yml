@@ -50,7 +50,7 @@ jobs:
     executor: docker-exec
     steps:
      - sbt:
-       task: "compile"
+        task: "compile"
   
   publish-all:
     executor: docker-exec
