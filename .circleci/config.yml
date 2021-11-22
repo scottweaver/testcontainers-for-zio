@@ -97,7 +97,7 @@ workflows:
       - test:
           filters:
             branches:
-              only: circle-ci-work
+              only: main
   release:
     jobs:
       - test:
