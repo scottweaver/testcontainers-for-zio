@@ -37,19 +37,17 @@ object ZKafkaContainerSpec extends DefaultRunnableSpec {
         val consumer = ZLayer.fromServiceManaged { settings: ConsumerSettings => Consumer.make(settings).orDie }
 
         val testCase = for {
-          _ <- Producer.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
+          _      <- Producer.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
           result <- Consumer
-                     .subscribeAnd(Subscription.topics("test-topic"))
-                     .plainStream(Serde.string, Serde.string)
-                     .take(1)
-                     .runLast
-                     .map {
-                       case Some(record) => record.value
-                       case None         => "fail"
-                     }
-        } yield {
-          assert(result)(equalTo("test-value"))
-        }
+                      .subscribeAnd(Subscription.topics("test-topic"))
+                      .plainStream(Serde.string, Serde.string)
+                      .take(1)
+                      .runLast
+                      .map {
+                        case Some(record) => record.value
+                        case None         => "fail"
+                      }
+        } yield assert(result)(equalTo("test-value"))
 
         testCase
           .injectSome[Has[ProducerSettings] with Has[ConsumerSettings] with Blocking](producer, consumer, Clock.live)

@@ -25,14 +25,11 @@ object ZMySQLContainerSpec extends DefaultRunnableSpec {
           container <- ZIO.service[MySQLContainer]
           jdbcInfo  <- ZIO.service[JdbcInfo]
           result    <- sqlTestQuery(conn)
-        } yield {
-          assert(result)(equalTo(1)) &&
-          assert(jdbcInfo.jdbcUrl)(equalTo(container.jdbcUrl)) &&
-          assert(jdbcInfo.username)(equalTo(container.username)) &&
-          assert(jdbcInfo.password)(equalTo(container.password)) &&
-          assert(jdbcInfo.driverClassName)(equalTo(container.driverClassName))
-
-        }
+        } yield assert(result)(equalTo(1)) &&
+        assert(jdbcInfo.jdbcUrl)(equalTo(container.jdbcUrl)) &&
+        assert(jdbcInfo.username)(equalTo(container.username)) &&
+        assert(jdbcInfo.password)(equalTo(container.password)) &&
+        assert(jdbcInfo.driverClassName)(equalTo(container.driverClassName))
 
         testCase
 
