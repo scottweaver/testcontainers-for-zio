@@ -3,20 +3,101 @@
 version: 2
 machine: true
 
+
+executors:
+  docker-exec:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    docker:
+      - image: circleci/openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
+commands: 
+  sbt:
+    parameters:
+      task:
+        default: "compile"
+        type: string
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - setup_remote_docker:
+          version: 19.03.13
+
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.sbt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: cat /dev/null | sbt <<parameters.task>>
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies--{{ checksum "build.sbt" }}
+
+
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    # docker:
-      # specify the version you desire here
-      # - image: circleci/openjdk:11-jdk
+  executor: docker-exec
+  # compile:
+  #   # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+  #   # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  #   docker:
+  #     - image: circleci/openjdk:11-jdk
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+  #   working_directory: ~/repo
+
+  #   environment:
+  #     # Customize the JVM maximum heap limit
+  #     JVM_OPTS: -Xmx3200m
+  #     TERM: dumb
+
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - sbt:
+        task: "compile"
+      # - setup_remote_docker:
+      #     version: 19.03.13
+
+      # - checkout
+
+      # # Download and cache dependencies
+      # - restore_cache:
+      #     keys:
+      #       - v1-dependencies-{{ checksum "build.sbt" }}
+      #       # fallback to using the latest cache if no exact match is found
+      #       - v1-dependencies-
+
+      # - run: cat /dev/null | sbt compile
+
+      # - save_cache:
+      #     paths:
+      #       - ~/.m2
+      #     key: v1-dependencies--{{ checksum "build.sbt" }}
+
+  
+  publish-all:
+    executor: docker-exec
+    steps:
+      - sbt:
+        task: "publishAll"
+
+  test:
+   # 'machine' required to be able to run tests that use Testcontainers
     machine:
       image: ubuntu-2004:202010-01
 
@@ -32,6 +113,15 @@ jobs:
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
+      - run:
+          name: Install OpenJDK 11
+          command: |
+            sudo apt-get update && sudo apt-get install openjdk-11-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
+            java -version
+
+
       # - setup_remote_docker:
       #     version: 19.03.13
 
@@ -54,14 +144,47 @@ jobs:
       # run tests!
       - run: cat /dev/null | sbt test:test
 
+  # publish-all:
+    # # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    # docker:
+    #   - image: circleci/openjdk:11-jdk
 
+    # working_directory: ~/repo
+
+    # environment:
+    #   # Customize the JVM maximum heap limit
+    #   JVM_OPTS: -Xmx3200m
+    #   TERM: dumb
+
+    # # Add steps to the job
+    # # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    # steps:
+    #   - setup_remote_docker:
+    #       version: 19.03.13
+
+    #   - checkout
+
+    #   # Download and cache dependencies
+    #   - restore_cache:
+    #       keys:
+    #         - v1-dependencies-{{ checksum "build.sbt" }}
+    #         # fallback to using the latest cache if no exact match is found
+    #         - v1-dependencies-
+
+    #   - run: cat /dev/null | sbt publishAll
+
+    #   - save_cache:
+    #       paths:
+    #         - ~/.m2
+    #       key: v1-dependencies--{{ checksum "build.sbt" }}
 
 
 workflows:
   version: 2
   standard:
     jobs:
-      - build:
+      - test:
           filters:
             branches:
               only: main

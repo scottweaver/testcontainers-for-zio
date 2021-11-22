@@ -1,4 +1,6 @@
-val scala2Version              = "2.13.6"
+val scala213Version            = "2.13.7"
+val scala212Version            = "2.12.15"
+val supportedScalaVersions     = List(scala213Version, scala212Version)
 val zioVersion                 = "1.0.12"
 val zioMagicVersion            = "0.3.10"
 val zioKafkaVersion            = "0.17.1"
@@ -7,11 +9,13 @@ val mysqlConnnectorJVersion    = "8.0.27"
 val slf4jVersion               = "1.7.32"
 val logbackVersion             = "1.2.6"
 
-ThisBuild / version       := "0.1.0-SNAPSHOT"
+ThisBuild / version       := "0.1.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers/"
 ThisBuild / homepage      := Some(url("https://github.com/scottweaver/testcontainers-for-zio"))
+
+crossScalaVersions := Nil
 
 ThisBuild / developers := List(
   Developer(
@@ -29,10 +33,18 @@ lazy val models = project
   .settings(settings)
   .settings(name := "zio-testcontainers-models")
 
-// lazy val flyway         = project
+// lazy val flyway          = project
 //   .in(file("modules/flyway"))
 //   .settings(settings)
-//   .settings(name := "zio-flyway-aspects")
+//   .settings(
+//     name := "zio-flyway-aspects",
+//     // resolvers +=
+//     //   "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots",
+//     libraryDependencies ++= Seq(
+//       "io.github.scottweaver" %% "zio-testcontainers-mysql" % "0.1.0-SNAPSHOT",
+//       "io.github.scottweaver" %% "zio-testcontainers-kafka" % "0.1.0-SNAPSHOT"
+//     )
+//   )
 
 lazy val mysql           =
   project
@@ -66,8 +78,16 @@ lazy val settings        =
 
 lazy val commonSettings  =
   Seq(
-    scalaVersion := scala2Version,
-    // Prevent slf4j 2.x from ruining EVERYTHING :(
+    scalaVersion       := scala213Version,
+    crossScalaVersions := supportedScalaVersions,
+    scalacOptions      := {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+
+        case Some((2, 13)) => stdOptions ++ stdOpts213
+        case _             => stdOptions
+      }
+    },
+    // // Prevent slf4j 2.x from ruining EVERYTHING :(
     dependencyOverrides ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion
     ),
@@ -81,7 +101,7 @@ lazy val commonSettings  =
       "dev.zio"              %% "zio-test-sbt"              % zioVersion      % Test
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Test / fork  := true
+    Test / fork        := true
   )
 
 lazy val publishSettings = Seq(
@@ -108,7 +128,7 @@ lazy val stdOptions      = Seq(
   "-language:higherKinds",
   "-language:existentials",
   "-language:postfixOps",
-  "-Xlint:_,-type-parameter-shadow,-byname-implicit",
+  "-Xlint:_,-type-parameter-shadow",
   "-Xsource:2.13",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
@@ -118,6 +138,10 @@ lazy val stdOptions      = Seq(
 )
 
 lazy val stdOpts213      = Seq(
+  "-Xlint:_,-type-parameter-shadow,-byname-implicit",
+  "-Xsource:2.13",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-value-discard",
   "-Wunused:imports",
   "-Wvalue-discard",
   "-Wunused:patvars",
