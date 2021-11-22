@@ -11,7 +11,7 @@ Provides idiomatic, easy-to-use ZLayers for (Testcontainers-scala)[https://githu
 
 Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.MySQLTestContainer` as well as also provding a managed `java.sql.Connection`.
 
-See test cases for example uages.
+See test cases for example usage.
 
 ## Kafka
 
@@ -23,4 +23,4 @@ You also have easy access to:
 
 You can use these to create a `zio.kafka.consumer.Consumer` and/or `zio.kafka.producer.Producer` that can be used to interact with the Kafka container instance.
 
-See test cases for example uages.
+See test cases for example usage.
