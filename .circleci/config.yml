@@ -51,7 +51,8 @@ commands:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  executor: docker-exec
+  compile:
+    executor: docker-exec
   # compile:
   #   # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
   #   # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -67,7 +68,7 @@ jobs:
 
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
+     steps:
       - sbt:
         task: "compile"
       # - setup_remote_docker:
@@ -187,4 +188,4 @@ workflows:
       - test:
           filters:
             branches:
-              only: main
+              only: circle-ci-work
