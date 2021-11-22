@@ -2,7 +2,7 @@
 
 [![scottweaver](https://circleci.com/gh/scottweaver/testcontainers-for-zio.svg?style=shield)](https://github.com/scottweaver/testcontainers-for-zio)
 
-Provides idiomatic, easy-to-use ZLayers for (Testcontainers-scala)[https://github.com/testcontainers/testcontainers-scala].
+Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
 
 ## Testcontainers Best-Practices
 
