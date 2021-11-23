@@ -96,6 +96,8 @@ workflows:
   release:
     jobs:
       - test:
+          context:
+            - SONATYPE_PUBLISHING
           filters:
             tags:
               only: /.*/
