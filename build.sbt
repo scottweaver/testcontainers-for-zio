@@ -9,10 +9,10 @@ val mysqlConnnectorJVersion    = "8.0.27"
 val slf4jVersion               = "1.7.32"
 val logbackVersion             = "1.2.6"
 
-ThisBuild / version       := "0.1.0"
+ThisBuild / version       := "0.2.0-SNAPSHOT"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
-ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers/"
+ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
 ThisBuild / homepage      := Some(url("https://github.com/scottweaver/testcontainers-for-zio"))
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / scmInfo := Some(
@@ -21,9 +21,6 @@ ThisBuild / scmInfo := Some(
     "scm:git@github.com:scottweaver/testcontainers-for-zio.git"
   )
 )
-
-crossScalaVersions := Nil
-
 ThisBuild / developers := List(
   Developer(
     id = "scottweaver",
@@ -33,6 +30,7 @@ ThisBuild / developers := List(
   )
 )
 
+crossScalaVersions := Nil
 commandAliases
 
 lazy val models = project
@@ -113,16 +111,7 @@ lazy val commonSettings  =
 
 lazy val publishSettings = {
 
-  lazy val sonatypeUsername = sys.env("SONATYPE_USERNAME")
-  lazy val sonatypePassword = sys.env("SONATYPE_PASSWORD")
-
   Seq(
-    credentials += Credentials(
-      "Sonatype Nexus Repository Manager",
-      "s01.oss.sonatype.org",
-      sonatypeUsername,
-      sonatypePassword
-    ),
     pomIncludeRepository := { _ => false },
     publishTo            := {
       val nexus = "https://s01.oss.sonatype.org/"
