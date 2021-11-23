@@ -90,16 +90,12 @@ workflows:
   test:
     jobs:
       - test:
-          context:
-            - SONATYPE_PUBLISHING
           filters:
             branches:
               only: main
   release:
     jobs:
       - test:
-          context:
-            - SONATYPE_PUBLISHING
           filters:
             tags:
               only: /.*/
