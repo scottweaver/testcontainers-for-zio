@@ -1,6 +1,20 @@
 # Testcontainers for ZIO
 
-[![scottweaver](https://circleci.com/gh/scottweaver/testcontainers-for-zio.svg?style=shield)](https://github.com/scottweaver/testcontainers-for-zio)
+
+| CI                                | Release                                                               |
+| --------------------------------- | --------------------------------------------------------------------- |
+| ![Build Status][Badge-CircelCI] | [![Release Artifacts][Badge-SonatypeReleases-Kafka]][Link-SonatypeReleases-Kafka] [![Release Artifacts][Badge-SonatypeReleases-MySQL]][Link-SonatypeReleases-MySQL] |
+
+
+[Badge-CircelCI]: https://circleci.com/gh/scottweaver/testcontainers-for-zio.svg?style=shield "CircleCI Badge"
+
+[Link-Github]: https://github.com/scottweaver/testcontainers-for-zio "Github Repo Link"
+
+[Link-SonatypeReleases-Kafka]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-kafka_2.13/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Kafka]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-kafka_2.13?label=maven-central%20%20kafka "Sonatype Releases badge"
+
+[Link-SonatypeReleases-MySQL]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-mysql_2.13/  "Sonatype Releases link"
+[Badge-SonatypeReleases-MySQL]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-mysql_2.13?label=maven-central%20%20mysql "Sonatype Releases badge"
 
 Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
 
