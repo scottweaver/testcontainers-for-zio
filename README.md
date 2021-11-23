@@ -13,6 +13,10 @@ Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://githu
 
 Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.MySQLTestContainer` as well as also provding a managed `java.sql.Connection`.
 
+```scala
+libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-mysql" % "0.1.0"
+```
+
 See test cases for example usage.
 
 ## Kafka
@@ -24,5 +28,10 @@ You also have easy access to:
 - `zio.kafka.consumer.ProducerSettings` via `ZKafkaContainer.defaultProducerSettings`.
 
 You can use these to create a `zio.kafka.consumer.Consumer` and/or `zio.kafka.producer.Producer` that can be used to interact with the Kafka container instance.
+
+
+```scala
+libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-kafka" % "0.1.0"
+```
 
 See test cases for example usage.

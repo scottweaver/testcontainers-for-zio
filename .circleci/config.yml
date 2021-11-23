@@ -81,7 +81,7 @@ jobs:
     steps:
       - docker-remote
       - sbt:
-          task: "publishAll"
+          task: "importPgpKey publishAll"
 
   test:
     executor: machine-exec
@@ -107,6 +107,10 @@ workflows:
             branches:
               ignore: /.*/
       - publish-all:
+          context:
+            - SONATYPE_PUBLISHING
+          requires:
+            - test
           filters:
             tags:
               only: /v.*/
