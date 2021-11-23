@@ -90,6 +90,8 @@ workflows:
   test:
     jobs:
       - test:
+          context:
+            - SONATYPE_PUBLISHING
           filters:
             branches:
               only: main
