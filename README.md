@@ -59,7 +59,7 @@ Not really a test container, useful none the less.
 
 The `io.github.scottweaver.zio.aspect.DatabaseMigrationsAspect` provides a [ZIO TestAspect](https://javadoc.io/doc/dev.zio/zio-test_2.13/1.0.12/zio/test/TestAspect.html) for running database migrations via [Flyway](https://flywaydb.org/).  It seemlessly integrates with the `ZMySQLContainer` by using the `io.github.scottweaver.zio.models.JdbcInfo` provided by `ZMySQLContainer.live` to run your migrations.
 
-If you are not using `ZMySQLContainer` you can just manually provide an appropriate `JdbcInfo` as a `ZLayer` to you tests that are using the `DbMigrationAspect`.
+If you are not using `ZMySQLContainer` you can just manually provide an appropriate `JdbcInfo` as a `ZLayer` to your tests that are using the `DbMigrationAspect`.
 
 ```scala
 libraryDependencies += "io.github.scottweaver" %% "db-migration-aspect" % "0.2.0"
