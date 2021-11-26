@@ -64,3 +64,7 @@ If you are not using `ZMySQLContainer` you can just manually provide an appropri
 ```scala
 libraryDependencies += "io.github.scottweaver" %% "db-migration-aspect" % "0.2.0"
 ```
+
+## References
+
+- [Working with shared dependencies in ZIO Test](https://hmemcpy.com/2021/11/working-with-shared-dependencies-in-zio-test/)
