@@ -123,7 +123,7 @@ lazy val publishSettings =
 lazy val commandAliases  =
   addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
-    addCommandAlias("publishAll", "+ models/publishSigned; + mysql/publishSigned; + kafka/publishSigned")
+    addCommandAlias("publishAll", "+models/publishSigned; +mysql/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned")
 
 lazy val stdOptions      = Seq(
   "-encoding",
