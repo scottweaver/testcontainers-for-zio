@@ -8,20 +8,21 @@ val testcontainersScalaVersion = "0.39.12"
 val mysqlConnnectorJVersion    = "8.0.27"
 val slf4jVersion               = "1.7.32"
 val logbackVersion             = "1.2.6"
+val flywayVersion              = "8.1.0"
 
 ThisBuild / version       := "0.2.0-SNAPSHOT"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
 ThisBuild / homepage      := Some(url("https://github.com/scottweaver/testcontainers-for-zio"))
-ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-ThisBuild / scmInfo := Some(
+ThisBuild / licenses      := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / scmInfo       := Some(
   ScmInfo(
     url("https://github.com/scottweaver/testcontainers-for-zio"),
     "scm:git@github.com:scottweaver/testcontainers-for-zio.git"
   )
 )
-ThisBuild / developers := List(
+ThisBuild / developers    := List(
   Developer(
     id = "scottweaver",
     name = "Scott T Weaver",
@@ -33,23 +34,22 @@ ThisBuild / developers := List(
 crossScalaVersions := Nil
 commandAliases
 
-lazy val models = project
+lazy val models          = project
   .in(file("modules/models"))
   .settings(settings)
   .settings(name := "zio-testcontainers-models")
 
-// lazy val flyway          = project
-//   .in(file("modules/flyway"))
-//   .settings(settings)
-//   .settings(
-//     name := "zio-flyway-aspects",
-//     // resolvers +=
-//     //   "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots",
-//     libraryDependencies ++= Seq(
-//       "io.github.scottweaver" %% "zio-testcontainers-mysql" % "0.1.0-SNAPSHOT",
-//       "io.github.scottweaver" %% "zio-testcontainers-kafka" % "0.1.0-SNAPSHOT"
-//     )
-//   )
+lazy val `db-migration-aspect`          = project
+  .in(file("modules/db-migration-aspect"))
+  .settings(settings)
+  .settings(
+    name := "zio-db-migration-aspect",
+    libraryDependencies ++= Seq(
+      "org.flywaydb" % "flyway-core" % flywayVersion,
+      "dev.zio"     %% "zio-test"    % zioVersion
+    )
+  )
+  .dependsOn(models, mysql % "test->test")
 
 lazy val mysql           =
   project
@@ -109,8 +109,7 @@ lazy val commonSettings  =
     Test / fork        := true
   )
 
-lazy val publishSettings = {
-
+lazy val publishSettings =
   Seq(
     pomIncludeRepository := { _ => false },
     publishTo            := {
@@ -120,14 +119,13 @@ lazy val publishSettings = {
     },
     publishMavenStyle    := true
   )
-}
 
-lazy val commandAliases =
+lazy val commandAliases  =
   addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias("publishAll", "+ models/publishSigned; + mysql/publishSigned; + kafka/publishSigned")
 
-lazy val stdOptions     = Seq(
+lazy val stdOptions      = Seq(
   "-encoding",
   "UTF-8",
   "-explaintypes",
@@ -145,7 +143,7 @@ lazy val stdOptions     = Seq(
   "-Xfatal-warnings"
 )
 
-lazy val stdOpts213     = Seq(
+lazy val stdOpts213      = Seq(
   "-Xlint:_,-type-parameter-shadow,-byname-implicit",
   "-Xsource:2.13",
   "-Ywarn-numeric-widen",

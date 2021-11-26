@@ -5,7 +5,7 @@ import com.dimafeng.testcontainers.MySQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.sql.DriverManager
 import java.sql.Connection
-import io.github.scottweaver.jdbc.JdbcInfo
+import io.github.scottweaver.models.JdbcInfo
 object ZMySQLContainer {
 
   final case class Settings(

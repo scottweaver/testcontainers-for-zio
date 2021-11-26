@@ -5,7 +5,7 @@ import zio.test._
 import zio.test.Assertion._
 import java.sql.Connection
 import com.dimafeng.testcontainers.MySQLContainer
-import io.github.scottweaver.jdbc.JdbcInfo
+import io.github.scottweaver.models.JdbcInfo
 
 object ZMySQLContainerSpec extends DefaultRunnableSpec {
   def spec =
