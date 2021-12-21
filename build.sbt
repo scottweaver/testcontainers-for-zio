@@ -6,6 +6,7 @@ val zioMagicVersion            = "0.3.10"
 val zioKafkaVersion            = "0.17.1"
 val testcontainersScalaVersion = "0.39.12"
 val mysqlConnnectorJVersion    = "8.0.27"
+val postgresqlDriverVersion    = "42.3.1"
 val slf4jVersion               = "1.7.32"
 val logbackVersion             = "1.2.6"
 val flywayVersion              = "8.1.0"
@@ -34,12 +35,12 @@ ThisBuild / developers    := List(
 crossScalaVersions := Nil
 commandAliases
 
-lazy val models          = project
+lazy val models                = project
   .in(file("modules/models"))
   .settings(settings)
   .settings(name := "zio-testcontainers-models")
 
-lazy val `db-migration-aspect`          = project
+lazy val `db-migration-aspect` = project
   .in(file("modules/db-migration-aspect"))
   .settings(settings)
   .settings(
@@ -51,7 +52,7 @@ lazy val `db-migration-aspect`          = project
   )
   .dependsOn(models, mysql % "test->test")
 
-lazy val mysql           =
+lazy val mysql                 =
   project
     .in(file("modules/mysql"))
     .settings(settings)
@@ -64,7 +65,20 @@ lazy val mysql           =
     )
     .dependsOn(models)
 
-lazy val kafka           =
+lazy val postgres              =
+  project
+    .in(file("modules/postgresql"))
+    .settings(settings)
+    .settings(
+      name := "zio-testcontainers-postgresql",
+      libraryDependencies ++= Seq(
+        "com.dimafeng"  %% "testcontainers-scala-postgresql" % testcontainersScalaVersion,
+        "org.postgresql" % "postgresql"                      % postgresqlDriverVersion
+      )
+    )
+    .dependsOn(models)
+
+lazy val kafka                 =
   project
     .in(file("modules/kafka"))
     .settings(settings)
@@ -76,12 +90,12 @@ lazy val kafka           =
       )
     )
 
-lazy val settings        =
+lazy val settings              =
   commonSettings ++
     publishSettings ++
     commandAliases
 
-lazy val commonSettings  =
+lazy val commonSettings        =
   Seq(
     scalaVersion       := scala213Version,
     crossScalaVersions := supportedScalaVersions,
@@ -109,7 +123,7 @@ lazy val commonSettings  =
     Test / fork        := true
   )
 
-lazy val publishSettings =
+lazy val publishSettings       =
   Seq(
     pomIncludeRepository := { _ => false },
     publishTo            := {
@@ -120,12 +134,15 @@ lazy val publishSettings =
     publishMavenStyle    := true
   )
 
-lazy val commandAliases  =
+lazy val commandAliases        =
   addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
-    addCommandAlias("publishAll", "+models/publishSigned; +mysql/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned")
+    addCommandAlias(
+      "publishAll",
+      "+models/publishSigned; +mysql/publishSigned; +postgres/publishedSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
+    )
 
-lazy val stdOptions      = Seq(
+lazy val stdOptions            = Seq(
   "-encoding",
   "UTF-8",
   "-explaintypes",
@@ -143,7 +160,7 @@ lazy val stdOptions      = Seq(
   "-Xfatal-warnings"
 )
 
-lazy val stdOpts213      = Seq(
+lazy val stdOpts213            = Seq(
   "-Xlint:_,-type-parameter-shadow,-byname-implicit",
   "-Xsource:2.13",
   "-Ywarn-numeric-widen",
