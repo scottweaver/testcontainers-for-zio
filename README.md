@@ -36,6 +36,17 @@ libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-mysql" % "
 
 See test cases for example usage.
 
+## PostgreSQL
+
+
+Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.PostgreSQLContainer` as well as also provding a managed `java.sql.Connection`.
+
+```scala
+libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-postgresql" % "0.2.0"
+```
+
+See test cases for example usage.
+
 ## Kafka
 
 Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.KafkaContainer`.
