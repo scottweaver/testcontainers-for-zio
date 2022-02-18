@@ -3,7 +3,7 @@
 
 | CI                              | Release                                                                                                                                                                                                                                                                       |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ![Build Status][Badge-CircelCI] | [![Release Artifacts][Badge-SonatypeReleases-Kafka]][Link-SonatypeReleases-Kafka] [![Release Artifacts][Badge-SonatypeReleases-MySQL]][Link-SonatypeReleases-MySQL] [![Release Artifacts][Badge-SonatypeReleases-DbMigrationAspect]][Link-SonatypeReleases-DbMigrationAspect] |
+| ![Build Status][Badge-CircelCI] | [![Release Artifacts][Badge-SonatypeReleases-Kafka]][Link-SonatypeReleases-Kafka] [![Release Artifacts][Badge-SonatypeReleases-MySQL]][Link-SonatypeReleases-MySQL] [![Release Artifacts][Badge-SonatypeReleases-Postgresql]][Link-SonatypeReleases-Postgresql] [![Release Artifacts][Badge-SonatypeReleases-DbMigrationAspect]][Link-SonatypeReleases-DbMigrationAspect] |
 
 
 [Badge-CircelCI]: https://circleci.com/gh/scottweaver/testcontainers-for-zio.svg?style=shield "CircleCI Badge"
@@ -15,6 +15,9 @@
 
 [Link-SonatypeReleases-MySQL]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-mysql_2.13/0.2.0/  "Sonatype Releases link"
 [Badge-SonatypeReleases-MySQL]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-mysql_2.13/0.2.0?label=maven-central%20%20mysql "Sonatype Releases badge"
+
+[Link-SonatypeReleases-Postgresql]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-postgresql_2.13/0.2.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Postgresql]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-postgresql_2.13/0.2.0?label=maven-central%20%20postgresql "Sonatype Releases badge"
 
 [Link-SonatypeReleases-DbMigrationAspect]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-db-migration-aspect_2.13/0.2.0/  "Sonatype Releases link"
 [Badge-SonatypeReleases-DbMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-db-migration-aspect_2.13/0.2.0?label=maven-central%20%20db-migration-aspect "Sonatype Releases badge"
