@@ -12,7 +12,7 @@ val slf4jVersion               = "1.7.32"
 val logbackVersion             = "1.2.6"
 val flywayVersion              = "8.1.0"
 
-ThisBuild / version       := "0.2.0"
+ThisBuild / version       := "0.3.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
