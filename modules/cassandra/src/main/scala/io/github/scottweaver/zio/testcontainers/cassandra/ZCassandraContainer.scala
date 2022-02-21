@@ -1,10 +1,6 @@
 package io.github.scottweaver.zio.testcontainers.cassandra
 
 import zio._
-// import com.datastax.driver.core.Cluster
-// import org.testcontainers.containers.{CassandraContainer => JavaCassandraContainer}
-// import org.testcontainers.utility.DockerImageName
-// import com.testcontainers._
 import com.dimafeng.testcontainers.CassandraContainer
 import java.net.InetSocketAddress
 import com.datastax.oss.driver.api.core.CqlSession
@@ -15,15 +11,23 @@ object ZCassandraContainer {
   type Provides = Has[CassandraContainer] with Has[CqlSession]
   type Settings = CassandraContainer.Def
 
+  object Settings {
+    val default = ZLayer.succeed(CassandraContainer.Def())
+  }
+
+  val session = ZIO.service[CqlSession]
+
   val live: ZLayer[Has[Settings], Nothing, Provides] =
     ZLayer.fromManagedMany {
 
       def makeContainer(settings: Settings) =
         ZManaged.make(
           ZIO
-            .effect(
-              settings.createContainer()
-            )
+            .effect {
+             val container = settings.createContainer()
+             container.start()
+             container
+            }
             .orDie
         ) { container =>
           ZIO.effect(container.stop()).orDie
@@ -32,7 +36,6 @@ object ZCassandraContainer {
       def makeSession(container: CassandraContainer) =
         ZManaged.make(
           ZIO.effect {
-
             CqlSession.builder
               .addContactEndPoint(
                 new DefaultEndPoint(
@@ -43,6 +46,7 @@ object ZCassandraContainer {
                     )
                 )
               )
+              .withLocalDatacenter("datacenter1")
               .build()
           }.orDie
         )(session => ZIO.effect(session.close()).orDie)
