@@ -1,3 +1,4 @@
+val cassandraDriverVersion     = "4.0.1"
 val scala213Version            = "2.13.7"
 val scala212Version            = "2.12.15"
 val supportedScalaVersions     = List(scala213Version, scala212Version)
@@ -11,7 +12,7 @@ val slf4jVersion               = "1.7.32"
 val logbackVersion             = "1.2.6"
 val flywayVersion              = "8.1.0"
 
-ThisBuild / version       := "0.2.0"
+ThisBuild / version       := "0.3.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
@@ -90,6 +91,18 @@ lazy val kafka                 =
       )
     )
 
+lazy val cassandra             =
+  project
+    .in(file("modules/cassandra"))
+    .settings(settings)
+    .settings(
+      name := "zio-testcontainers-cassandra",
+      libraryDependencies ++= Seq(
+        "com.dimafeng"    %% "testcontainers-scala-cassandra" % testcontainersScalaVersion,
+        "com.datastax.oss" % "java-driver-core"               % cassandraDriverVersion
+      )
+    )
+
 lazy val settings              =
   commonSettings ++
     publishSettings ++
@@ -106,7 +119,7 @@ lazy val commonSettings        =
         case _             => stdOptions
       }
     },
-    // // Prevent slf4j 2.x from ruining EVERYTHING :(
+    // Prevent slf4j 2.x from ruining EVERYTHING :(
     dependencyOverrides ++= Seq(
       "org.slf4j" % "slf4j-api" % slf4jVersion
     ),
@@ -139,7 +152,7 @@ lazy val commandAliases        =
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias(
       "publishAll",
-      "+models/publishSigned; +mysql/publishSigned; +postgres/publishedSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
+      "+cassandra/publishSigned; +models/publishSigned; +mysql/publishSigned; +postgres/publishedSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
     )
 
 lazy val stdOptions            = Seq(
