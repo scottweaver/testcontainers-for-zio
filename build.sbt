@@ -152,7 +152,7 @@ lazy val commandAliases        =
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias(
       "publishAll",
-      "+cassandra/publishSigned; +models/publishSigned; +mysql/publishSigned; +postgres/publishedSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
+      "+cassandra/publishSigned; +models/publishSigned; +mysql/publishSigned; +postgres/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
     )
 
 lazy val stdOptions            = Seq(
