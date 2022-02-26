@@ -10,10 +10,10 @@ import zio.kafka.producer.ProducerSettings
 
 object ZKafkaContainer {
 
-  final case class Settings(imageVersion: String, externalZookeeper: Option[String])
+  type Settings = KafkaContainer.Def
 
   object Settings {
-    val default = ZLayer.succeed(Settings(KafkaContainer.defaultTag, None))
+    val default = ZLayer.succeed(KafkaContainer.Def())
   }
 
   val live = {
@@ -21,8 +21,7 @@ object ZKafkaContainer {
     def makeContainer(settings: Settings) =
       ZManaged.make(
         ZIO.effect {
-          val containerDef = KafkaContainer.Def(settings.imageVersion, settings.externalZookeeper)
-          containerDef.start()
+          settings.start()
         }.orDie
       )(container =>
         ZIO
