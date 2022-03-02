@@ -100,7 +100,7 @@ The `io.github.scottweaver.zio.aspect.DatabaseMigrationsAspect` provides a [ZIO 
 If you are not using `ZMySQLContainer` you can just manually provide an appropriate `JdbcInfo` as a `ZLayer` to your tests that are using the `DbMigrationAspect`.
 
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "db-migration-aspect" % "0.3.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-db-migration-aspect" % "0.3.0"
 ```
 
 ## References
