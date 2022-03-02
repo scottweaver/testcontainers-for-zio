@@ -1,5 +1,5 @@
 object V {
-  val cassandraDriverVersion     = "4.13.0"
+  val cassandraDriverVersion     = "4.14.0"
   val scala213Version            = "2.13.7"
   val scala212Version            = "2.12.15"
   val supportedScalaVersions     = List(scala213Version, scala212Version)
