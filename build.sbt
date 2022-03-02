@@ -1,17 +1,3 @@
-val cassandraDriverVersion     = "4.13.0"
-val scala213Version            = "2.13.7"
-val scala212Version            = "2.12.15"
-val supportedScalaVersions     = List(scala213Version, scala212Version)
-val zioVersion                 = "1.0.13"
-val zioMagicVersion            = "0.3.10"
-val zioKafkaVersion            = "0.17.1"
-val testcontainersScalaVersion = "0.40.2"
-val mysqlConnnectorJVersion    = "8.0.28"
-val postgresqlDriverVersion    = "42.3.3"
-val slf4jVersion               = "1.7.32"
-val logbackVersion             = "1.2.6"
-val flywayVersion              = "8.1.0"
-
 ThisBuild / version       := "0.4.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
@@ -38,17 +24,17 @@ commandAliases
 
 lazy val models                = project
   .in(file("modules/models"))
-  .settings(settings)
+  .settings(settings())
   .settings(name := "zio-testcontainers-models")
 
 lazy val `db-migration-aspect` = project
   .in(file("modules/db-migration-aspect"))
-  .settings(settings)
+  .settings(settings())
   .settings(
     name := "zio-db-migration-aspect",
     libraryDependencies ++= Seq(
-      "org.flywaydb" % "flyway-core" % flywayVersion,
-      "dev.zio"     %% "zio-test"    % zioVersion
+      "org.flywaydb" % "flyway-core" % V.flywayVersion,
+      "dev.zio"     %% "zio-test"    % V.zioVersion
     )
   )
   .dependsOn(models, mysql % "test->test")
@@ -56,12 +42,12 @@ lazy val `db-migration-aspect` = project
 lazy val mysql                 =
   project
     .in(file("modules/mysql"))
-    .settings(settings)
+    .settings(settings())
     .settings(
       name := "zio-testcontainers-mysql",
       libraryDependencies ++= Seq(
-        "com.dimafeng" %% "testcontainers-scala-mysql" % testcontainersScalaVersion,
-        "mysql"         % "mysql-connector-java"       % mysqlConnnectorJVersion
+        "com.dimafeng" %% "testcontainers-scala-mysql" % V.testcontainersScalaVersion,
+        "mysql"         % "mysql-connector-java"       % V.mysqlConnnectorJVersion
       )
     )
     .dependsOn(models)
@@ -69,12 +55,25 @@ lazy val mysql                 =
 lazy val postgres              =
   project
     .in(file("modules/postgresql"))
-    .settings(settings)
+    .settings(settings())
     .settings(
       name := "zio-testcontainers-postgresql",
       libraryDependencies ++= Seq(
-        "com.dimafeng"  %% "testcontainers-scala-postgresql" % testcontainersScalaVersion,
-        "org.postgresql" % "postgresql"                      % postgresqlDriverVersion
+        "com.dimafeng"  %% "testcontainers-scala-postgresql" % V.testcontainersScalaVersion,
+        "org.postgresql" % "postgresql"                      % V.postgresqlDriverVersion
+      )
+    )
+    .dependsOn(models)
+
+lazy val postgresZio2          =
+  project
+    .in(file("modules/postgresql-zio-2.0"))
+    .settings(settings(V.zio2Version))
+    .settings(
+      name := "zio-2.0-testcontainers-postgresql",
+      libraryDependencies ++= Seq(
+        "com.dimafeng"  %% "testcontainers-scala-postgresql" % V.testcontainersScalaVersion,
+        "org.postgresql" % "postgresql"                      % V.postgresqlDriverVersion
       )
     )
     .dependsOn(models)
@@ -82,36 +81,36 @@ lazy val postgres              =
 lazy val kafka                 =
   project
     .in(file("modules/kafka"))
-    .settings(settings)
+    .settings(settings())
     .settings(
       name := "zio-testcontainers-kafka",
       libraryDependencies ++= Seq(
-        "dev.zio"      %% "zio-kafka"                  % zioKafkaVersion,
-        "com.dimafeng" %% "testcontainers-scala-kafka" % testcontainersScalaVersion
+        "dev.zio"      %% "zio-kafka"                  % V.zioKafkaVersion,
+        "com.dimafeng" %% "testcontainers-scala-kafka" % V.testcontainersScalaVersion
       )
     )
 
 lazy val cassandra             =
   project
     .in(file("modules/cassandra"))
-    .settings(settings)
+    .settings(settings())
     .settings(
       name := "zio-testcontainers-cassandra",
       libraryDependencies ++= Seq(
-        "com.dimafeng"    %% "testcontainers-scala-cassandra" % testcontainersScalaVersion,
-        "com.datastax.oss" % "java-driver-core"               % cassandraDriverVersion
+        "com.dimafeng"    %% "testcontainers-scala-cassandra" % V.testcontainersScalaVersion,
+        "com.datastax.oss" % "java-driver-core"               % V.cassandraDriverVersion
       )
     )
 
-lazy val settings              =
-  commonSettings ++
+def settings(zioVersion: String = V.zioVersion) =
+  commonSettings(zioVersion) ++
     publishSettings ++
     commandAliases
 
-lazy val commonSettings        =
+def commonSettings(zioVersion: String = V.zioVersion) =
   Seq(
-    scalaVersion       := scala213Version,
-    crossScalaVersions := supportedScalaVersions,
+    scalaVersion       := V.scala213Version,
+    crossScalaVersions := V.supportedScalaVersions,
     scalacOptions      := {
       CrossVersion.partialVersion(scalaVersion.value) match {
 
@@ -121,22 +120,22 @@ lazy val commonSettings        =
     },
     // Prevent slf4j 2.x from ruining EVERYTHING :(
     dependencyOverrides ++= Seq(
-      "org.slf4j" % "slf4j-api" % slf4jVersion
+      "org.slf4j" % "slf4j-api" % V.slf4jVersion
     ),
     libraryDependencies ++= Seq(
       "dev.zio"              %% "zio"                       % zioVersion,
-      "com.dimafeng"         %% "testcontainers-scala-core" % testcontainersScalaVersion,
+      "com.dimafeng"         %% "testcontainers-scala-core" % V.testcontainersScalaVersion,
       "dev.zio"              %% "zio-test"                  % zioVersion,
-      "org.slf4j"             % "slf4j-api"                 % slf4jVersion,
-      "ch.qos.logback"        % "logback-classic"           % logbackVersion  % Test,
-      "io.github.kitlangton" %% "zio-magic"                 % zioMagicVersion % Test,
-      "dev.zio"              %% "zio-test-sbt"              % zioVersion      % Test
+      "org.slf4j"             % "slf4j-api"                 % V.slf4jVersion,
+      "ch.qos.logback"        % "logback-classic"           % V.logbackVersion  % Test,
+      "io.github.kitlangton" %% "zio-magic"                 % V.zioMagicVersion % Test,
+      "dev.zio"              %% "zio-test-sbt"              % zioVersion        % Test
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     Test / fork        := true
   )
 
-lazy val publishSettings       =
+lazy val publishSettings                              =
   Seq(
     pomIncludeRepository := { _ => false },
     publishTo            := {
@@ -147,15 +146,15 @@ lazy val publishSettings       =
     publishMavenStyle    := true
   )
 
-lazy val commandAliases        =
+lazy val commandAliases                               =
   addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias(
       "publishAll",
-      "+cassandra/publishSigned; +models/publishSigned; +mysql/publishSigned; +postgres/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
+      "+cassandra/publishSigned; +models/publishSigned; +mysql/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
     )
 
-lazy val stdOptions            = Seq(
+lazy val stdOptions                                   = Seq(
   "-encoding",
   "UTF-8",
   "-explaintypes",
@@ -173,7 +172,7 @@ lazy val stdOptions            = Seq(
   "-Xfatal-warnings"
 )
 
-lazy val stdOpts213            = Seq(
+lazy val stdOpts213                                   = Seq(
   "-Xlint:_,-type-parameter-shadow,-byname-implicit",
   "-Xsource:2.13",
   "-Ywarn-numeric-widen",
