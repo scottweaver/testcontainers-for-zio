@@ -29,8 +29,9 @@ object ZPostgreSQLContainerSpec extends DefaultRunnableSpec {
           assert(jdbcInfo.username)(equalTo(container.username)) &&
           assert(jdbcInfo.password)(equalTo(container.password)) &&
           assert(jdbcInfo.driverClassName)(equalTo(container.driverClassName))
-      }.provideLayerShared(
-        ZPostgreSQLContainer.Settings.default >>> ZPostgreSQLContainer.live
+      }.provideShared(
+        ZPostgreSQLContainer.Settings.default,
+        ZPostgreSQLContainer.live
       )
     )
 }
