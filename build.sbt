@@ -39,12 +39,38 @@ lazy val `db-migration-aspect` = project
   )
   .dependsOn(models, mysql % "test->test")
 
+lazy val `db-migration-aspect-Zio2` = project
+  .in(file("modules/db-migration-aspect-zio-2.0"))
+  .settings(settings(V.zio2Version))
+  .settings(
+    name := "zio-2.0-db-migration-aspect",
+    libraryDependencies ++= Seq(
+      "org.flywaydb" % "flyway-core" % V.flywayVersion,
+      "dev.zio"     %% "zio-test"    % V.zioVersion
+    )
+  )
+  .dependsOn(models, mysqlZio2 % "test->test")
+
 lazy val mysql                 =
   project
     .in(file("modules/mysql"))
     .settings(settings())
     .settings(
       name := "zio-testcontainers-mysql",
+      libraryDependencies ++= Seq(
+        "com.dimafeng" %% "testcontainers-scala-mysql" % V.testcontainersScalaVersion,
+        "mysql"         % "mysql-connector-java"       % V.mysqlConnnectorJVersion
+      )
+    )
+    .dependsOn(models)
+
+
+lazy val mysqlZio2                 =
+  project
+    .in(file("modules/mysql-zio-2.0"))
+    .settings(settings(V.zio2Version))
+    .settings(
+      name := "zio-2.0-testcontainers-mysql",
       libraryDependencies ++= Seq(
         "com.dimafeng" %% "testcontainers-scala-mysql" % V.testcontainersScalaVersion,
         "mysql"         % "mysql-connector-java"       % V.mysqlConnnectorJVersion
@@ -151,7 +177,7 @@ lazy val commandAliases                               =
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias(
       "publishAll",
-      "+cassandra/publishSigned; +models/publishSigned; +mysql/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned"
+      "+cassandra/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned"
     )
 
 lazy val stdOptions                                   = Seq(
