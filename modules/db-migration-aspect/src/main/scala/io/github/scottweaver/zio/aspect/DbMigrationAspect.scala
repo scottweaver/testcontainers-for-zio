@@ -26,10 +26,10 @@ object DbMigrationAspect {
       flyway.migrate
     }
 
-  def migrate(mirgationLocations: String*)(configureCallback: ConfigurationCallback = identity) = before(
+  def migrate(migrationLocations: String*)(configureCallback: ConfigurationCallback = identity) = before(
     ZIO
       .service[JdbcInfo]
-      .flatMap(jdbcInfo => doMigrate(jdbcInfo, configureCallback, mirgationLocations: _*))
+      .flatMap(jdbcInfo => doMigrate(jdbcInfo, configureCallback, migrationLocations: _*))
       .orDie
   )
 
