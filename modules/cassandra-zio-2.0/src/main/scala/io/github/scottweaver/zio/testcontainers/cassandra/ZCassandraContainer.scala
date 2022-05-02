@@ -22,13 +22,11 @@ object ZCassandraContainer {
 
       def makeContainer(settings: Settings) =
         ZManaged.acquireReleaseWith(
-          ZIO
-            .attempt {
-             val container = settings.createContainer()
-             container.start()
-             container
-            }
-            .orDie
+          ZIO.attempt {
+            val container = settings.createContainer()
+            container.start()
+            container
+          }.orDie
         ) { container =>
           ZIO.attempt(container.stop()).orDie
         }
@@ -55,7 +53,7 @@ object ZCassandraContainer {
         settings  <- ZIO.service[Settings].toManaged
         container <- makeContainer(settings)
         session   <- makeSession(container)
-      } yield  ZEnvironment(container, session)
+      } yield ZEnvironment(container, session)
     }
 
 }

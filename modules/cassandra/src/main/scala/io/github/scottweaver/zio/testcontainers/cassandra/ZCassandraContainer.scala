@@ -22,13 +22,11 @@ object ZCassandraContainer {
 
       def makeContainer(settings: Settings) =
         ZManaged.make(
-          ZIO
-            .effect {
-             val container = settings.createContainer()
-             container.start()
-             container
-            }
-            .orDie
+          ZIO.effect {
+            val container = settings.createContainer()
+            container.start()
+            container
+          }.orDie
         ) { container =>
           ZIO.effect(container.stop()).orDie
         }

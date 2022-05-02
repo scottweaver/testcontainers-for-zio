@@ -39,7 +39,7 @@ object ZKafkaContainer {
   }
 
   val defaultConsumerSettings =
-    ZLayer.fromService { container: KafkaContainer =>
+    ZLayer.fromService { (container: KafkaContainer) =>
       ConsumerSettings(container.bootstrapServers.split(',').toList)
         .withClientId("test-client-id")
         .withGroupId("test-group-id")
@@ -56,7 +56,7 @@ object ZKafkaContainer {
         .withOffsetRetrieval(Consumer.OffsetRetrieval.Auto())
     }
 
-  val defaultProducerSettings = ZLayer.fromService { container: KafkaContainer =>
+  val defaultProducerSettings = ZLayer.fromService { (container: KafkaContainer) =>
     ProducerSettings(container.bootstrapServers.split(',').toList)
   }
 
