@@ -22,12 +22,12 @@ ThisBuild / developers    := List(
 crossScalaVersions := Nil
 commandAliases
 
-lazy val models                = project
+lazy val models                     = project
   .in(file("modules/models"))
   .settings(settings())
   .settings(name := "zio-testcontainers-models")
 
-lazy val `db-migration-aspect` = project
+lazy val `db-migration-aspect`      = project
   .in(file("modules/db-migration-aspect"))
   .settings(settings())
   .settings(
@@ -51,7 +51,7 @@ lazy val `db-migration-aspect-Zio2` = project
   )
   .dependsOn(models, mysqlZio2 % "test->test")
 
-lazy val mysql                 =
+lazy val mysql                      =
   project
     .in(file("modules/mysql"))
     .settings(settings())
@@ -64,8 +64,7 @@ lazy val mysql                 =
     )
     .dependsOn(models)
 
-
-lazy val mysqlZio2                 =
+lazy val mysqlZio2                  =
   project
     .in(file("modules/mysql-zio-2.0"))
     .settings(settings(V.zio2Version))
@@ -78,7 +77,7 @@ lazy val mysqlZio2                 =
     )
     .dependsOn(models)
 
-lazy val postgres              =
+lazy val postgres                   =
   project
     .in(file("modules/postgresql"))
     .settings(settings())
@@ -91,7 +90,7 @@ lazy val postgres              =
     )
     .dependsOn(models)
 
-lazy val postgresZio2          =
+lazy val postgresZio2               =
   project
     .in(file("modules/postgresql-zio-2.0"))
     .settings(settings(V.zio2Version))
@@ -104,7 +103,7 @@ lazy val postgresZio2          =
     )
     .dependsOn(models)
 
-lazy val kafka                 =
+lazy val kafka                      =
   project
     .in(file("modules/kafka"))
     .settings(settings())
@@ -116,7 +115,7 @@ lazy val kafka                 =
       )
     )
 
-lazy val cassandra             =
+lazy val cassandra                  =
   project
     .in(file("modules/cassandra"))
     .settings(settings())
@@ -128,7 +127,7 @@ lazy val cassandra             =
       )
     )
 
-lazy val cassandraZio2             =
+lazy val cassandraZio2              =
   project
     .in(file("modules/cassandra-zio-2.0"))
     .settings(settings(V.zio2Version))
@@ -152,8 +151,9 @@ def commonSettings(zioVersion: String = V.zioVersion) =
     scalacOptions      := {
       CrossVersion.partialVersion(scalaVersion.value) match {
 
-        case Some((2, 13)) => stdOptions ++ stdOpts213
-        case _             => stdOptions
+        case Some((2, 12)) => stdOpts212
+        case Some((2, 13)) => stdOpts213
+        case _             => stdOpts3
       }
     },
     // Prevent slf4j 2.x from ruining EVERYTHING :(
@@ -161,14 +161,22 @@ def commonSettings(zioVersion: String = V.zioVersion) =
       "org.slf4j" % "slf4j-api" % V.slf4jVersion
     ),
     libraryDependencies ++= Seq(
-      "dev.zio"              %% "zio"                       % zioVersion,
-      "com.dimafeng"         %% "testcontainers-scala-core" % V.testcontainersScalaVersion,
-      "dev.zio"              %% "zio-test"                  % zioVersion,
-      "org.slf4j"             % "slf4j-api"                 % V.slf4jVersion,
-      "ch.qos.logback"        % "logback-classic"           % V.logbackVersion  % Test,
-      "io.github.kitlangton" %% "zio-magic"                 % V.zioMagicVersion % Test,
-      "dev.zio"              %% "zio-test-sbt"              % zioVersion        % Test
+      "dev.zio"       %% "zio"                       % zioVersion,
+      "com.dimafeng"  %% "testcontainers-scala-core" % V.testcontainersScalaVersion,
+      "dev.zio"       %% "zio-test"                  % zioVersion,
+      "org.slf4j"      % "slf4j-api"                 % V.slf4jVersion,
+      "ch.qos.logback" % "logback-classic"           % V.logbackVersion % Test,
+      "dev.zio"       %% "zio-test-sbt"              % zioVersion       % Test
     ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) => Seq()
+        case _            =>
+          Seq(
+            "io.github.kitlangton" %% "zio-magic" % V.zioMagicVersion % Test
+          )
+      }
+    },
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     Test / fork        := true
   )
@@ -192,7 +200,7 @@ lazy val commandAliases                               =
       "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned"
     )
 
-lazy val stdOptions                                   = Seq(
+lazy val stdOpts212                                   = Seq(
   "-encoding",
   "UTF-8",
   "-explaintypes",
@@ -211,15 +219,40 @@ lazy val stdOptions                                   = Seq(
 )
 
 lazy val stdOpts213                                   = Seq(
-  "-Xlint:_,-type-parameter-shadow,-byname-implicit",
-  "-Xsource:2.13",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard",
   "-Wunused:imports",
-  "-Wvalue-discard",
+  "-Wunused:params",
   "-Wunused:patvars",
   "-Wunused:privates",
-  "-Wunused:params"
+  "-Wvalue-discard",
+  "-Xfatal-warnings",
+  "-Xlint:_,-type-parameter-shadow,-byname-implicit",
+  "-Xsource:2.13",
+  "-Yrangepos",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-value-discard",
+  "-deprecation",
+  "-encoding",
+  "UTF-8",
+  "-explaintypes",
+  "-feature",
+  "-language:existentials",
+  "-language:higherKinds",
+  "-language:postfixOps",
+  "-unchecked"
 )
 
-ThisBuild / scalacOptions := stdOptions ++ stdOpts213
+lazy val stdOpts3                                     = Seq(
+  "-Xfatal-warnings",
+  "-deprecation",
+  "-explaintypes",
+  "-feature",
+  "-language:existentials",
+  "-language:higherKinds",
+  "-language:postfixOps",
+  "-unchecked",
+  "-encoding",
+  "UTF-8",
+  "-source:3.0-migration"
+)
+
+ThisBuild / scalacOptions := stdOpts213
