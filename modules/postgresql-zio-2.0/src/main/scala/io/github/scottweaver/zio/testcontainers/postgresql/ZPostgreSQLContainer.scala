@@ -33,7 +33,7 @@ object ZPostgreSQLContainer {
   val live = {
 
     def makeManagedConnection(container: PostgreSQLContainer) =
-      ZManaged.acquireReleaseWith(
+      ZIO.acquireRelease(
         ZIO.attempt {
           DriverManager.getConnection(
             container.jdbcUrl,
@@ -49,7 +49,7 @@ object ZPostgreSQLContainer {
       )
 
     def makeManagedContainer(settings: Settings) =
-      ZManaged.acquireReleaseWith(
+      ZIO.acquireRelease(
         ZIO.attempt {
           val containerDef = PostgreSQLContainer.Def(
             dockerImageName = DockerImageName.parse(s"postgres:${settings.imageVersion}"),
@@ -66,9 +66,9 @@ object ZPostgreSQLContainer {
           .ignore
       )
 
-    ZLayer.fromManagedEnvironment {
+    ZLayer.scopedEnvironment {
       for {
-        settings  <- ZIO.service[Settings].toManaged
+        settings  <- ZIO.service[Settings]
         container <- makeManagedContainer(settings)
         conn      <- makeManagedConnection(container)
       } yield {

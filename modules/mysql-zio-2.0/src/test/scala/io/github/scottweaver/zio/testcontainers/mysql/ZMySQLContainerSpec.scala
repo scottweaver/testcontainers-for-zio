@@ -7,7 +7,7 @@ import java.sql.Connection
 import com.dimafeng.testcontainers.MySQLContainer
 import io.github.scottweaver.models.JdbcInfo
 
-object ZMySQLContainerSpec extends DefaultRunnableSpec {
+object ZMySQLContainerSpec extends ZIOSpecDefault {
   def spec =
     suite("ZMySQLContainerSpec")(
       test("Should start up a MySQL container that can be queried.") {

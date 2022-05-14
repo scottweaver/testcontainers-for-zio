@@ -4,7 +4,7 @@ import zio._
 import zio.test._
 import zio.test.Assertion._
 
-object ZCassandraContainerSpec extends DefaultRunnableSpec {
+object ZCassandraContainerSpec extends ZIOSpecDefault {
 
   def spec = suite("ZCassandraContainerSpec")(
     test("Should start up a Cassandra container, execute against that container and then close it.") {
