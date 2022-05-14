@@ -7,7 +7,7 @@ import TestAspect.sequential
 import io.github.scottweaver.zio.testcontainers.mysql.ZMySQLContainer
 import java.sql.Connection
 
-object DbMigrationAspectSpec extends DefaultRunnableSpec {
+object DbMigrationAspectSpec extends ZIOSpecDefault {
   def spec = suite("DatabaseMigrationAspect")(
     test("Should run Flyway migrations from the default location e.g. 'classpath:db/migration'.") {
 

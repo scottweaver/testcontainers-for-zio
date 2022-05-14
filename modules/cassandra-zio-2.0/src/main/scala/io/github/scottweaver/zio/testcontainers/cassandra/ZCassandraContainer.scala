@@ -17,11 +17,9 @@ object ZCassandraContainer {
 
   val session = ZIO.service[CqlSession]
 
-  val live =
-    ZLayer.fromManagedEnvironment {
-
+  val live = {
       def makeContainer(settings: Settings) =
-        ZManaged.acquireReleaseWith(
+        ZIO.acquireRelease (
           ZIO.attempt {
             val container = settings.createContainer()
             container.start()
@@ -32,7 +30,7 @@ object ZCassandraContainer {
         }
 
       def makeSession(container: CassandraContainer) =
-        ZManaged.acquireReleaseWith(
+        ZIO.acquireRelease (
           ZIO.attempt {
             CqlSession.builder
               .addContactEndPoint(
@@ -49,11 +47,13 @@ object ZCassandraContainer {
           }.orDie
         )(session => ZIO.attempt(session.close()).orDie)
 
+    ZLayer.scopedEnvironment {
       for {
-        settings  <- ZIO.service[Settings].toManaged
+        settings  <- ZIO.service[Settings]
         container <- makeContainer(settings)
         session   <- makeSession(container)
       } yield ZEnvironment(container, session)
     }
+  }
 
 }

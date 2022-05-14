@@ -7,7 +7,7 @@ import java.sql.Connection
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import io.github.scottweaver.models.JdbcInfo
 
-object ZPostgreSQLContainerSpec extends DefaultRunnableSpec {
+object ZPostgreSQLContainerSpec extends ZIOSpecDefault {
   def spec =
     suite("ZPostgreSQLContainerSpec")(
       test("Should start up a Postgres continer that can be queried.") {

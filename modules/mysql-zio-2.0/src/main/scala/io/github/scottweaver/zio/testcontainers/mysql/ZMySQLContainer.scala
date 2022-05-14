@@ -31,7 +31,7 @@ object ZMySQLContainer {
   val live = {
 
     def makeManagedConnection(container: MySQLContainer) =
-      ZManaged.acquireReleaseWith(
+      ZIO.acquireRelease(
         ZIO.attempt {
           DriverManager.getConnection(
             container.jdbcUrl,
@@ -47,7 +47,7 @@ object ZMySQLContainer {
       )
 
     def makeManagedContainer(settings: Settings) =
-      ZManaged.acquireReleaseWith(
+      ZIO.acquireRelease(
         ZIO.attempt {
           val containerDef = MySQLContainer.Def(
             dockerImageName = DockerImageName.parse(s"mysql:${settings.imageVersion}"),
@@ -64,9 +64,9 @@ object ZMySQLContainer {
           .ignore
       )
 
-    ZLayer.fromManagedEnvironment {
+    ZLayer.scopedEnvironment {
       for {
-        settings  <- ZIO.service[Settings].toManaged
+        settings  <- ZIO.service[Settings]
         container <- makeManagedContainer(settings)
         conn      <- makeManagedConnection(container)
 
