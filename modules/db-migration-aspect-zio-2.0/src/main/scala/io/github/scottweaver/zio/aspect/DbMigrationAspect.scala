@@ -1,10 +1,11 @@
 package io.github.scottweaver.zio.aspect
 
 import zio._
-import zio.test.TestAspect.before
+import zio.test.TestAspect.{ before, beforeAll }
 import io.github.scottweaver.models.JdbcInfo
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
+import zio.test.TestAspect
 
 object DbMigrationAspect {
 
@@ -26,11 +27,22 @@ object DbMigrationAspect {
       flyway.migrate
     }
 
-  def migrate(mirgationLocations: String*)(configureCallback: ConfigurationCallback = identity) = before(
-    ZIO
-      .service[JdbcInfo]
-      .flatMap(jdbcInfo => doMigrate(jdbcInfo, configureCallback, mirgationLocations: _*))
-      .orDie
-  )
+  def migrate(mirgationLocations: String*)(configureCallback: ConfigurationCallback = identity) =
+    before(
+      ZIO
+        .service[JdbcInfo]
+        .flatMap(jdbcInfo => doMigrate(jdbcInfo, configureCallback, mirgationLocations: _*))
+        .orDie
+    )
+
+  def migrateOnce(
+    migrationLocations: String*
+  )(configureCallback: ConfigurationCallback = identity) =
+    beforeAll(
+      ZIO
+        .service[JdbcInfo]
+        .flatMap(jdbcInfo => doMigrate(jdbcInfo, configureCallback, migrationLocations: _*))
+        .orDie
+    )
 
 }
