@@ -33,7 +33,7 @@ object DbMigrationAspect {
       .orDie
   )
 
-  def migrateBeforeAll(migrationLocations: String*)(configureCallback: ConfigurationCallback = identity) =
+  def migrateOnce(migrationLocations: String*)(configureCallback: ConfigurationCallback = identity) =
     beforeAll(
       ZIO
         .service[JdbcInfo]

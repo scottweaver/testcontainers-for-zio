@@ -35,7 +35,7 @@ object DbMigrationAspect {
         .orDie
     )
 
-  def migrateBeforeAll(
+  def migrateOnce(
     migrationLocations: String*
   )(configureCallback: ConfigurationCallback = identity) =
     beforeAll(
