@@ -18,34 +18,34 @@ object ZCassandraContainer {
   val session = ZIO.service[CqlSession]
 
   val live = {
-      def makeContainer(settings: Settings) =
-        ZIO.acquireRelease (
-          ZIO.attempt {
-            val container = settings.createContainer()
-            container.start()
-            container
-          }.orDie
-        ) { container =>
-          ZIO.attempt(container.stop()).orDie
-        }
+    def makeContainer(settings: Settings) =
+      ZIO.acquireRelease(
+        ZIO.attempt {
+          val container = settings.createContainer()
+          container.start()
+          container
+        }.orDie
+      ) { container =>
+        ZIO.attempt(container.stop()).orDie
+      }
 
-      def makeSession(container: CassandraContainer) =
-        ZIO.acquireRelease (
-          ZIO.attempt {
-            CqlSession.builder
-              .addContactEndPoint(
-                new DefaultEndPoint(
-                  InetSocketAddress
-                    .createUnresolved(
-                      container.cassandraContainer.getContainerIpAddress,
-                      container.cassandraContainer.getFirstMappedPort.intValue()
-                    )
-                )
+    def makeSession(container: CassandraContainer) =
+      ZIO.acquireRelease(
+        ZIO.attempt {
+          CqlSession.builder
+            .addContactEndPoint(
+              new DefaultEndPoint(
+                InetSocketAddress
+                  .createUnresolved(
+                    container.cassandraContainer.getContainerIpAddress,
+                    container.cassandraContainer.getFirstMappedPort.intValue()
+                  )
               )
-              .withLocalDatacenter("datacenter1")
-              .build()
-          }.orDie
-        )(session => ZIO.attempt(session.close()).orDie)
+            )
+            .withLocalDatacenter("datacenter1")
+            .build()
+        }.orDie
+      )(session => ZIO.attempt(session.close()).orDie)
 
     ZLayer.scopedEnvironment {
       for {

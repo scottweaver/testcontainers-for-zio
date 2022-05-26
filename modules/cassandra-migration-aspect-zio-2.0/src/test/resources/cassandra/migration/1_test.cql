@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS person(id uuid, name text, PRIMARY KEY (id));
