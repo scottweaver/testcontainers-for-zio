@@ -6,7 +6,6 @@ import zio.test.TestAspect.sequential
 import zio.test._
 import com.datastax.oss.driver.api.core.CqlSession
 import io.github.scottweaver.zio.testcontainers.cassandra.ZCassandraContainer
-import org.cognitor.cassandra.migration.keyspace.Keyspace
 
 import java.util.UUID
 
@@ -26,7 +25,7 @@ object CassandraMigrationAspectSpec extends ZIOSpecDefault {
 
       testCase
 
-    } @@ CassandraMigrationAspect.migrate()(_.withKeyspace(new Keyspace("test"))),
+    } @@ CassandraMigrationAspect.migrate("test"),
     test("Should run Cassandra migrations from the specified location.") {
 
       def testInsert(session: CqlSession) = ZIO.fromCompletionStage {
@@ -42,7 +41,7 @@ object CassandraMigrationAspectSpec extends ZIOSpecDefault {
 
       testCase
 
-    } @@ CassandraMigrationAspect.migrate("custom")(_.withKeyspace(new Keyspace("test2")))
+    } @@ CassandraMigrationAspect.migrate("test2", "custom")
   )
     .provideShared(
       ZCassandraContainer.Settings.default,

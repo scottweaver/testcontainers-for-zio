@@ -2,7 +2,6 @@ package io.github.scottweaver.zio.aspect
 
 import com.datastax.oss.driver.api.core.CqlSession
 import io.github.scottweaver.zio.testcontainers.cassandra.ZCassandraContainer
-import org.cognitor.cassandra.migration.keyspace.Keyspace
 import zio._
 import zio.magic._
 import zio.test.Assertion._
@@ -26,8 +25,9 @@ object CassandraMigrationAspectSpec extends DefaultRunnableSpec {
 
       testCase
 
-    } @@ CassandraMigrationAspect.migrate()(_.withKeyspace(new Keyspace("test"))),
+    } @@ CassandraMigrationAspect.migrate("test"),
     testM("Should run Cassandra migrations from the specified location.") {
+
       def testInsert(session: CqlSession) = ZIO.fromCompletionStage {
         session.executeAsync(
           s"INSERT INTO custom_person (id, last_name, first_name) VALUES (${UUID.randomUUID().toString}, 'Doe', 'Jane')"
@@ -41,7 +41,7 @@ object CassandraMigrationAspectSpec extends DefaultRunnableSpec {
 
       testCase
 
-    } @@ CassandraMigrationAspect.migrate("custom")(_.withKeyspace(new Keyspace("test2")))
+    } @@ CassandraMigrationAspect.migrate("test2", "custom")
   )
     .injectShared(
       ZCassandraContainer.Settings.default,

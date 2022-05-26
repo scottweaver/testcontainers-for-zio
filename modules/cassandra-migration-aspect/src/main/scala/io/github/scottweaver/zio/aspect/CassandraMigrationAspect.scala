@@ -1,8 +1,10 @@
 package io.github.scottweaver.zio.aspect
 
 import com.datastax.oss.driver.api.core.CqlSession
+import org.cognitor.cassandra.migration.keyspace.Keyspace
 import org.cognitor.cassandra.migration.{ Database, MigrationConfiguration, MigrationRepository, MigrationTask }
 import zio._
+import zio.test.TestAspect
 import zio.test.TestAspect.{ before, beforeAll }
 
 object CassandraMigrationAspect {
@@ -15,36 +17,56 @@ object CassandraMigrationAspect {
     override def close(): Unit = ()
   }
 
-  private def doMigrate(cqlSession: CqlSession, configureCallback: ConfigurationCallback, location: String) =
+  def doMigrate(
+    session: CqlSession,
+    configuration: MigrationConfiguration,
+    repository: MigrationRepository
+  ): Task[Unit] =
     ZIO.effect {
-      val configuration = configureCallback(new MigrationConfiguration)
-
-      val database   = new NoCloseableDatabase(cqlSession, configuration)
-      val repository = new MigrationRepository(location)
+      val database = new NoCloseableDatabase(session, configuration)
 
       val task = new MigrationTask(database, repository)
-
       task.migrate()
     }
 
+  def migrationRepository(location: String = MigrationRepository.DEFAULT_SCRIPT_PATH): MigrationRepository =
+    new MigrationRepository(location)
+
+  def migrationConfiguration(keyspace: String): MigrationConfiguration =
+    new MigrationConfiguration().withKeyspace(new Keyspace(keyspace))
+
   def migrate(
-    mirgationLocation: String = MigrationRepository.DEFAULT_SCRIPT_PATH
-  )(configureCallback: ConfigurationCallback = identity) =
+    configuration: MigrationConfiguration,
+    repository: MigrationRepository
+  ): TestAspect[Nothing, Has[CqlSession], Nothing, Any] =
     before(
       ZIO
         .service[CqlSession]
-        .flatMap(cqlSession => doMigrate(cqlSession, configureCallback, mirgationLocation))
+        .flatMap(session => doMigrate(session, configuration, repository))
+        .orDie
+    )
+
+  def migrate(
+    keyspace: String,
+    location: String = MigrationRepository.DEFAULT_SCRIPT_PATH
+  ): TestAspect[Nothing, Has[CqlSession], Nothing, Any] =
+    migrate(migrationConfiguration(keyspace), migrationRepository(location))
+
+  def migrateOnce(
+    configuration: MigrationConfiguration,
+    repository: MigrationRepository
+  ): TestAspect[Nothing, Has[CqlSession], Nothing, Any] =
+    beforeAll(
+      ZIO
+        .service[CqlSession]
+        .flatMap(session => doMigrate(session, configuration, repository))
         .orDie
     )
 
   def migrateOnce(
-    migrationLocation: String = MigrationRepository.DEFAULT_SCRIPT_PATH
-  )(configureCallback: ConfigurationCallback = identity) =
-    beforeAll(
-      ZIO
-        .service[CqlSession]
-        .flatMap(cqlSession => doMigrate(cqlSession, configureCallback, migrationLocation))
-        .orDie
-    )
+    keyspace: String,
+    location: String = MigrationRepository.DEFAULT_SCRIPT_PATH
+  ): TestAspect[Nothing, Has[CqlSession], Nothing, Any] =
+    migrateOnce(migrationConfiguration(keyspace), migrationRepository(location))
 
 }
