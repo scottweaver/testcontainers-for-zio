@@ -8,22 +8,22 @@
 
 [Link-Github]: https://github.com/scottweaver/testcontainers-for-zio "Github Repo Link"
 
-[Link-SonatypeReleases-Kafka]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-kafka_2.13/0.5.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-Kafka]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-kafka_2.13/0.5.0?label=maven-central%20%20kafka "Sonatype Releases badge"
+[Link-SonatypeReleases-Kafka]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-kafka_2.13/0.6.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Kafka]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-kafka_2.13/0.6.0?label=maven-central%20%20kafka "Sonatype Releases badge"
 
 
-[Link-SonatypeReleases-cassandra]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-cassandra_2.13/0.5.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-cassandra]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-cassandra_2.13/0.5.0?label=maven-central%20%20cassandra "Sonatype Releases badge"
+[Link-SonatypeReleases-cassandra]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-cassandra_2.13/0.6.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-cassandra]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-cassandra_2.13/0.6.0?label=maven-central%20%20cassandra "Sonatype Releases badge"
 
 
-[Link-SonatypeReleases-MySQL]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-mysql_2.13/0.5.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-MySQL]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-mysql_2.13/0.5.0?label=maven-central%20%20mysql "Sonatype Releases badge"
+[Link-SonatypeReleases-MySQL]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-mysql_2.13/0.6.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-MySQL]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-mysql_2.13/0.6.0?label=maven-central%20%20mysql "Sonatype Releases badge"
 
-[Link-SonatypeReleases-Postgresql]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-postgresql_2.13/0.5.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-Postgresql]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-postgresql_2.13/0.5.0?label=maven-central%20%20postgresql "Sonatype Releases badge"
+[Link-SonatypeReleases-Postgresql]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-postgresql_2.13/0.6.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Postgresql]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-postgresql_2.13/0.6.0?label=maven-central%20%20postgresql "Sonatype Releases badge"
 
-[Link-SonatypeReleases-DbMigrationAspect]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-db-migration-aspect_2.13/0.5.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-DbMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-db-migration-aspect_2.13/0.5.0?label=maven-central%20%20db-migration-aspect "Sonatype Releases badge"
+[Link-SonatypeReleases-DbMigrationAspect]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-db-migration-aspect_2.13/0.6.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-DbMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-db-migration-aspect_2.13/0.6.0?label=maven-central%20%20db-migration-aspect "Sonatype Releases badge"
 
 Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
 
@@ -45,12 +45,12 @@ Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.C
 
 ### ZIO 1.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-cassandra" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-cassandra" % "0.6.0"
 ```
 
 ### ZIO 2.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-cassandra" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-cassandra" % "0.6.0"
 ```
 
 See test cases for example usage.
@@ -63,12 +63,12 @@ Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.M
 
 ### ZIO 1.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-mysql" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-mysql" % "0.6.0"
 ```
 
 ### ZIO 2.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-mysql" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-mysql" % "0.6.0"
 ```
 
 See test cases for example usage.
@@ -81,12 +81,12 @@ Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.P
 
 ### ZIO 1.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-postgresql" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-postgresql" % "0.6.0"
 ```
 
 ### ZIO 2.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.6.0"
 ```
 
 See test cases for example usage.
@@ -106,7 +106,7 @@ You can use these to create a `zio.kafka.consumer.Consumer` and/or `zio.kafka.pr
 
 ### ZIO 1.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-kafka" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-kafka" % "0.6.0"
 ```
 
 See test cases for example usage.
@@ -123,12 +123,12 @@ If you are not using `ZMySQLContainer` you can just manually provide an appropri
 
 ### ZIO 1.X
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-db-migration-aspect" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-db-migration-aspect" % "0.6.0"
 ```
 
 ### ZIO 2.X
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.6.0"
 ```
 
 ## Cassandra Migrations Aspect
@@ -143,12 +143,12 @@ If you are not using `ZCassandraContainer` you can just manually provide an appr
 
 ### ZIO 1.X
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-cassandra-migration-aspect" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-cassandra-migration-aspect" % "0.6.0"
 ```
 
 ### ZIO 2.X
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-2-0-cassandra-migration-aspect" % "0.5.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-cassandra-migration-aspect" % "0.6.0"
 ```
 
 
