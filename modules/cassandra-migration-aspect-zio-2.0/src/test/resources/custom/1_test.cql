@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS custom_person(id uuid, first_name text, last_name text, PRIMARY KEY (id));

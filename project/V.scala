@@ -14,4 +14,5 @@ object V {
   val slf4jVersion               = "1.7.32"
   val logbackVersion             = "1.2.6"
   val flywayVersion              = "8.1.0"
+  val cassandraMigrationsVersion = "2.5.0_v4"
 }

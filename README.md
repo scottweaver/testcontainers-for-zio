@@ -131,6 +131,27 @@ libraryDependencies += "io.github.scottweaver" %% "zio-db-migration-aspect" % "0
 libraryDependencies += "io.github.scottweaver" %% "zio-2-0-db-migration-aspect" % "0.5.0"
 ```
 
+## Cassandra Migrations Aspect
+
+[![Release Artifacts][Badge-SonatypeReleases-CassandraMigrationAspect]][Link-SonatypeReleases-CassandraMigrationAspect]
+
+Not really a test container, useful none the less.
+
+The `io.github.scottweaver.zio.aspect.CassandraMigrationsAspect` provides a [ZIO TestAspect](https://javadoc.io/doc/dev.zio/zio-test_2.13/1.0.12/zio/test/TestAspect.html) for running database migrations via [Cassandra Schema Migration](https://github.com/patka/cassandra-migration).  It seemlessly integrates with the `ZCassandraContainer` by using the `com.datastax.oss.driver.api.core.CqlSession` provided by `ZCassandraContainer.live` to run your migrations.
+
+If you are not using `ZCassandraContainer` you can just manually provide an appropriate `com.datastax.oss.driver.api.core.CqlSession` as a `ZLayer` to your tests that are using the `CassandraMigrationAspect`.
+
+### ZIO 1.X
+```scala
+libraryDependencies += "io.github.scottweaver" %% "zio-cassandra-migration-aspect" % "0.5.0"
+```
+
+### ZIO 2.X
+```scala
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-cassandra-migration-aspect" % "0.5.0"
+```
+
+
 ## References
 
 - [Working with shared dependencies in ZIO Test](https://hmemcpy.com/2021/11/working-with-shared-dependencies-in-zio-test/)

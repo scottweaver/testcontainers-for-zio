@@ -4,7 +4,6 @@ import zio._
 import zio.test._
 import zio.test.Assertion._
 
-
 object ZCassandraContainerSpec extends DefaultRunnableSpec {
 
   def spec = suite("ZCassandraContainerSpec")(
