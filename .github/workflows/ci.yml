@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - published
+
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout current branch
+      uses: actions/checkout@v3.0.2
+    - name: Setup Java
+      uses: actions/setup-java@v2.5.0
+      with:
+        distribution: temurin
+        java-version: 17
+        check-latest: true
+    - name: Cache scala dependencies
+      uses: coursier/cache-action@v6
+    - name: Lint code
+      run: sbt check
+
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        scala: ['2.12.15', '2.13.8', '3.1.2']
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v3.0.2
+      - name: Setup Java
+        uses: actions/setup-java@v2.5.0
+        with:
+          distribution: temurin
+          java-version: 17
+          check-latest: true
+      - name: Cache scala dependencies
+        uses: coursier/cache-action@v6
+      - name: Check generation of ScalaDoc
+        run: sbt ++${{ matrix.scala }}! test
+
+  publish:
+    runs-on: ubuntu-20.04
+    needs: [lint, test]
+    if: github.ref_type == 'tag'
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v2.5.0
+        with:
+          distribution: temurin
+          java-version: 17
+          check-latest: true
+      - name: Cache scala dependencies
+        uses: coursier/cache-action@v6
+      - name: Release artifacts
+        run: sbt importPgpKey publishAll
+        env:
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
