@@ -44,7 +44,7 @@ jobs:
           check-latest: true
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
-      - name: Check generation of ScalaDoc
+      - name: Run tests for Scala ${{ matrix.scala }}
         run: sbt ++${{ matrix.scala }}! test
 
   publish:
