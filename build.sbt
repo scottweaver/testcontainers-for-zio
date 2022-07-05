@@ -115,7 +115,7 @@ lazy val kafka                             =
       )
     )
 
-lazy val kafkaZio2                             =
+lazy val kafkaZio2                         =
   project
     .in(file("modules/kafka-zio-2.0"))
     .settings(settings(V.zio2Version))
