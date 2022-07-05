@@ -120,7 +120,7 @@ lazy val kafkaZio2                         =
     .in(file("modules/kafka-zio-2.0"))
     .settings(settings(V.zio2Version))
     .settings(
-      name := "zio-testcontainers-kafka",
+      name := "zio-2.0-testcontainers-kafka",
       libraryDependencies ++= Seq(
         "dev.zio"      %% "zio-kafka"                  % V.zio2KafkaVersion,
         "com.dimafeng" %% "testcontainers-scala-kafka" % V.testcontainersScalaVersion
