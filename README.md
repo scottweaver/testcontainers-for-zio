@@ -1,10 +1,6 @@
 # Testcontainers for ZIO
+![main](https://github.com/scottweaver/testcontainers-for-zio/actions/workflows/ci.yml/badge.svg)
 
-
-<!-- | ![Build Status][Badge-CircelCI] | -->
-
-
-<!-- [Badge-CircelCI]: https://circleci.com/gh/scottweaver/testcontainers-for-zio.svg?style=shield "CircleCI Badge" -->
 
 [Link-Github]: https://github.com/scottweaver/testcontainers-for-zio "Github Repo Link"
 
@@ -28,9 +24,9 @@
 Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
 
 
-| CI                              | 
+<!-- | CI                              | 
 | ------------------------------- |
-| [![CircleCI](https://dl.circleci.com/insights-snapshot/gh/scottweaver/testcontainers-for-zio/main/test/badge.svg?window=30d)](https://app.circleci.com/insights/github/scottweaver/testcontainers-for-zio/workflows/test/overview?branch=main&reporting-window=last-30-days&insights-snapshot=true) | 
+| [![CircleCI](https://dl.circleci.com/insights-snapshot/gh/scottweaver/testcontainers-for-zio/main/test/badge.svg?window=30d)](https://app.circleci.com/insights/github/scottweaver/testcontainers-for-zio/workflows/test/overview?branch=main&reporting-window=last-30-days&insights-snapshot=true) |  -->
 
 ## Testcontainers Best-Practices
 
