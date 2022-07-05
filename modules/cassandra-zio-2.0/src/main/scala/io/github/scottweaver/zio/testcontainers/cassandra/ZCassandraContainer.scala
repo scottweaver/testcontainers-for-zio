@@ -5,13 +5,14 @@ import com.dimafeng.testcontainers.CassandraContainer
 import java.net.InetSocketAddress
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.internal.core.metadata.DefaultEndPoint
+// import org.testcontainers.utility.DockerImageName
 
 object ZCassandraContainer {
 
-  // type Provides = Has[CassandraContainer] with Has[CqlSession]
   type Settings = CassandraContainer.Def
 
   object Settings {
+    // val default = ZLayer.succeed(CassandraContainer.Def(dockerImageName = DockerImageName.parse("cassandra:4.0.4")))
     val default = ZLayer.succeed(CassandraContainer.Def())
   }
 
@@ -20,24 +21,24 @@ object ZCassandraContainer {
   val live = {
     def makeContainer(settings: Settings) =
       ZIO.acquireRelease(
-        ZIO.attempt {
+        ZIO.attemptBlocking {
           val container = settings.createContainer()
           container.start()
           container
         }.orDie
       ) { container =>
-        ZIO.attempt(container.stop()).orDie
+        ZIO.attemptBlocking(container.stop()).orDie
       }
 
     def makeSession(container: CassandraContainer) =
       ZIO.acquireRelease(
-        ZIO.attempt {
+        ZIO.attemptBlocking {
           CqlSession.builder
             .addContactEndPoint(
               new DefaultEndPoint(
                 InetSocketAddress
                   .createUnresolved(
-                    container.cassandraContainer.getContainerIpAddress,
+                    container.cassandraContainer.getHost(),
                     container.cassandraContainer.getFirstMappedPort.intValue()
                   )
               )
@@ -45,7 +46,7 @@ object ZCassandraContainer {
             .withLocalDatacenter("datacenter1")
             .build()
         }.orDie
-      )(session => ZIO.attempt(session.close()).orDie)
+      )(session => ZIO.attemptBlocking(session.close()).orDie)
 
     ZLayer.scopedEnvironment {
       for {

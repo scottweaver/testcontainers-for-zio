@@ -1,4 +1,4 @@
-ThisBuild / version       := "0.6.0"
+ThisBuild / version       := "0.7.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
@@ -111,6 +111,18 @@ lazy val kafka                             =
       name := "zio-testcontainers-kafka",
       libraryDependencies ++= Seq(
         "dev.zio"      %% "zio-kafka"                  % V.zioKafkaVersion,
+        "com.dimafeng" %% "testcontainers-scala-kafka" % V.testcontainersScalaVersion
+      )
+    )
+
+lazy val kafkaZio2                             =
+  project
+    .in(file("modules/kafka-zio-2.0"))
+    .settings(settings(V.zio2Version))
+    .settings(
+      name := "zio-testcontainers-kafka",
+      libraryDependencies ++= Seq(
+        "dev.zio"      %% "zio-kafka"                  % V.zio2KafkaVersion,
         "com.dimafeng" %% "testcontainers-scala-kafka" % V.testcontainersScalaVersion
       )
     )
