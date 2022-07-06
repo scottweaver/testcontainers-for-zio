@@ -54,6 +54,11 @@ jobs:
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v2
+      - name: Import GPG Key
+        uses: crazy-max/ghaction-import-gpg@5
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.PGP_SECRET }}
+          PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
       - name: Setup Java
         uses: actions/setup-java@v2.5.0
         with:
@@ -63,8 +68,9 @@ jobs:
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
       - name: Release artifacts
-        run: sbt importPgpKey publishAll
+        # run: sbt importPgpKey publishAll
+        run: sbt publishAll
         env:
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          # PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
