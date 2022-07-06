@@ -49,6 +49,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-20.04
+    environment: SONATYPE_PUBLISHING 
     needs: [lint, test]
     if: github.ref_type == 'tag'
     steps:
