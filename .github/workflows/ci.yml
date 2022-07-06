@@ -55,7 +55,7 @@ jobs:
       - name: Checkout current branch
         uses: actions/checkout@v2
       - name: Import GPG Key
-        uses: crazy-max/ghaction-import-gpg@5
+        uses: crazy-max/ghaction-import-gpg@v5
         env:
           GPG_PRIVATE_KEY: ${{ secrets.PGP_SECRET }}
           PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
