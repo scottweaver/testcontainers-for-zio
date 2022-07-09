@@ -44,8 +44,7 @@ object ZPostgreSQLContainer {
       )(conn =>
         ZIO
           .attempt(conn.close())
-          .tapError(err => ZIO.attempt(println(s"Error closing connection: $err")))
-          .ignore
+          .ignoreLogged
       )
 
     def makeManagedContainer(settings: Settings) =
@@ -62,8 +61,7 @@ object ZPostgreSQLContainer {
       )(container =>
         ZIO
           .attempt(container.stop())
-          .tapError(err => ZIO.attempt(s"Error stopping container: $err"))
-          .ignore
+          .ignoreLogged
       )
 
     ZLayer.scopedEnvironment {

@@ -26,8 +26,7 @@ object ZKafkaContainer {
     ZIO.acquireRelease(ZIO.attempt(settings.start()).orDie)(container =>
       ZIO
         .attempt(container.stop())
-        .tapError(e => ZIO.attempt(println(s"Error stopping container: $e")))
-        .ignore
+        .ignoreLogged
     )
 
   val defaultConsumerSettings =

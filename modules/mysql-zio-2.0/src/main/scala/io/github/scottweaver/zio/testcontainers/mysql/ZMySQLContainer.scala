@@ -42,8 +42,7 @@ object ZMySQLContainer {
       )(conn =>
         ZIO
           .attempt(conn.close())
-          .tapError(err => ZIO.attempt(println(s"Error closing connection: $err")))
-          .ignore
+          .ignoreLogged
       )
 
     def makeManagedContainer(settings: Settings) =
@@ -60,8 +59,7 @@ object ZMySQLContainer {
       )(container =>
         ZIO
           .attempt(container.stop())
-          .tapError(err => ZIO.attempt(println(s"Error stopping container: $err")))
-          .ignore
+          .ignoreLogged
       )
 
     ZLayer.scopedEnvironment {

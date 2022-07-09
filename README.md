@@ -27,8 +27,41 @@ Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://githu
 
 ## Testcontainers Best-Practices
 
+### SBT Settings
+
 - Make sure your test configuration has the following settings `Test / fork := true`. Without this  the Docker container created by the test will NOT be cleaned up until you exit SBT/the JVM process.  This could quickly run your machine out of resources as you will end up with a ton of orphaned containers running.
 - Use `provideLayerShared({container}.live)` on your suite so that each test case isn't spinning up and down the container.
+
+### Logging
+
+The testcontainer runtime can get pretty noisy when it comes to logging.  To reduce this noise in your test cases, I recommend creating (or updating) the `src/test/resources/logback-test.xml` file in your project based on the following sample:
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+      <layout class="ch.qos.logback.classic.PatternLayout">
+        <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %msg%n</Pattern>
+      </layout>
+    </encoder>
+  </appender>
+
+
+  <root level="WARN">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+  <logger name="org.testcontainers" level="WARN" />
+  <logger name="com.github.dockerjava" level="WARN" />
+  <logger name="ch.qos.logback" level="WARN" />
+  <!-- Only relevant if you are using the db migration aspect -->
+  <logger name="org.flywaydb" level="WARN" />
+</configuration>
+```
+
 
 ## Cassandra
 
