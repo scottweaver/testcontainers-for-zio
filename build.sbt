@@ -46,7 +46,19 @@ lazy val `db-migration-aspect-Zio2`        = project
     name := "zio-2.0-db-migration-aspect",
     libraryDependencies ++= Seq(
       "org.flywaydb" % "flyway-core" % V.flywayVersion,
-      "dev.zio"     %% "zio-test"    % V.zioVersion
+      "dev.zio"     %% "zio-test"    % V.zio2Version
+    )
+  )
+  .dependsOn(models, mysqlZio2 % "test->test")
+
+lazy val liquibaseMigrationAspect          = project
+  .in(file("modules/liquibase-aspect-zio-2.0"))
+  .settings(settings(V.zio2Version))
+  .settings(
+    name := "zio-2.0-db-migration-aspect",
+    libraryDependencies ++= Seq(
+      "org.liquibase" % "liquibase-core" % V.liquibaseVersion,
+      "dev.zio"      %% "zio-test"       % V.zio2Version
     )
   )
   .dependsOn(models, mysqlZio2 % "test->test")

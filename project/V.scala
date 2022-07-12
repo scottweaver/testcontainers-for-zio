@@ -16,4 +16,5 @@ object V {
   val logbackVersion             = "1.2.6"
   val flywayVersion              = "8.1.0"
   val cassandraMigrationsVersion = "2.5.0_v4"
+  val liquibaseVersion           = "4.13.0"
 }
