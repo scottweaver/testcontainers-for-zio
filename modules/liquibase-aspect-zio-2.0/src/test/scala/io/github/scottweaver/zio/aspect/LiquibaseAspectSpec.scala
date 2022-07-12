@@ -9,14 +9,14 @@ object LiquibaseAspectSpec extends ZIOSpecDefault {
   def spec =
     suite("LiquibaseAspectSpec")(
       test("The migration runs as expected.") {
-         assertTrue(true)
+        assertTrue(true)
 
       } @@ LiquibaseAspect.migrate("classpath://changelog.yaml")
     )
-    .provideShared(
-      ZMySQLContainer.Settings.default,
-      ZMySQLContainer.live,
-      LiquibaseAspect.Settings.default
-    ) @@ sequential
-  
+      .provideShared(
+        ZMySQLContainer.Settings.default,
+        ZMySQLContainer.live,
+        LiquibaseAspect.Settings.default
+      ) @@ sequential
+
 }
