@@ -51,7 +51,7 @@ lazy val `db-migration-aspect-Zio2`        = project
   )
   .dependsOn(models, mysqlZio2 % "test->test")
 
-lazy val liquibaseAspect          = project
+lazy val liquibaseAspect                   = project
   .in(file("modules/zio-2.0-liquibase-aspect"))
   .settings(settings(V.zio2Version))
   .settings(
