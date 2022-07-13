@@ -22,7 +22,7 @@ object LiquibaseAspectSpec extends ZIOSpecDefault {
     })
     .orDie
 
-  val truncateDb = TestAspect.after(
+  val dropTables = TestAspect.after(
     (ZIO
       .serviceWithZIO[Connection] { conn =>
         ZIO.attemptBlocking {
@@ -70,10 +70,10 @@ object LiquibaseAspectSpec extends ZIOSpecDefault {
       test("Correctly runs the migration using a string as the path to a changelog.")(verify) @@ LiquibaseAspect
         .migrate(
           "classpath://changelog.yaml"
-        ) @@ truncateDb,
+        ) @@ dropTables,
       test("Correctly runs the migration using a DatabaseChangeLog within the environment.")(
         verify
-      ) @@ LiquibaseAspect.migrateUsingChangelog @@ truncateDb
+      ) @@ LiquibaseAspect.migrateUsingChangelog @@ dropTables
     )
       .provideShared(
         Scope.default,
