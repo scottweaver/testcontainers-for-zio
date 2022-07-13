@@ -61,7 +61,7 @@ lazy val liquibaseMigrationAspect          = project
       "dev.zio"      %% "zio-test"       % V.zio2Version
     )
   )
-  .dependsOn(models, mysqlZio2 % "test->test")
+  .dependsOn(models, postgresZio2 % "test->test")
 
 lazy val mysql                             =
   project
