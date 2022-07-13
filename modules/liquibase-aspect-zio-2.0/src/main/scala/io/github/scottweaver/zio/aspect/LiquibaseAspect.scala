@@ -104,7 +104,7 @@ object LiquibaseAspect {
   private def doMigrate(pathToChangelog: String): URIO[Settings with Scope, Unit] =
     for {
       cl <- makeDatabaseChangeLog(pathToChangelog)
-      _  <- doMigrate.provideSome(ZLayer.succeed(cl))
+      _  <- doMigrate.provideSome[Settings with Scope](ZLayer.succeed(cl))
     } yield ()
 
   def migrate(pathToChangeLog: String) = before(doMigrate(pathToChangeLog))
