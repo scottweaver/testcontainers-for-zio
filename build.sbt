@@ -51,11 +51,11 @@ lazy val `db-migration-aspect-Zio2`        = project
   )
   .dependsOn(models, mysqlZio2 % "test->test")
 
-lazy val liquibaseMigrationAspect          = project
-  .in(file("modules/liquibase-aspect-zio-2.0"))
+lazy val liquibaseAspect          = project
+  .in(file("modules/zio-2.0-liquibase-aspect"))
   .settings(settings(V.zio2Version))
   .settings(
-    name := "zio-2.0-db-migration-aspect",
+    name := "zio-2.0-liquibase-aspect",
     libraryDependencies ++= Seq(
       "org.liquibase" % "liquibase-core" % V.liquibaseVersion,
       "dev.zio"      %% "zio-test"       % V.zio2Version
@@ -247,7 +247,7 @@ lazy val commandAliases                               =
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias(
       "publishAll",
-      "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +kafkaZio2/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned; +cassandra-migration-aspect/publishSigned; +cassandra-migration-aspect-Zio2/publishSigned"
+      "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +kafkaZio2/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned; +zio-2.0-liquibase-aspect/publishSigned; +cassandra-migration-aspect/publishSigned; +cassandra-migration-aspect-Zio2/publishSigned"
     )
 
 lazy val stdOpts212                                   = Seq(
