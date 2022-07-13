@@ -10,7 +10,7 @@ import javax.sql.DataSource
 object ZPostgreSQLContainerSpec extends ZIOSpecDefault {
   def spec =
     suite("ZPostgreSQLContainerSpec")(
-      test("Should start up a Postgres continer that can be queried.") {
+      test("Should start up a Postgres container that can be queried.") {
         def sqlTestQuery(conn: Connection) =
           ZIO.attempt {
             val stmt = conn.createStatement()

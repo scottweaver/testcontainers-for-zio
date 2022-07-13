@@ -29,7 +29,7 @@ object ZPostgreSQLContainer {
 
   val live = {
 
-    def makeManagedConnection(container: PostgreSQLContainer) =
+    def makeScopedConnection(container: PostgreSQLContainer) =
       ZIO.acquireRelease(
         ZIO.attempt {
           DriverManager.getConnection(
@@ -44,7 +44,7 @@ object ZPostgreSQLContainer {
           .ignoreLogged
       )
 
-    def makeManagedContainer(settings: Settings) =
+    def makeScopedContainer(settings: Settings) =
       ZIO.acquireRelease(
         ZIO.attempt {
           val containerDef = PostgreSQLContainer.Def(
@@ -64,8 +64,8 @@ object ZPostgreSQLContainer {
     ZLayer.scopedEnvironment {
       for {
         settings  <- ZIO.service[Settings]
-        container <- makeManagedContainer(settings)
-        conn      <- makeManagedConnection(container)
+        container <- makeScopedContainer(settings)
+        conn      <- makeScopedConnection(container)
       } yield {
         val jdbcInfo   = JdbcInfo(
           driverClassName = container.driverClassName,
