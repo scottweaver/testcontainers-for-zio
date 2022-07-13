@@ -6,6 +6,8 @@ import org.testcontainers.utility.DockerImageName
 import java.sql.DriverManager
 import java.sql.Connection
 import io.github.scottweaver.models.JdbcInfo
+import javax.sql.DataSource
+import com.mysql.cj.jdbc.MysqlDataSource
 object ZMySQLContainer {
 
   final case class Settings(
@@ -26,7 +28,11 @@ object ZMySQLContainer {
     )
   }
 
-  type Provides = Has[JdbcInfo] with Has[Connection] with Has[Connection with AutoCloseable] with Has[MySQLContainer]
+  type Provides = Has[JdbcInfo]
+    with Has[Connection]
+    with Has[Connection with AutoCloseable]
+    with Has[DataSource]
+    with Has[MySQLContainer]
 
   val live: ZLayer[Has[Settings], Nothing, Provides] = {
 
@@ -72,14 +78,18 @@ object ZMySQLContainer {
 
       } yield {
 
-        val jdbcInfo = JdbcInfo(
+        val jdbcInfo   = JdbcInfo(
           driverClassName = container.driverClassName,
           jdbcUrl = container.jdbcUrl,
           username = container.username,
           password = container.password
         )
+        val dataSource = new MysqlDataSource()
+        dataSource.setUrl(container.jdbcUrl)
+        dataSource.setUser(container.username)
+        dataSource.setPassword(container.password)
 
-        Has(jdbcInfo) ++ Has(conn) ++ Has(container)
+        Has(jdbcInfo) ++ Has(conn) ++ Has[DataSource](dataSource) ++ Has(container)
       }
 
     }
