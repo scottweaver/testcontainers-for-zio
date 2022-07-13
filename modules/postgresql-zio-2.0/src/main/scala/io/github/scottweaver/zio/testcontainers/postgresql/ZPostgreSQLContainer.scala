@@ -4,8 +4,9 @@ import zio._
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.sql.DriverManager
-import java.sql.Connection
+// import java.sql.Connection
 import io.github.scottweaver.models.JdbcInfo
+// import javax.sql.DataSource
 
 object ZPostgreSQLContainer {
   final case class Settings(
@@ -26,10 +27,6 @@ object ZPostgreSQLContainer {
     )
   }
 
-  // type Provides = JdbcInfo with Connection with AutoCloseable with PostgreSQLContainer
-  type Provides = JdbcInfo with Connection with PostgreSQLContainer
-
-  // val live: ZLayer[Settings, Nothing, Provides] = {
   val live = {
 
     def makeManagedConnection(container: PostgreSQLContainer) =
@@ -70,14 +67,18 @@ object ZPostgreSQLContainer {
         container <- makeManagedContainer(settings)
         conn      <- makeManagedConnection(container)
       } yield {
-        val jdbcInfo = JdbcInfo(
+        val jdbcInfo   = JdbcInfo(
           driverClassName = container.driverClassName,
           jdbcUrl = container.jdbcUrl,
           username = container.username,
           password = container.password
         )
+        val dataSource = new org.postgresql.ds.PGSimpleDataSource()
+        dataSource.setUrl(jdbcInfo.jdbcUrl)
+        dataSource.setUser(jdbcInfo.username)
+        dataSource.setPassword(jdbcInfo.password)
 
-        ZEnvironment(jdbcInfo, conn, container)
+        ZEnvironment(jdbcInfo, conn, dataSource, container)
       }
     }
   }

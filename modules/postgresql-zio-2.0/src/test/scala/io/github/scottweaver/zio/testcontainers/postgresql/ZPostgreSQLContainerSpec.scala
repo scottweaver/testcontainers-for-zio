@@ -2,10 +2,10 @@ package io.github.scottweaver.zio.testcontainers.postgres
 
 import zio._
 import zio.test._
-import zio.test.Assertion._
 import java.sql.Connection
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import io.github.scottweaver.models.JdbcInfo
+import javax.sql.DataSource
 
 object ZPostgreSQLContainerSpec extends ZIOSpecDefault {
   def spec =
@@ -19,16 +19,28 @@ object ZPostgreSQLContainerSpec extends ZIOSpecDefault {
             rs.getInt(1)
           }
 
+        def sqlTestOnDs(ds: DataSource) =
+          for {
+            conn   <- ZIO.attempt(ds.getConnection)
+            result <- sqlTestQuery(conn)
+
+          } yield (result)
+
         for {
           conn      <- ZIO.service[Connection]
+          ds        <- ZIO.service[DataSource]
           container <- ZIO.service[PostgreSQLContainer]
           jdbcInfo  <- ZIO.service[JdbcInfo]
           result    <- sqlTestQuery(conn)
-        } yield assert(result)(equalTo(1)) &&
-          assert(jdbcInfo.jdbcUrl)(equalTo(container.jdbcUrl)) &&
-          assert(jdbcInfo.username)(equalTo(container.username)) &&
-          assert(jdbcInfo.password)(equalTo(container.password)) &&
-          assert(jdbcInfo.driverClassName)(equalTo(container.driverClassName))
+          result2   <- sqlTestOnDs(ds)
+        } yield assertTrue(
+          result == 1,
+          result2 == 1,
+          jdbcInfo.jdbcUrl == container.jdbcUrl,
+          jdbcInfo.username == container.username,
+          jdbcInfo.password == container.password,
+          jdbcInfo.driverClassName == container.driverClassName
+        )
       }.provideShared(
         ZPostgreSQLContainer.Settings.default,
         ZPostgreSQLContainer.live

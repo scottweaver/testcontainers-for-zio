@@ -6,6 +6,7 @@ import org.testcontainers.utility.DockerImageName
 import java.sql.DriverManager
 import java.sql.Connection
 import io.github.scottweaver.models.JdbcInfo
+import javax.sql.DataSource
 
 object ZPostgreSQLContainer {
   final case class Settings(
@@ -26,7 +27,10 @@ object ZPostgreSQLContainer {
     )
   }
 
-  type Provides = Has[JdbcInfo] with Has[Connection with AutoCloseable] with Has[PostgreSQLContainer]
+  type Provides = Has[JdbcInfo]
+    with Has[Connection with AutoCloseable]
+    with Has[DataSource]
+    with Has[PostgreSQLContainer]
 
   val live: ZLayer[Has[Settings], Nothing, Provides] = {
 
@@ -77,7 +81,12 @@ object ZPostgreSQLContainer {
           password = container.password
         )
 
-        Has(jdbcInfo) ++ Has(conn) ++ Has(container)
+        val dataSource = new org.postgresql.ds.PGSimpleDataSource()
+        dataSource.setUrl(jdbcInfo.jdbcUrl)
+        dataSource.setUser(jdbcInfo.username)
+        dataSource.setPassword(jdbcInfo.password)
+
+        Has(jdbcInfo) ++ Has(conn) ++ Has[DataSource](dataSource) ++ Has(container)
       }
     }
   }
