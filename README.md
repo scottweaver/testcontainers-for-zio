@@ -21,8 +21,8 @@
 [Link-SonatypeReleases-DbMigrationAspect]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-db-migration-aspect_2.13/0.8.0/  "Sonatype Releases link"
 [Badge-SonatypeReleases-DbMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-db-migration-aspect_2.13/0.8.0?label=maven-central%20%20db-migration-aspect "Sonatype Releases badge"
 
-[Link-SonatypeReleases-LiquibaseAspect]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-2-liquibase-aspect_2.13/0.8.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-LiquibaseAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-liquibase-aspect_2.13/0.8.0?label=maven-central%20%20zio-2-liquibase-aspect "Sonatype Releases badge"
+[Link-SonatypeReleases-LiquibaseAspect]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-2-0-liquibase-aspect_2.13/0.8.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-LiquibaseAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-liquibase-aspect_2.13/0.8.0?label=maven-central%20%20zio-2.0-liquibase-aspect "Sonatype Releases badge"
 
 Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
 
