@@ -19,47 +19,54 @@ import zio.stream.ZSink
   */
 object NettyRequest {
 
+  type ZioChannelFactory = () => ZIO[Any, Throwable, Channel]
+
   def executeRequest(request: HttpRequest) =
-    ZIO.serviceWithZIO[Channel] { channel =>
+    ZIO.serviceWithZIO[ZioChannelFactory] { channelFactory =>
       val chunkHandler = new DockerResponseHandler()
 
       val schedule: Schedule[Any, Any, Any] =
         Schedule.recurWhile(_ => chunkHandler.httpStatus.get() == Integer.MIN_VALUE)
 
-      val response = zhttp.service.ChannelFuture.make {
+      val initializedChannel = for {
+        channel <- channelFactory()
+        _        = channel
+                     .pipeline()
+                     .addLast(chunkHandler)
+      } yield channel
 
-        channel
-          .pipeline()
-          .addLast(chunkHandler)
+      def execute(channel: Channel) =
+        zhttp.service.ChannelFuture.make {
 
-        channel.writeAndFlush(request)
-      }
-        .flatMap(_.toZIO)
-        .flatMap(_ => ZIO.unit.schedule(schedule))
-        .as(chunkHandler.httpStatus.get())
+          channel.writeAndFlush(request)
+        }
+          .flatMap(_.toZIO)
+          .flatMap(_ => ZIO.unit.schedule(schedule))
+          .as(chunkHandler.httpStatus.get())
 
       val runningStream = chunkHandler.stream.run(ZSink.foreach(ZIO.debug(_)))
 
       for {
-        f1         <- response.fork
+        channel    <- initializedChannel
+        f1         <- execute(channel).fork
         f2         <- runningStream.fork
         statusCode <- f1.join
-        _          <- ZIO.debug("STATUS CODE JOINED")
+        _          <- ZIO.debug(">>> STATUS CODE JOINED")
         _          <- f2.join
-        _          <- ZIO.debug("STREAM JOINED")
+        _          <- ZIO.debug(">>> STREAM JOINED")
       } yield statusCode
 
     }
 
-  def live                                                                                      = ZLayer.fromZIO {
+  def live                                                                             = ZLayer.fromZIO {
     for {
       _       <- makeEventLoopGroup
-      channel <- makeChannel()
+      channel <- makeChannelFactory()
 
     } yield channel
   }
 
-  private def channelInitializer[A <: Channel]()                                                =
+  private def channelInitializer[A <: Channel]()                                       =
     new ChannelInitializer[A] {
       override def initChannel(ch: A): Unit = {
         ch.pipeline()
@@ -74,7 +81,7 @@ object NettyRequest {
       }
     }
 
-  private def makeKqueue(bootstrap: Bootstrap)                                                  = ZIO.acquireRelease(
+  private def makeKqueue(bootstrap: Bootstrap)                                         = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new KQueueEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-kqueue"))
 
@@ -86,7 +93,7 @@ object NettyRequest {
     }
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
-  private def makeEpoll(bootstrap: Bootstrap)                                                   = ZIO.acquireRelease(
+  private def makeEpoll(bootstrap: Bootstrap)                                          = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new EpollEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-epoll"))
 
@@ -100,21 +107,23 @@ object NettyRequest {
     }
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
-  private def makeChannel(path: String = "/var/run/docker.sock"): RIO[Bootstrap, DuplexChannel] = {
-    val channel =
-      ZIO.serviceWithZIO[Bootstrap] { bootstrap =>
-        ZIO.attempt {
+  private def makeChannelFactory(path: String = "/var/run/docker.sock"): URIO[Bootstrap, () => Task[DuplexChannel]] =
+    // val channel =
+    ZIO.serviceWith[Bootstrap] { bootstrap => () =>
+      {
+
+        val channel = ZIO.attempt {
           bootstrap.connect(new DomainSocketAddress(path)).sync().channel()
         }
+
+        channel.flatMap {
+          case c: DuplexChannel => ZIO.succeed(c)
+          case other            => ZIO.fail(new Exception(s"Expected a duplex channel, got ${other.getClass.getName} instead."))
+        }
       }
-
-    channel.flatMap {
-      case c: DuplexChannel => ZIO.succeed(c)
-      case other            => ZIO.fail(new Exception(s"Expected a duplex channel, got ${other.getClass.getName} instead."))
     }
-  }
 
-  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup]          =
+  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup] =
     ZIO.serviceWithZIO[Bootstrap] { bootstrap =>
       if (Epoll.isAvailable())
         makeEpoll(bootstrap)

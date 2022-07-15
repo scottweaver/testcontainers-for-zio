@@ -20,17 +20,18 @@ object DockerSocketChannelFactorySpec extends ZIOSpecDefault {
         )
         request.headers().set(HttpHeaderNames.HOST, "daemon")
 
-        val testCase = NettyRequest.executeRequest(request)
+        val testCase = NettyRequest.executeRequest(request) <* ZIO.sleep(2.seconds)
 
         testCase
           .map { statusCode =>
             assertTrue(statusCode == 200)
           }
       }
-    ).provideShared(
+    )
+    .provideShared(
       ZLayer.succeed(new Bootstrap),
       Scope.default,
       NettyRequest.live
-    ) @@ TestAspect.timeout(10.seconds)
+    ) @@ TestAspect.timeout(10.seconds) @@ TestAspect.withLiveClock
 
 }
