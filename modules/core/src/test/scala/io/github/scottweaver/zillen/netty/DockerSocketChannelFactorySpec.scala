@@ -13,7 +13,7 @@ object DockerSocketChannelFactorySpec extends ZIOSpecDefault {
         val request: HttpRequest = new DefaultFullHttpRequest(
           HttpVersion.HTTP_1_1,
           HttpMethod.POST,
-          "http://localhost/v1.41/images/create?fromImage=alpine",
+          "http://localhost/v1.41/images/create?fromImage=alpine:latest",
           // HttpMethod.GET,
           // "http://localhost/v1.41/images/json",
           Unpooled.EMPTY_BUFFER

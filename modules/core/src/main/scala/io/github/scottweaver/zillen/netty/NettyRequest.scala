@@ -1,6 +1,5 @@
 package io.github.scottweaver.zillen.netty
 
-// import zhttp.service.ChannelFactory
 import io.netty.channel.epoll._
 import io.netty.channel.kqueue._
 import io.netty.bootstrap.Bootstrap
@@ -11,46 +10,46 @@ import io.netty.handler.codec.http._
 import io.netty.handler.logging.LoggingHandler
 import io.netty.channel.unix.DomainSocketAddress
 import io.netty.channel.socket.DuplexChannel
-import java.util.concurrent.atomic.AtomicReference
-import zio.stream._
-import StreamingStatusLogger.StatusResponse
+import zio.stream.ZSink
 
-/**
-  * 
-  * Inspirations and Due Respects:
-  * - https://github.com/slandelle/netty-progress/blob/master/src/test/java/slandelle/ProgressTest.java
-  * - https://github.com/dream11/zio-http
-  * - https://github.com/docker-java/docker-java
+/** Inspirations and Due Respects:
+  *   - https://github.com/slandelle/netty-progress/blob/master/src/test/java/slandelle/ProgressTest.java
+  *   - https://github.com/dream11/zio-http
+  *   - https://github.com/docker-java/docker-java
   */
 object NettyRequest {
 
-  def executeRequest(request: HttpRequest) = {
-    val atomicStream = new AtomicReference[Option[StatusResponse]](Option.empty)
-    // val atomicStatus = new AtomicReference[Option[ResponseStatusHandler.ResponseStatus]](Option.empty)
+  def executeRequest(request: HttpRequest) =
     ZIO.serviceWithZIO[Channel] { channel =>
-      zhttp.service.ChannelFuture.make {
+      val chunkHandler = new DockerResponseHandler()
+
+      val schedule: Schedule[Any, Any, Any] =
+        Schedule.recurWhile(_ => chunkHandler.httpStatus.get() == Integer.MIN_VALUE)
+
+      val response = zhttp.service.ChannelFuture.make {
 
         channel
           .pipeline()
-          .addLast(new ChunkHandler)
-          // .addLast(new ResponseStatusHandler(atomicStatus))
-          .addLast(new StreamingStatusLogger(atomicStream))
+          .addLast(chunkHandler)
 
         channel.writeAndFlush(request)
-
       }
         .flatMap(_.toZIO)
-        .flatMap { _ =>
-          while (atomicStream.get().isEmpty)
-            Thread.sleep(100)
-          val status = atomicStream.get().get
-          status.responseStream.run(ZSink.foreach(s => Console.printLine(s"[STREAMED] >>> $s"))) *> ZIO.succeed(
-            status.statusCode
-          )
+        .flatMap(_ => ZIO.unit.schedule(schedule))
+        .as(chunkHandler.httpStatus.get())
 
-        }
+      val runningStream = chunkHandler.stream.run(ZSink.foreach(ZIO.debug(_)))
+
+      for {
+        f1         <- response.fork
+        f2         <- runningStream.fork
+        statusCode <- f1.join
+        _          <- ZIO.debug("STATUS CODE JOINED")
+        _          <- f2.join
+        _          <- ZIO.debug("STREAM JOINED")
+      } yield statusCode
+
     }
-  }
 
   def live                                                                                      = ZLayer.fromZIO {
     for {
@@ -67,7 +66,7 @@ object NettyRequest {
           .addLast(
             new LoggingHandler(getClass()),
             new HttpClientCodec(),
-            new HttpContentDecompressor(),
+            new HttpContentDecompressor()
             // new HttpObjectAggregator(Int.MaxValue)
           )
 
