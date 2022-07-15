@@ -6,9 +6,11 @@ object V {
   val supportedScalaVersions     = List(scala213Version, scala212Version, scala3Version)
   val zioVersion                 = "1.0.15"
   val zio2Version                = "2.0.0"
+  val zioPreludeVersion          = "1.0.0-RC15"
   val zioMagicVersion            = "0.3.10"
   val zioKafkaVersion            = "0.17.1"
   val zio2KafkaVersion           = "2.0.0"
+  val zioHttpVersion             = "2.0.0-RC9"
   val testcontainersScalaVersion = "0.40.8"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"

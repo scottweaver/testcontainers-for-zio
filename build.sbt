@@ -22,6 +22,18 @@ ThisBuild / developers    := List(
 crossScalaVersions := Nil
 commandAliases
 
+lazy val core                              = project
+  .in(file("modules/core"))
+  .settings(settings(V.zio2Version))
+  .settings(
+    libraryDependencies ++= Seq(
+      "dev.zio"               %% "zio-prelude" % V.zioPreludeVersion,
+      "dev.zio"               %% "zio-streams" % V.zio2Version,
+      "io.d11"                %% "zhttp"       % V.zioHttpVersion,
+      "com.github.docker-java" % "docker-java" % "3.2.13"
+    )
+  )
+
 lazy val models                            = project
   .in(file("modules/models"))
   .settings(settings())
