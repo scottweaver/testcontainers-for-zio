@@ -17,56 +17,31 @@ import zio.stream.ZSink
   *   - https://github.com/dream11/zio-http
   *   - https://github.com/docker-java/docker-java
   */
+trait NettyRequest {
+  def executeRequest(request: HttpRequest): Task[Int]
+
+  def executeRequestWithResponse(request: HttpRequest): Task[(Int, String)]
+}
+
 object NettyRequest {
 
   type ZioChannelFactory = () => ZIO[Any, Throwable, Channel]
 
-  def executeRequest(request: HttpRequest) =
-    ZIO.serviceWithZIO[ZioChannelFactory] { channelFactory =>
-      val chunkHandler = new DockerResponseHandler()
+  def executeRequest(request: HttpRequest) = ZIO.serviceWithZIO[NettyRequest](_.executeRequest(request))
 
-      val schedule: Schedule[Any, Any, Any] =
-        Schedule.recurWhile(_ => chunkHandler.httpStatus.get() == Integer.MIN_VALUE)
+  def executeRequestWithResponse(request: HttpRequest) =
+    ZIO.serviceWithZIO[NettyRequest](_.executeRequestWithResponse(request))
 
-      val initializedChannel = for {
-        channel <- channelFactory()
-        _        = channel
-                     .pipeline()
-                     .addLast(chunkHandler)
-      } yield channel
-
-      def execute(channel: Channel) =
-        zhttp.service.ChannelFuture.make {
-
-          channel.writeAndFlush(request)
-        }
-          .flatMap(_.toZIO)
-          .flatMap(_ => ZIO.unit.schedule(schedule))
-          .as(chunkHandler.httpStatus.get())
-
-      val runningStream = chunkHandler.stream.run(ZSink.foreach(ZIO.debug(_)))
-
-      for {
-        channel    <- initializedChannel
-        f1         <- execute(channel).fork
-        f2         <- runningStream.fork
-        statusCode <- f1.join
-        _          <- ZIO.debug(">>> STATUS CODE JOINED")
-        _          <- f2.join
-        _          <- ZIO.debug(">>> STREAM JOINED")
-      } yield statusCode
-
-    }
-
-  def live                                                                             = ZLayer.fromZIO {
+  def live                                                                                                          = ZLayer.fromZIO {
     for {
       _       <- makeEventLoopGroup
       channel <- makeChannelFactory()
+      scope   <- ZIO.service[Scope]
 
-    } yield channel
+    } yield NettyRequestLive(channel, scope)
   }
 
-  private def channelInitializer[A <: Channel]()                                       =
+  private def channelInitializer[A <: Channel]()                                                                    =
     new ChannelInitializer[A] {
       override def initChannel(ch: A): Unit = {
         ch.pipeline()
@@ -74,14 +49,13 @@ object NettyRequest {
             new LoggingHandler(getClass()),
             new HttpClientCodec(),
             new HttpContentDecompressor()
-            // new HttpObjectAggregator(Int.MaxValue)
           )
 
         ()
       }
     }
 
-  private def makeKqueue(bootstrap: Bootstrap)                                         = ZIO.acquireRelease(
+  private def makeKqueue(bootstrap: Bootstrap)                                                                      = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new KQueueEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-kqueue"))
 
@@ -93,7 +67,7 @@ object NettyRequest {
     }
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
-  private def makeEpoll(bootstrap: Bootstrap)                                          = ZIO.acquireRelease(
+  private def makeEpoll(bootstrap: Bootstrap)                                                                       = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new EpollEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-epoll"))
 
@@ -108,10 +82,8 @@ object NettyRequest {
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
   private def makeChannelFactory(path: String = "/var/run/docker.sock"): URIO[Bootstrap, () => Task[DuplexChannel]] =
-    // val channel =
     ZIO.serviceWith[Bootstrap] { bootstrap => () =>
       {
-
         val channel = ZIO.attempt {
           bootstrap.connect(new DomainSocketAddress(path)).sync().channel()
         }
@@ -123,7 +95,7 @@ object NettyRequest {
       }
     }
 
-  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup] =
+  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup]                              =
     ZIO.serviceWithZIO[Bootstrap] { bootstrap =>
       if (Epoll.isAvailable())
         makeEpoll(bootstrap)
@@ -133,4 +105,81 @@ object NettyRequest {
         ZIO.fail(new Exception("Could not create the appropriate event loop group.  Reason: OS not supported."))
     }
 
+}
+
+final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory, scope: Scope) extends NettyRequest {
+
+  override def executeRequest(request: HttpRequest): Task[Int] = {
+
+    var statusCode        = Int.MinValue
+    var bodyComplete      = false
+    val chunkHandler      = new StreamedBodyHandler(() => bodyComplete = true)
+    val statusCodeHandler = new StatusCodeHandler((code) => statusCode = code)
+
+    val schedule: Schedule[Any, Any, Any] =
+      Schedule.recurWhile(_ => statusCode == Integer.MIN_VALUE || !bodyComplete)
+
+    val initializedChannel = for {
+      channel <- channelFactory()
+      _        = channel
+                   .pipeline()
+                   .addLast(chunkHandler)
+                   .addLast(statusCodeHandler)
+    } yield channel
+
+    def execute(channel: Channel) =
+      zhttp.service.ChannelFuture.make {
+
+        channel.writeAndFlush(request)
+      }
+        .flatMap(_.toZIO)
+        .flatMap(_ => ZIO.unit.schedule(schedule))
+
+    val runningStream = chunkHandler.stream.run(ZSink.foreach(ZIO.debug(_)))
+
+    (for {
+      channel <- initializedChannel
+      f1      <- execute(channel).fork
+      f2      <- runningStream.fork
+      _       <- f1.join
+      _       <- ZIO.debug(s">>> STATUS CODE JOINED: ${statusCode}")
+      _       <- f2.join
+      _       <- ZIO.debug(">>> STREAM JOINED")
+    } yield statusCode).provide(ZLayer.succeed(scope))
+  }
+
+  def executeRequestWithResponse(request: HttpRequest): Task[(Int, String)] = {
+
+    var responseBody = Option.empty[String]
+    var statusCode   = Int.MinValue
+
+    val bodyHandler       = new ResponseBodyHandler((body) => responseBody = Some(body))
+    val statusCodeHandler = new StatusCodeHandler((code) => statusCode = code)
+
+    val schedule: Schedule[Any, Any, Any] =
+      Schedule.recurWhile(_ => statusCode == Integer.MIN_VALUE || responseBody.isEmpty)
+
+    val initializedChannel = for {
+      channel <- channelFactory()
+      _        = channel
+                   .pipeline()
+                   .addLast(statusCodeHandler)
+                   .addLast(bodyHandler)
+    } yield channel
+
+    def execute(channel: Channel) =
+      zhttp.service.ChannelFuture.make {
+
+        channel.writeAndFlush(request)
+      }
+        .flatMap(_.toZIO)
+        .flatMap(_ => ZIO.unit.schedule(schedule))
+        .as(statusCode -> responseBody.getOrElse(""))
+
+    (for {
+      channel  <- initializedChannel
+      response <- execute(channel)
+    } yield response).provide(ZLayer.succeed(scope))
+
+  }
 }

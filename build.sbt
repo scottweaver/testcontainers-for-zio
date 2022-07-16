@@ -28,6 +28,7 @@ lazy val core                              = project
   .settings(
     libraryDependencies ++= Seq(
       "dev.zio"               %% "zio-prelude" % V.zioPreludeVersion,
+      "dev.zio"               %% "zio-json"    % V.zioJsonVersion,
       "dev.zio"               %% "zio-streams" % V.zio2Version,
       "io.d11"                %% "zhttp"       % V.zioHttpVersion,
       "com.github.docker-java" % "docker-java" % "3.2.13"
