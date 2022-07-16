@@ -20,4 +20,5 @@ object V {
   val flywayVersion              = "8.1.0"
   val cassandraMigrationsVersion = "2.5.0_v4"
   val liquibaseVersion           = "4.13.0"
+  val nettyVersion               = "4.1.79.Final"
 }

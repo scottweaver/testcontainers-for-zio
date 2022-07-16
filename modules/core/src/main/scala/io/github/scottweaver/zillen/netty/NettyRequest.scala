@@ -113,7 +113,7 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
 
     var statusCode        = Int.MinValue
     var bodyComplete      = false
-    val chunkHandler      = new StreamedBodyHandler(() => bodyComplete = true)
+    val streamedBodyHandler      = new StreamedBodyHandler(() => bodyComplete = true)
     val statusCodeHandler = new StatusCodeHandler((code) => statusCode = code)
 
     val schedule: Schedule[Any, Any, Any] =
@@ -123,19 +123,19 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
       channel <- channelFactory()
       _        = channel
                    .pipeline()
-                   .addLast(chunkHandler)
+                   .addLast(streamedBodyHandler)
                    .addLast(statusCodeHandler)
     } yield channel
 
     def execute(channel: Channel) =
-      zhttp.service.ChannelFuture.make {
+      ZChannelFuture.make {
 
         channel.writeAndFlush(request)
       }
-        .flatMap(_.toZIO)
+        .flatMap(_.scoped)
         .flatMap(_ => ZIO.unit.schedule(schedule))
 
-    val runningStream = chunkHandler.stream.run(ZSink.foreach(ZIO.debug(_)))
+    val runningStream = streamedBodyHandler.stream.run(ZSink.foreach(ZIO.debug(_)))
 
     (for {
       channel <- initializedChannel
@@ -168,11 +168,11 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
     } yield channel
 
     def execute(channel: Channel) =
-      zhttp.service.ChannelFuture.make {
+      ZChannelFuture.make {
 
         channel.writeAndFlush(request)
       }
-        .flatMap(_.toZIO)
+        .flatMap(_.scoped)
         .flatMap(_ => ZIO.unit.schedule(schedule))
         .as(statusCode -> responseBody.getOrElse(""))
 

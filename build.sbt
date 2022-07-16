@@ -27,11 +27,13 @@ lazy val core                              = project
   .settings(settings(V.zio2Version))
   .settings(
     libraryDependencies ++= Seq(
-      "dev.zio"               %% "zio-prelude" % V.zioPreludeVersion,
-      "dev.zio"               %% "zio-json"    % V.zioJsonVersion,
-      "dev.zio"               %% "zio-streams" % V.zio2Version,
-      "io.d11"                %% "zhttp"       % V.zioHttpVersion,
-      "com.github.docker-java" % "docker-java" % "3.2.13"
+      "dev.zio" %% "zio-prelude"                   % V.zioPreludeVersion,
+      "dev.zio" %% "zio-json"                      % V.zioJsonVersion,
+      "dev.zio" %% "zio-streams"                   % V.zio2Version,
+      "io.netty" % "netty-codec-http"              % V.nettyVersion,
+      "io.netty" % "netty-handler"                 % V.nettyVersion,
+      "io.netty" % "netty-transport-native-epoll"  % V.nettyVersion classifier "linux-x86_64",
+      "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-x86_64"
     )
   )
 
