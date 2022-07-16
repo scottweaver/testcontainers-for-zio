@@ -10,13 +10,9 @@
   </appender>
 
 
-  <root level="WARN">
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
 
-  <logger name="org.testcontainers" level="WARN" />
-  <logger name="com.github.dockerjava" level="WARN" />
   <logger name="ch.qos.logback" level="WARN" />
-  <!-- Only relevant if you are using the db migration aspect -->
-  <logger name="org.flywaydb" level="WARN" />
 </configuration>

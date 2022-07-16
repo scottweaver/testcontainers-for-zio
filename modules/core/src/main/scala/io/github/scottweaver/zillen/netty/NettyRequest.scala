@@ -153,7 +153,7 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
     var responseBody = Option.empty[String]
     var statusCode   = Int.MinValue
 
-    val bodyHandler       = new ResponseBodyHandler((body) => responseBody = Some(body))
+    val bodyHandler       = new ResponseBodyHandler((body) => if (responseBody.isEmpty) responseBody = Some(body) else ())
     val statusCodeHandler = new StatusCodeHandler((code) => statusCode = code)
 
     val schedule: Schedule[Any, Any, Any] =

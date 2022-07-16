@@ -9,13 +9,13 @@ import zio._
 object InterpreterSpec extends ZIOSpecDefault {
 
   def spec = suite("InterpreterSpec")(
-    test("PullImage receives a 200 response") {
+    test("CreateImage receives a 200 response") {
       val testCase =
-        Interpreter.executeCommand(Command.Pull(Image("alpine:latest")))
+        Interpreter.run(Command.CreateImage(Image("hello-world:latest")))
 
       testCase.map { response =>
         println(response)
-        assertTrue(response.status == 200)
+        assertTrue(response == Image("hello-world:latest"))
       }.provide(
         Scope.default,
         ZLayer.succeed(new Bootstrap),
@@ -25,12 +25,30 @@ object InterpreterSpec extends ZIOSpecDefault {
 
     },
     test("CreateContainer receives a 201 response") {
-      val testCase =
-        Interpreter.executeCommand(Command.CreateContainer(Env.empty, Port.Exposed.empty, Image("alpine:latest")))
+      val create                  =
+        Interpreter.run(Command.CreateContainer(Env.empty, Port.Exposed.empty, Image("hello-world:latest")))
+      def start(id: ContainerId)  = Interpreter.run(Command.StartContainer(id))
+      def stop(id: ContainerId)   = Interpreter.run(Command.StopContainer(id))
+      def remove(id: ContainerId) = Interpreter.run(
+        Command.RemoveContainer(id, Command.RemoveContainer.Force.yes, Command.RemoveContainer.Volumes.yes)
+      )
 
-      testCase.map { response =>
+      val testCase =
+        for {
+          createdResponse <- create
+          started         <- start(createdResponse.id)
+          stopped         <- stop(createdResponse.id)
+          removed         <- remove(createdResponse.id)
+        } yield (createdResponse, started, stopped, removed)
+
+      testCase.map { case (response, started, stopped, removed) =>
         println(response)
-        assertTrue(response.status == 201)
+        assertTrue(
+          response.warnings.isEmpty,
+          started == response.id,
+          stopped.isInstanceOf[Command.StopContainer.NotRunning],
+          removed == response.id
+        )
       }.provide(
         Scope.default,
         ZLayer.succeed(new Bootstrap),

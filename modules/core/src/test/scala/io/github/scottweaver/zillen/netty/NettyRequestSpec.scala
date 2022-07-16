@@ -6,14 +6,14 @@ import io.netty.handler.codec.http._
 import io.netty.buffer.Unpooled
 import io.netty.bootstrap.Bootstrap
 
-object DockerSocketChannelFactorySpec extends ZIOSpecDefault {
+object NettyRequestSpec extends ZIOSpecDefault {
   def spec =
-    suite("UnixSocketChannelSpec")(
+    suite("NettyRequestSpec")(
       test("test") {
         val request: HttpRequest = new DefaultFullHttpRequest(
           HttpVersion.HTTP_1_1,
           HttpMethod.POST,
-          "http://localhost/v1.41/images/create?fromImage=alpine:latest",
+          "http://localhost/v1.41/images/create?fromImage=alpine",
           // HttpMethod.GET,
           // "http://localhost/v1.41/images/json",
           Unpooled.EMPTY_BUFFER
