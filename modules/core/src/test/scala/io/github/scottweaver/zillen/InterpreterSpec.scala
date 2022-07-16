@@ -38,6 +38,6 @@ object InterpreterSpec extends ZIOSpecDefault {
         Interpreter.live
       )
     }
-  )
+  ) @@ TestAspect.sequential
 
 }

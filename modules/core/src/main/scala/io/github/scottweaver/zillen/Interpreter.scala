@@ -40,11 +40,11 @@ final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter
 
         nettyRequest.executeRequest(request).map(status => Response(status, ""))
       case CreateContainer(env, exposedPorts, image) =>
-        val crequest             = CreateContainerRequest(env, exposedPorts, image)
+        val crequest = CreateContainerRequest(env, exposedPorts, image)
         // val crequest             = CreateContainerRequest(image  )
         println(crequest.toJsonPretty)
 
-        val bb = Unpooled.wrappedBuffer(crequest.toJson.getBytes)
+        val bb                   = Unpooled.wrappedBuffer(crequest.toJson.getBytes)
         val uri                  = s"http://localhost/v1.41/containers/create"
         println(s"ACTUAL BYTE COUNT: ${crequest.toJson.getBytes.length}")
         println(s"READABLE BYTE COUNT: ${bb.readableBytes()}")
@@ -57,7 +57,6 @@ final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter
         request.headers().set(HttpHeaderNames.HOST, "daemon")
         request.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json")
         request.headers().set(HttpHeaderNames.CONTENT_LENGTH, s"${bb.readableBytes()}")
-        
 
         nettyRequest.executeRequestWithResponse(request).map { case (status, body) =>
           Response(status, body)

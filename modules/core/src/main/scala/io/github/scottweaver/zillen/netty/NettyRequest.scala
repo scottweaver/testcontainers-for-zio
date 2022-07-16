@@ -71,11 +71,12 @@ object NettyRequest {
     ZIO.attempt {
       val evlg = new EpollEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-epoll"))
 
-      val channelFactory: ChannelFactory[EpollDomainSocketChannel] = () => new EpollDomainSocketChannel()
+      // val channelFactory: ChannelFactory[EpollDomainSocketChannel] = () => new EpollDomainSocketChannel()
 
       bootstrap
         .group(evlg)
-        .channelFactory(channelFactory)
+        // .channelFactory(channelFactory)
+        .channel(classOf[EpollDomainSocketChannel])
         .handler(channelInitializer[EpollDomainSocketChannel]())
       evlg
     }
@@ -111,10 +112,10 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
 
   override def executeRequest(request: HttpRequest): Task[Int] = {
 
-    var statusCode        = Int.MinValue
-    var bodyComplete      = false
-    val streamedBodyHandler      = new StreamedBodyHandler(() => bodyComplete = true)
-    val statusCodeHandler = new StatusCodeHandler((code) => statusCode = code)
+    var statusCode          = Int.MinValue
+    var bodyComplete        = false
+    val streamedBodyHandler = new StreamedBodyHandler(() => bodyComplete = true)
+    val statusCodeHandler   = new StatusCodeHandler((code) => statusCode = code)
 
     val schedule: Schedule[Any, Any, Any] =
       Schedule.recurWhile(_ => statusCode == Integer.MIN_VALUE || !bodyComplete)
@@ -129,7 +130,6 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
 
     def execute(channel: Channel) =
       ZChannelFuture.make {
-
         channel.writeAndFlush(request)
       }
         .flatMap(_.scoped)
@@ -169,7 +169,6 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
 
     def execute(channel: Channel) =
       ZChannelFuture.make {
-
         channel.writeAndFlush(request)
       }
         .flatMap(_.scoped)

@@ -18,6 +18,6 @@ object EncodingSpec extends ZIOSpecDefault {
           json == """{"80/tcp":{}}"""
         )
       }
-    ) 
-  
+    )
+
 }

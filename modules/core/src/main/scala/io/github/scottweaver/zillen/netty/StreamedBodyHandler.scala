@@ -14,7 +14,7 @@ class StreamedBodyHandler(callback: () => Unit) extends ChannelInboundHandlerAda
   private val pis = new PipedInputStream()
   pis.connect(pos)
 
-  val stream = ZStream
+  val stream                                                           = ZStream
     .fromInputStream(pis)
     .mapAccum(Chunk.empty[Byte]) { (acc, b) =>
       def isCRLF(b: Byte) = b == 10 || b == 13
@@ -27,8 +27,7 @@ class StreamedBodyHandler(callback: () => Unit) extends ChannelInboundHandlerAda
         (acc :+ b, None)
     }
     .collect { case Some(s) => s }
-  .filterNot(_.isEmpty)
-
+    .filterNot(_.isEmpty)
 
   override def channelRead(ctx: ChannelHandlerContext, msg: Any): Unit = {
 
@@ -43,14 +42,13 @@ class StreamedBodyHandler(callback: () => Unit) extends ChannelInboundHandlerAda
 
     msg match {
       // IMPORTANT: LastHttpContent must appear before HttpContent as it is a subclass of HttpContent.
-      case end: LastHttpContent   =>
+      case end: LastHttpContent =>
         writeToStream(end.content())
-        try {
-          pos.close()
-        } finally (callback())
-      case content: HttpContent   =>
+        try pos.close()
+        finally (callback())
+      case content: HttpContent =>
         writeToStream(content.content())
-      case _                      =>
+      case _                    =>
     }
 
     super.channelRead(ctx, msg)
