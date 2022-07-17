@@ -13,14 +13,14 @@ object NettyRequestSpec extends ZIOSpecDefault {
         val request: HttpRequest = new DefaultFullHttpRequest(
           HttpVersion.HTTP_1_1,
           HttpMethod.POST,
-          "http://localhost/v1.41/images/create?fromImage=alpine",
+          "http://localhost/v1.41/images/create?fromImage=hello-world:latest",
           // HttpMethod.GET,
           // "http://localhost/v1.41/images/json",
           Unpooled.EMPTY_BUFFER
         )
         request.headers().set(HttpHeaderNames.HOST, "daemon")
 
-        val testCase = NettyRequest.executeRequest(request) <* ZIO.sleep(2.seconds)
+        val testCase = NettyRequest.executeRequest(request)
 
         testCase.map { statusCode =>
           assertTrue(statusCode == 200)
@@ -31,6 +31,6 @@ object NettyRequestSpec extends ZIOSpecDefault {
         ZLayer.succeed(new Bootstrap),
         Scope.default,
         NettyRequest.live
-      ) @@ TestAspect.timeout(10.seconds) @@ TestAspect.withLiveClock
+      )
 
 }

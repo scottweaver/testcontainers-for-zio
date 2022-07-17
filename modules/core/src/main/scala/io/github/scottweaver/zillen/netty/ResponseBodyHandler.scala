@@ -10,7 +10,7 @@ class ResponseBodyHandler(val callback: (String) => Unit) extends SimpleChannelI
       case content: DefaultHttpContent =>
         val body = content.content().toString(Charset.defaultCharset())
         callback(body)
-      case _    =>
+      case _                           =>
         callback("")
     }
 }

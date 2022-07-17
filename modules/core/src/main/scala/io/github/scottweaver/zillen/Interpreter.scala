@@ -57,30 +57,30 @@ final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter
 
   def run(command: Command): ZIO[Any, Throwable, command.Response] =
     command match {
-      case CreateImage(image)                           =>
+      case CreateImage(image)                                    =>
         val uri     = s"http://localhost/v1.41/images/create?fromImage=${image}"
         val request = makePOST(uri)
         nettyRequest.executeRequest(request).flatMap(status => command.makeResponse(status, ""))
-      case CreateContainer(env, exposedPorts, image)    =>
+      case CreateContainer(env, exposedPorts, hostConfig, image) =>
         val uri     = "http://localhost/v1.41/containers/create"
-        val request = makePOST(uri, CreateContainerRequest(env, exposedPorts, image))
+        val request = makePOST(uri, CreateContainerRequest(env, exposedPorts, hostConfig, image))
         nettyRequest.executeRequestWithResponse(request).flatMap { case (status, body) =>
           command.makeResponse(status, body)
         }
-      case RemoveContainer(containerId, force, volumes) =>
+      case RemoveContainer(containerId, force, volumes)          =>
         val uri     = s"http://localhost/v1.41/containers/${containerId}?force=${force}&v=${volumes}"
         val request = makeDELETE(uri)
         nettyRequest.executeRequest(request).flatMap(status => command.makeResponse(status, "")) <* ZIO.logInfo(
           s"Successfully removed container ${containerId}"
         )
-      case StartContainer(containerId)                  =>
+      case StartContainer(containerId)                           =>
         val uri     = s"http://localhost/v1.41/containers/${containerId}/start"
         val request = makePOST(uri)
         ZIO.logInfo(s"Attempting to start container with id '${containerId}'.") *>
           nettyRequest.executeRequestWithResponse(request).flatMap { case (status, body) =>
             command.makeResponse(status, body)
           }
-      case StopContainer(containerId)                   =>
+      case StopContainer(containerId)                            =>
         val uri     = s"http://localhost/v1.41/containers/${containerId}/stop"
         val request = makePOST(uri)
         ZIO.logInfo(s"Attempting to stop container with id '${containerId}'.") *>

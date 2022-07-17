@@ -5,6 +5,7 @@ import zio.json._
 final case class CreateContainerRequest(
   @jsonField("Env") env: Env,
   @jsonField("ExposedPorts") exposedPorts: Port.Exposed,
+  @jsonField("HostConfig") hostConfig: HostConfig,
   @jsonField("Image") image: Image
 )
 

@@ -5,6 +5,8 @@ import zio.json._
 
 object Env extends Subtype[Map[String, String]] {
 
+  def make(kvs: (String, String)*): Env = wrap(Map(kvs: _*))
+
   val empty: Env = wrap(Map.empty)
 
   implicit val EnvEncoder: JsonEncoder[Env] =

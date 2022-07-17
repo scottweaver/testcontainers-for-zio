@@ -27,7 +27,8 @@ object Command {
         )
   }
 
-  final case class CreateContainer(env: Env, exposedPorts: Port.Exposed, image: Image) extends Command {
+  final case class CreateContainer(env: Env, exposedPorts: Port.Exposed, hostConfig: HostConfig, image: Image)
+      extends Command {
 
     type Response = CreateContainerResponse
 

@@ -10,8 +10,8 @@ object ProgressDetail {
   implicit val progressDetailDecoder: JsonDecoder[ProgressDetail] =
     JsonDecoder[Json.Obj].mapOrFail { obj =>
       for {
-        current  <- extractValue("current", obj, 0L)
-        total    <- extractValue("total", obj, 0L)
+        current <- extractValue("current", obj, 0L)
+        total   <- extractValue("total", obj, 0L)
       } yield ProgressDetail(current, total)
     }
 }
