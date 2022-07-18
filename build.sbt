@@ -22,6 +22,21 @@ ThisBuild / developers    := List(
 crossScalaVersions := Nil
 commandAliases
 
+lazy val core                              = project
+  .in(file("modules/core"))
+  .settings(settings(V.zio2Version))
+  .settings(
+    libraryDependencies ++= Seq(
+      "dev.zio" %% "zio-prelude"                   % V.zioPreludeVersion,
+      "dev.zio" %% "zio-json"                      % V.zioJsonVersion,
+      "dev.zio" %% "zio-streams"                   % V.zio2Version,
+      "io.netty" % "netty-codec-http"              % V.nettyVersion,
+      "io.netty" % "netty-handler"                 % V.nettyVersion,
+      "io.netty" % "netty-transport-native-epoll"  % V.nettyVersion classifier "linux-x86_64",
+      "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-x86_64"
+    )
+  )
+
 lazy val models                            = project
   .in(file("modules/models"))
   .settings(settings())
