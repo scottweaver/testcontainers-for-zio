@@ -12,7 +12,7 @@ import io.github.scottweaver.zillen.Command.StopContainer.NotRunning
 import io.github.scottweaver.zillen.Command.StopContainer.Stopped
 
 trait Interpreter {
-  def run(command: Command): ZIO[Any, CommandFailure, command.Response]
+  def run(command: Command): DockerIO[Any, command.Response]
 }
 
 object Interpreter {

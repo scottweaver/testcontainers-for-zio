@@ -11,27 +11,12 @@ object InterpreterSpec extends ZIOSpecDefault {
   val postgresImage = Image("postgres:latest")
 
   def spec = suite("InterpreterSpec")(
-    // test("CreateImage receives a 200 response") {
-    //   val testCase =
-    //     Interpreter.run(Command.CreateImage(postgresImage))
-
-    //   testCase.map { response =>
-    //     println(response)
-    //     assertTrue(response == postgresImage)
-    //   }.provide(
-    //     Scope.default,
-    //     ZLayer.succeed(new Bootstrap),
-    //     NettyRequest.live,
-    //     Interpreter.live
-    //   )
-
-    // },
     test("Verify container lifecycle.") {
       import HostConfig._
       val env          = Env.make("POSTGRES_PASSWORD" -> "password")
       val cport        = Port.makeTCPPort(5432)
       val exposedPorts = Port.Exposed.make(cport)
-      val hostConfig   = HostConfig(Chunk(PortBinding(cport, HostPort(5432))))
+      val hostConfig   = HostConfig(Chunk(PortBinding.make(cport, HostPort.unsafeMake(5432))))
 
       def createImage                 = Interpreter.run(Command.CreateImage(postgresImage))
       def create(name: ContainerName) =

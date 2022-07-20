@@ -15,9 +15,9 @@ object EncodingSpec extends ZIOSpecDefault {
       ZIO.fromEither(response).map { response =>
         assertTrue(
           response.status == "Downloading",
-          response.id.get == CreateImageResponse.Id("2a3ebcb7fbcc"),
-          response.progressDetail.get.current == 1952210,
-          response.progressDetail.get.total == 1952210,
+          response.id.get == CreateImageResponse.Id.safeMake("2a3ebcb7fbcc"),
+          response.progressDetail.get.current == 1952210L,
+          response.progressDetail.get.total == 1952210L,
           response.progress.get == "[==================================================>]  1.952MB/1.952MB"
         )
       }
@@ -29,7 +29,7 @@ object EncodingSpec extends ZIOSpecDefault {
       ZIO.fromEither(response).map { response =>
         assertTrue(
           response.status == "Pulling from library/alpine",
-          response.id.get == CreateImageResponse.Id("latest"),
+          response.id.get == CreateImageResponse.Id.safeMake("latest"),
           response.progressDetail.isEmpty
         )
       }
@@ -40,7 +40,7 @@ object EncodingSpec extends ZIOSpecDefault {
     test("should encode to the correct JSON format.") {
       import HostConfig._
 
-      val hc: HostConfig = HostConfig(Chunk(PortBinding(Port(8080, Port.Protocol.TCP), HostPort(8081))))
+      val hc: HostConfig = HostConfig(Chunk(PortBinding.make(Port(8080, Port.Protocol.TCP), HostPort.unsafeMake(8081))))
       val json           = hc.toJsonPretty
       println(json)
 

@@ -11,6 +11,7 @@ final case class HostConfig(
 )
 
 object HostConfig {
+  
 
   val empty = HostConfig(Chunk.empty)
 
@@ -18,11 +19,19 @@ object HostConfig {
 
   object HostPort extends Subtype[Int] {
 
+    private [zillen] def unsafeMake(i: Int): HostPort =
+      wrap(i)
+
     implicit val hostPortEncoder: JsonEncoder[HostPort] =
       JsonEncoder.string.contramap(_.toString)
   }
 
   final case class PortBinding(containerPort: Port, hostPorts: NonEmptyChunk[HostPort])
+
+  object PortBinding {
+    def make(containerPort: Port, hostPort: HostPort, additionalPorts: HostPort*) = 
+      PortBinding(containerPort, NonEmptyChunk(hostPort, additionalPorts: _*))
+  }
 
   implicit val PortBindingsEncoder: JsonEncoder[Chunk[PortBinding]] =
     JsonEncoder[Json.Obj].contramap[Chunk[PortBinding]] { portBindings =>

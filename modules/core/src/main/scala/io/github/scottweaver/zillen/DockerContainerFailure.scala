@@ -61,7 +61,7 @@ object CommandFailure {
     response: ZIO[Any, Throwable, (Int, String)],
     uri: String
   ): DockerIO[Any, command.Response] =
-    response.mapError { cause: Throwable =>
+    response.mapError { (cause: Throwable) =>
       UnexpectedHttpError(cause, command, uri)
     }.flatMap(r => command.makeResponse(r._1, r._2))
 
@@ -70,11 +70,11 @@ object CommandFailure {
     response: ZIO[Any, Throwable, Int],
     uri: String
   ): DockerIO[Any, command.Response] =
-    response.mapError { cause: Throwable =>
+    response.mapError { (cause: Throwable) =>
       UnexpectedHttpError(cause, command, uri)
     }.flatMap(r => command.makeResponse(r, ""))
 
-  def unexpectedDockerApiError(body: String, command: Command, statusCode: Int) =
+  def unexpectedDockerApiError(body: String, command: Command, statusCode: Int): DockerIO[Any, command.Response] =
     decodeResponse[DockerErrorMessage](body, command).flatMap { message =>
       ZIO.fail(UnexpectedDockerApiError(message, command, statusCode))
     }

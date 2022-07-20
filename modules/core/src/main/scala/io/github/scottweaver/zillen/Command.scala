@@ -88,9 +88,9 @@ object Command {
 
   object RemoveContainer {
 
-    object Force extends Subtype[Boolean] {
-      val yes = wrap(true)
-      val no  = wrap(false)
+    object Force extends Subtype[String] {
+      val yes = wrap("true")
+      val no  = wrap("false")
 
       implicit class Syntax(private val force: Force.Type) extends AnyVal {
         def asQueryParam = s"force=${force}"
@@ -98,9 +98,9 @@ object Command {
     }
     type Force = Force.type
 
-    object Volumes extends Subtype[Boolean] {
-      val yes = wrap(true)
-      val no  = wrap(false)
+    object Volumes extends Subtype[String] {
+      val yes = wrap("true")
+      val no  = wrap("false")
 
       implicit class Syntax(val volumes: Volumes.Type) extends AnyVal {
         def asQueryParam = s"volumes=${volumes}"

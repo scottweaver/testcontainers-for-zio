@@ -7,7 +7,6 @@ final case class CreateContainerRequest(
   @jsonField("ExposedPorts") exposedPorts: Port.Exposed,
   @jsonField("HostConfig") hostConfig: HostConfig,
   @jsonField("Image") image: Image
-
 )
 
 object CreateContainerRequest {

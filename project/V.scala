@@ -1,8 +1,8 @@
 object V {
   val cassandraDriverVersion     = "4.14.1"
-  val scala213Version            = "2.13.7"
-  val scala212Version            = "2.12.15"
-  val scala3Version              = "3.1.2"
+  val scala213Version            = "2.13.8"
+  val scala212Version            = "2.12.16"
+  val scala3Version              = "3.1.3"
   val supportedScalaVersions     = List(scala213Version, scala212Version, scala3Version)
   val zioVersion                 = "1.0.15"
   val zio2Version                = "2.0.0"

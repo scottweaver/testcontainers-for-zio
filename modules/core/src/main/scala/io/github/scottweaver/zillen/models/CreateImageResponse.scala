@@ -16,6 +16,8 @@ object CreateImageResponse {
 
   object Id extends Subtype[String] {
 
+    def safeMake(id: String) = wrap(id)
+
     implicit val IdDecoder: JsonDecoder[Id] = JsonDecoder.string.map(wrap(_))
   }
 

@@ -45,13 +45,14 @@ object NettyRequestSpec extends ZIOSpecDefault {
           println(s">>> BODY: ${body}")
           assertTrue(statusCode == 200)
         }
-      }
+      } @@ TestAspect.ignore
     )
       .provideShared(
         ZLayer.succeed(new Bootstrap),
         DockerSettings.default,
         Scope.default,
-        NettyRequest.live
+        NettyRequest.live,
+        Annotations.live
       )
 
 }

@@ -1,14 +1,9 @@
 package io.github.scottweaver.zillen.models
 
 import zio.prelude._
-import zio.prelude.Assertion._
 import zio.json._
 
-object ContainerName extends Subtype[String] {
-
-  override def assertion = assert {
-    matches("""^/?[a-zA-Z0-9][a-zA-Z0-9_.-]+$""")
-  }
+object ContainerName extends Subtype[String] with VersionSpecific.ContainerNameAssertion {
 
   def unsafeMake(s: String): ContainerName = wrap(s)
 
