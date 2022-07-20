@@ -17,7 +17,7 @@ object ContainerStatusPromise {
     readyIf: A => Boolean
   ): Schedule[Any, A, A] =
     (Schedule
-      .recurUntil[A](readyIf(_)) && Schedule.exponential(base) && Schedule.recurs(maxRetries) )*> Schedule.identity 
+      .recurUntil[A](readyIf(_)) && Schedule.exponential(base) && Schedule.recurs(maxRetries)) *> Schedule.identity
 
   def readyWhenA[A](containerId: ContainerId, toA: InspectContainerResponse => A)(readyIf: A => Boolean) = {
     val status = ZIO.debug(s">>> Calling InspectContainer") *> Container
@@ -27,7 +27,7 @@ object ContainerStatusPromise {
 
     for {
       settings <- ZIO.service[Settings]
-      ready    <- Promise.make[DockerContainerFailure,  A]
+      ready    <- Promise.make[DockerContainerFailure, A]
       _        <-
         status
           .repeat(makeSchedule[A](settings.exponentialBackoffBase, settings.maxRetries)(readyIf))
@@ -41,13 +41,13 @@ object ContainerStatusPromise {
   def readyWhen(containerId: ContainerId, readyIf: InspectContainerResponse => Boolean) =
     readyWhenA[InspectContainerResponse](containerId, identity)(readyIf)
 
-  def readyWhenStatus(containerId: ContainerId, readyIf: Status*) = 
+  def readyWhenStatus(containerId: ContainerId, readyIf: Status*) =
     readyWhenA[Status](containerId, _.state.status)(readyIf.contains)
 
   def readyRunningDeadOrExited(containerId: ContainerId) =
     readyWhenStatus(containerId, Running, Dead, Exited)
 
   def deadOrExited(containerId: ContainerId) =
-    readyWhenStatus(containerId, Dead, Exited)  
+    readyWhenStatus(containerId, Dead, Exited)
 
 }

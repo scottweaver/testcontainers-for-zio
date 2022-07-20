@@ -22,7 +22,7 @@ package object models {
 
   def validationToEither[A](validation: Validation[String, A]): Either[String, A] = {
     def errorMsg(errors: NonEmptyChunk[String]) = s"""|One or more validation errors occurred:
-                     |  - ${errors.toList.mkString("\n  - ")}""".stripMargin
+                                                      |  - ${errors.toList.mkString("\n  - ")}""".stripMargin
     validation.toEither.left.map(errorMsg)
   }
 

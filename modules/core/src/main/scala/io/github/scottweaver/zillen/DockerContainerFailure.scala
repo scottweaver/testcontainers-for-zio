@@ -9,7 +9,7 @@ sealed trait DockerContainerFailure
 object DockerContainerFailure {
 
   final case class InvalidDockerRuntimeState(msg: String, cause: Option[Throwable]) extends DockerContainerFailure
-  
+
   final case class InvalidDockerConfiguration(msg: String, cause: Option[Throwable]) extends DockerContainerFailure
 
   final case class UnresponsiveContainerTimeout(containerId: ContainerId, totalAttempts: Int)
@@ -31,7 +31,8 @@ object CommandFailure {
 
   final case class ContainerAlreadyRunning(command: Command, containerId: ContainerId) extends CommandFailure
 
-  final case class ContainerAlreadyExists(command: Command, containerName: ContainerName, message: DockerErrorMessage) extends CommandFailure
+  final case class ContainerAlreadyExists(command: Command, containerName: ContainerName, message: DockerErrorMessage)
+      extends CommandFailure
 
   final case class ImageNotFound(command: Command, image: Image) extends CommandFailure
 

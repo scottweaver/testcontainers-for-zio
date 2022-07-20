@@ -45,7 +45,7 @@ object Command {
         case 409        =>
           CommandFailure
             .decodeResponse[DockerErrorMessage](body, self)
-            .flatMap( msg =>
+            .flatMap(msg =>
               ZIO.fail(
                 CommandFailure.ContainerAlreadyExists(
                   self,

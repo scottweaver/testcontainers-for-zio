@@ -39,9 +39,8 @@ final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter
 
   private def makeDELETE(uri: String)                                                = makeRequest(uri, HttpMethod.DELETE, None)
 
-  private def makeGET(uri: String)                                               = {
+  private def makeGET(uri: String)                                               =
     makeRequest(uri, HttpMethod.GET, None)
-  }
 
   private def makePOST[A: JsonEncoder](uri: String, requestBody: A): HttpRequest = {
     val json    = requestBody.toJson
@@ -62,34 +61,34 @@ final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter
 
     widen {
       command match {
-        case c @ CreateImage(image)                                    =>
+        case c @ CreateImage(image)                                          =>
           val uri     = s"http://localhost/v1.41/images/create?fromImage=${image}"
           val request = makePOST(uri)
           CommandFailure
             .nettyRequestNoResponse(c, nettyRequest.executeRequest(request), uri)
-        case c @ InspectContainer(containerId)                         =>
+        case c @ InspectContainer(containerId)                               =>
           val uri     = s"http://localhost/v1.41/containers/${containerId}/json"
           val request = makeGET(uri)
           CommandFailure
             .nettyRequest(c, nettyRequest.executeRequestWithResponse(request), uri)
         case c @ CreateContainer(env, exposedPorts, hostConfig, image, name) =>
           val nameQuery = name.map(n => s"?name=$n").getOrElse("")
-          val uri     = s"http://localhost/v1.41/containers/create${nameQuery}"
-          val request = makePOST(uri, CreateContainerRequest(env, exposedPorts, hostConfig, image))
+          val uri       = s"http://localhost/v1.41/containers/create${nameQuery}"
+          val request   = makePOST(uri, CreateContainerRequest(env, exposedPorts, hostConfig, image))
           CommandFailure
             .nettyRequest(c, nettyRequest.executeRequestWithResponse(request), uri)
-        case c @ RemoveContainer(containerId, force, volumes)          =>
+        case c @ RemoveContainer(containerId, force, volumes)                =>
           val uri     = s"http://localhost/v1.41/containers/${containerId}?${force.asQueryParam}&${volumes.asQueryParam}"
           val request = makeDELETE(uri)
           CommandFailure
             .nettyRequest(c, nettyRequest.executeRequestWithResponse(request), uri)
-        case c @ StartContainer(containerId)                           =>
+        case c @ StartContainer(containerId)                                 =>
           val uri     = s"http://localhost/v1.41/containers/${containerId}/start"
           val request = makePOST(uri)
           ZIO.logInfo(s"Attempting to start container with id '${containerId}'.") *>
             CommandFailure
               .nettyRequest(c, nettyRequest.executeRequestWithResponse(request), uri)
-        case c @ StopContainer(containerId)                            =>
+        case c @ StopContainer(containerId)                                  =>
           val uri     = s"http://localhost/v1.41/containers/${containerId}/stop"
           val request = makePOST(uri)
           ZIO.logInfo(s"Attempting to stop container with id '${containerId}'.") *>
