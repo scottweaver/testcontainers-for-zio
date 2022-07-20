@@ -4,13 +4,21 @@ import io.netty.channel._
 import io.netty.handler.codec.http._
 import java.nio.charset.Charset
 
-class ResponseBodyHandler(val callback: (String) => Unit) extends SimpleChannelInboundHandler[HttpContent] {
-  override def channelRead0(ctx: ChannelHandlerContext, msg: HttpContent): Unit =
+class ResponseContentHandler(val callback: (String, Boolean) => Unit) extends ChannelInboundHandlerAdapter {
+  override def channelRead(ctx: ChannelHandlerContext, msg: Object): Unit = {
     msg match {
       case content: DefaultHttpContent =>
         val body = content.content().toString(Charset.defaultCharset())
-        callback(body)
+        callback(body, false)
+      case content: FullHttpResponse   =>
+        val body = content.content().toString(Charset.defaultCharset())
+        callback(body, true)
+      case content: LastHttpContent    =>
+        val body = content.content().toString(Charset.defaultCharset())
+        callback(body, true)
       case _                           =>
-        callback("")
     }
+
+    super.channelRead(ctx, msg)
+  }
 }

@@ -128,7 +128,7 @@ lazy val postgresZio2                      =
         "org.postgresql" % "postgresql"                      % V.postgresqlDriverVersion
       )
     )
-    .dependsOn(models)
+    .dependsOn(models, core)
 
 lazy val kafka                             =
   project

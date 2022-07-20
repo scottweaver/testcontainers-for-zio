@@ -11,61 +11,72 @@ object InterpreterSpec extends ZIOSpecDefault {
   val postgresImage = Image("postgres:latest")
 
   def spec = suite("InterpreterSpec")(
-    test("CreateImage receives a 200 response") {
-      val testCase =
-        Interpreter.run(Command.CreateImage(postgresImage))
+    // test("CreateImage receives a 200 response") {
+    //   val testCase =
+    //     Interpreter.run(Command.CreateImage(postgresImage))
 
-      testCase.map { response =>
-        println(response)
-        assertTrue(response == postgresImage)
-      }.provide(
-        Scope.default,
-        ZLayer.succeed(new Bootstrap),
-        NettyRequest.live,
-        Interpreter.live
-      )
+    //   testCase.map { response =>
+    //     println(response)
+    //     assertTrue(response == postgresImage)
+    //   }.provide(
+    //     Scope.default,
+    //     ZLayer.succeed(new Bootstrap),
+    //     NettyRequest.live,
+    //     Interpreter.live
+    //   )
 
-    },
-    test("CreateContainer receives a 201 response") {
+    // },
+    test("Verify container lifecycle.") {
       import HostConfig._
       val env          = Env.make("POSTGRES_PASSWORD" -> "password")
       val cport        = Port.makeTCPPort(5432)
       val exposedPorts = Port.Exposed.make(cport)
       val hostConfig   = HostConfig(Chunk(PortBinding(cport, HostPort(5432))))
 
-      val create                  =
-        Interpreter.run(Command.CreateContainer(env, exposedPorts, hostConfig, postgresImage))
-      def start(id: ContainerId)  = Interpreter.run(Command.StartContainer(id))
-      def stop(id: ContainerId)   = Interpreter.run(Command.StopContainer(id))
-      def remove(id: ContainerId) = Interpreter.run(
+      def createImage                 = Interpreter.run(Command.CreateImage(postgresImage))
+      def create(name: ContainerName) =
+        Interpreter.run(Command.CreateContainer(env, exposedPorts, hostConfig, postgresImage, Some(name)))
+      def inspect(id: ContainerId)    = ContainerStatusPromise.readyRunningDeadOrExited(id)
+      def start(id: ContainerId)      = Interpreter.run(Command.StartContainer(id))
+      def stop(id: ContainerId)       = Interpreter.run(Command.StopContainer(id))
+      def exited(id: ContainerId)     = ContainerStatusPromise.deadOrExited(id)
+      def remove(id: ContainerId)     = Interpreter.run(
         Command.RemoveContainer(id, Command.RemoveContainer.Force.yes, Command.RemoveContainer.Volumes.yes)
       )
 
       val testCase =
         for {
-          createdResponse <- create
+          name            <- ContainerName.make("zio-postgres-test-container").toZIO
+          createImage     <- createImage
+          createdResponse <- create(name)
           started         <- start(createdResponse.id)
-          stopped         <- stop(createdResponse.id)
+          running         <- inspect(createdResponse.id).flatMap(_.await)
+          stopping        <- stop(createdResponse.id)
+          exited          <- exited(createdResponse.id).flatMap(_.await)
           removed         <- remove(createdResponse.id)
-        } yield (createdResponse, started, stopped, removed)
-      // } yield (createdResponse, started)
+        } yield (createImage, createdResponse, started, running, stopping, exited, removed)
 
-      testCase.map { case (response, started, stopped, removed) =>
-        // testCase.map { case (response, started) =>
-        println(response)
+      testCase.map { case (createImage, createdResponse, started, running, stopping, exited, removed) =>
+        import State._
+        println(createdResponse)
         assertTrue(
-          response.warnings.isEmpty,
-          started == response.id,
-          stopped.isInstanceOf[Command.StopContainer.Stopped],
-          removed == response.id
+          createImage == postgresImage,
+          createdResponse.warnings.isEmpty,
+          started == createdResponse.id,
+          running == Status.Running,
+          stopping == Command.StopContainer.Stopped(createdResponse.id),
+          exited == Status.Exited,
+          removed == createdResponse.id
         )
       }.provide(
         Scope.default,
+        ContainerStatusPromise.Settings.default,
+        DockerSettings.default,
         ZLayer.succeed(new Bootstrap),
         NettyRequest.live,
         Interpreter.live
       )
     }
-  ) @@ TestAspect.sequential
+  ) @@ TestAspect.sequential @@ TestAspect.withLiveClock
 
 }

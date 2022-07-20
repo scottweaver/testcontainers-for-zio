@@ -11,6 +11,7 @@ import io.netty.handler.logging.LoggingHandler
 import io.netty.channel.unix.DomainSocketAddress
 import io.netty.channel.socket.DuplexChannel
 import zio.stream.ZSink
+import io.github.scottweaver.zillen._
 
 /** Inspirations and Due Respects:
   *   - https://github.com/slandelle/netty-progress/blob/master/src/test/java/slandelle/ProgressTest.java
@@ -32,16 +33,17 @@ object NettyRequest {
   def executeRequestWithResponse(request: HttpRequest) =
     ZIO.serviceWithZIO[NettyRequest](_.executeRequestWithResponse(request))
 
-  def live                                                                                                          = ZLayer.fromZIO {
+  def live                                                                                 = ZLayer.fromZIO {
     for {
-      _       <- makeEventLoopGroup
-      channel <- makeChannelFactory()
-      scope   <- ZIO.service[Scope]
+      socketPath <- DockerSettings.socketPath
+      _          <- makeEventLoopGroup
+      channel    <- makeChannelFactory(socketPath)
+      scope      <- ZIO.service[Scope]
 
     } yield NettyRequestLive(channel, scope)
   }
 
-  private def channelInitializer[A <: Channel]()                                                                    =
+  private def channelInitializer[A <: Channel]()                                           =
     new ChannelInitializer[A] {
       override def initChannel(ch: A): Unit = {
         ch.pipeline()
@@ -55,7 +57,7 @@ object NettyRequest {
       }
     }
 
-  private def makeKqueue(bootstrap: Bootstrap)                                                                      = ZIO.acquireRelease(
+  private def makeKqueue(bootstrap: Bootstrap)                                             = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new KQueueEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-kqueue"))
 
@@ -67,7 +69,7 @@ object NettyRequest {
     }
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
-  private def makeEpoll(bootstrap: Bootstrap)                                                                       = ZIO.acquireRelease(
+  private def makeEpoll(bootstrap: Bootstrap)                                              = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new EpollEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-epoll"))
 
@@ -82,7 +84,7 @@ object NettyRequest {
     }
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
-  private def makeChannelFactory(path: String = "/var/run/docker.sock"): URIO[Bootstrap, () => Task[DuplexChannel]] =
+  private def makeChannelFactory(path: DockerSocketPath): URIO[Bootstrap, () => Task[DuplexChannel]] =
     ZIO.serviceWith[Bootstrap] { bootstrap => () =>
       {
         val channel = ZIO.attempt {
@@ -96,7 +98,7 @@ object NettyRequest {
       }
     }
 
-  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup]                              =
+  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup]     =
     ZIO.serviceWithZIO[Bootstrap] { bootstrap =>
       if (Epoll.isAvailable())
         makeEpoll(bootstrap)
@@ -124,16 +126,16 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
       channel <- channelFactory()
       _        = channel
                    .pipeline()
-                   .addLast(streamedBodyHandler)
-                   .addLast(statusCodeHandler)
+                   .addLast("stream-body-handler", streamedBodyHandler)
+                   .addLast("status-code-handler", statusCodeHandler)
     } yield channel
 
     def execute(channel: Channel) =
-      ZChannelFuture.make {
+      ZIO.logDebug(s"Executing request ${request}") *> ZChannelFuture.make {
         channel.writeAndFlush(request)
       }
         .flatMap(_.scoped)
-        .flatMap(_ => ZIO.unit.schedule(schedule))
+        .flatMap(_ => ZIO.unit.schedule(schedule)) <* ZIO.logDebug(s"Request, ${request}, completed successfully.")
 
     val runningStream = streamedBodyHandler.stream.run(ZSink.foreach(ZIO.debug(_)))
 
@@ -142,43 +144,47 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
       f1      <- execute(channel).fork
       f2      <- runningStream.fork
       _       <- f1.join
-      _       <- ZIO.debug(s">>> STATUS CODE JOINED: ${statusCode}")
       _       <- f2.join
-      _       <- ZIO.debug(">>> STREAM JOINED")
     } yield statusCode).provide(ZLayer.succeed(scope))
   }
 
   def executeRequestWithResponse(request: HttpRequest): Task[(Int, String)] = {
 
-    var responseBody = Option.empty[String]
-    var statusCode   = Int.MinValue
+    var responseBody     = ""
+    var responseComplete = false
+    var statusCode       = Int.MinValue
 
-    val bodyHandler       = new ResponseBodyHandler((body) => if (responseBody.isEmpty) responseBody = Some(body) else ())
+    val bodyHandler = new ResponseContentHandler({ case (body, done) =>
+      responseBody += body
+      responseComplete = done
+    })
+
     val statusCodeHandler = new StatusCodeHandler((code) => statusCode = code)
 
     val schedule: Schedule[Any, Any, Any] =
-      Schedule.recurWhile(_ => statusCode == Integer.MIN_VALUE || responseBody.isEmpty)
+      Schedule.recurWhile(_ => statusCode == Integer.MIN_VALUE || !responseComplete)
 
     val initializedChannel = for {
       channel <- channelFactory()
       _        = channel
                    .pipeline()
-                   .addLast(statusCodeHandler)
-                   .addLast(bodyHandler)
+                   .addLast("aggregator", new HttpObjectAggregator(Int.MaxValue))
+                   .addLast("status-code-handler", statusCodeHandler)
+                   .addLast("body-content-handler", bodyHandler)
     } yield channel
 
     def execute(channel: Channel) =
-      ZChannelFuture.make {
+      ZIO.logDebug(s"Executing request ${request}") *> ZChannelFuture.make {
         channel.writeAndFlush(request)
       }
         .flatMap(_.scoped)
         .flatMap(_ => ZIO.unit.schedule(schedule))
-        .as(statusCode -> responseBody.getOrElse(""))
+        .as(statusCode -> responseBody)
 
     (for {
       channel  <- initializedChannel
       response <- execute(channel)
-    } yield response).provide(ZLayer.succeed(scope))
+    } yield response).provide(ZLayer.succeed(scope)) <* ZIO.logDebug(s"Request, ${request}, completed successfully.")
 
   }
 }

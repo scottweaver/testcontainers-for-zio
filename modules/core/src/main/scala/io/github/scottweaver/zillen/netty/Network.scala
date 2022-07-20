@@ -10,6 +10,4 @@ object Network {
         ZIO.attemptBlocking(new java.net.ServerSocket(0))
       )(socket => ZIO.attemptBlocking(socket.close()).ignoreLogged)
       .map(_.getLocalPort)
-
-  {}
 }

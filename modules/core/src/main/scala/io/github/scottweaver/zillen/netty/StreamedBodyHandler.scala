@@ -29,26 +29,28 @@ class StreamedBodyHandler(callback: () => Unit) extends ChannelInboundHandlerAda
     .collect { case Some(s) => s }
     .filterNot(_.isEmpty)
 
+  private def writeToStream(byteBuf: ByteBuf)                          =
+    if (byteBuf.isReadable()) {
+      val rb   = byteBuf.readableBytes()
+      val buff = new Array[Byte](rb)
+      byteBuf.readBytes(buff)
+      pos.write(buff)
+      pos.flush()
+    }
+
   override def channelRead(ctx: ChannelHandlerContext, msg: Any): Unit = {
 
-    def writeToStream(byteBuf: ByteBuf) =
-      if (byteBuf.isReadable()) {
-        val rb   = byteBuf.readableBytes()
-        val buff = new Array[Byte](rb)
-        byteBuf.readBytes(buff)
-        pos.write(buff)
-        pos.flush()
-      }
-
     msg match {
-      // IMPORTANT: LastHttpContent must appear before HttpContent as it is a subclass of HttpContent.
-      case end: LastHttpContent =>
-        writeToStream(end.content())
+      case content: DefaultHttpContent =>
+        writeToStream(content.content())
+      case content: FullHttpResponse   =>
+        writeToStream(content.content())
         try pos.close()
         finally (callback())
-      case content: HttpContent =>
-        writeToStream(content.content())
-      case _                    =>
+      case _: LastHttpContent          =>
+        try pos.close()
+        finally (callback())
+      case _                           =>
     }
 
     super.channelRead(ctx, msg)
