@@ -41,7 +41,7 @@ object ZKafkaContainerSpec extends ZIOSpecDefault {
         }
 
         val testCase = for {
-          _      <- Producer.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
+          _ <- Producer.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
           result <- Consumer
                       .subscribeAnd(Subscription.topics("test-topic"))
                       .plainStream(Serde.string, Serde.string)

@@ -10,13 +10,13 @@ class ResponseContentHandler(val callback: (String, Boolean) => Unit) extends Ch
       case content: DefaultHttpContent =>
         val body = content.content().toString(Charset.defaultCharset())
         callback(body, false)
-      case content: FullHttpResponse   =>
+      case content: FullHttpResponse =>
         val body = content.content().toString(Charset.defaultCharset())
         callback(body, true)
-      case content: LastHttpContent    =>
+      case content: LastHttpContent =>
         val body = content.content().toString(Charset.defaultCharset())
         callback(body, true)
-      case _                           =>
+      case _ =>
     }
 
     super.channelRead(ctx, msg)

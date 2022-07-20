@@ -13,11 +13,12 @@ import io.netty.channel.socket.DuplexChannel
 import zio.stream.ZSink
 import io.github.scottweaver.zillen._
 
-/** Inspirations and Due Respects:
-  *   - https://github.com/slandelle/netty-progress/blob/master/src/test/java/slandelle/ProgressTest.java
-  *   - https://github.com/dream11/zio-http
-  *   - https://github.com/docker-java/docker-java
-  */
+/**
+ * Inspirations and Due Respects:
+ *   - https://github.com/slandelle/netty-progress/blob/master/src/test/java/slandelle/ProgressTest.java
+ *   - https://github.com/dream11/zio-http
+ *   - https://github.com/docker-java/docker-java
+ */
 trait NettyRequest {
   def executeRequest(request: HttpRequest): Task[Int]
 
@@ -33,7 +34,7 @@ object NettyRequest {
   def executeRequestWithResponse(request: HttpRequest) =
     ZIO.serviceWithZIO[NettyRequest](_.executeRequestWithResponse(request))
 
-  def live                                                                                           = ZLayer.fromZIO {
+  def live = ZLayer.fromZIO {
     for {
       socketPath <- DockerSettings.socketPath
       _          <- makeEventLoopGroup
@@ -43,7 +44,7 @@ object NettyRequest {
     } yield NettyRequestLive(channel, scope)
   }
 
-  private def channelInitializer[A <: Channel]()                                                     =
+  private def channelInitializer[A <: Channel]() =
     new ChannelInitializer[A] {
       override def initChannel(ch: A): Unit = {
         ch.pipeline()
@@ -57,7 +58,7 @@ object NettyRequest {
       }
     }
 
-  private def makeKqueue(bootstrap: Bootstrap)                                                       = ZIO.acquireRelease(
+  private def makeKqueue(bootstrap: Bootstrap) = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new KQueueEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-kqueue"))
 
@@ -69,7 +70,7 @@ object NettyRequest {
     }
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
-  private def makeEpoll(bootstrap: Bootstrap)                                                        = ZIO.acquireRelease(
+  private def makeEpoll(bootstrap: Bootstrap) = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new EpollEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-epoll"))
 
@@ -98,7 +99,7 @@ object NettyRequest {
       }
     }
 
-  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup]               =
+  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup] =
     ZIO.serviceWithZIO[Bootstrap] { bootstrap =>
       if (Epoll.isAvailable())
         makeEpoll(bootstrap)
@@ -124,10 +125,10 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
 
     val initializedChannel = for {
       channel <- channelFactory()
-      _        = channel
-                   .pipeline()
-                   .addLast("stream-body-handler", streamedBodyHandler)
-                   .addLast("status-code-handler", statusCodeHandler)
+      _ = channel
+            .pipeline()
+            .addLast("stream-body-handler", streamedBodyHandler)
+            .addLast("status-code-handler", statusCodeHandler)
     } yield channel
 
     def execute(channel: Channel) =
@@ -166,11 +167,11 @@ final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory
 
     val initializedChannel = for {
       channel <- channelFactory()
-      _        = channel
-                   .pipeline()
-                   .addLast("aggregator", new HttpObjectAggregator(Int.MaxValue))
-                   .addLast("status-code-handler", statusCodeHandler)
-                   .addLast("body-content-handler", bodyHandler)
+      _ = channel
+            .pipeline()
+            .addLast("aggregator", new HttpObjectAggregator(Int.MaxValue))
+            .addLast("status-code-handler", statusCodeHandler)
+            .addLast("body-content-handler", bodyHandler)
     } yield channel
 
     def execute(channel: Channel) =

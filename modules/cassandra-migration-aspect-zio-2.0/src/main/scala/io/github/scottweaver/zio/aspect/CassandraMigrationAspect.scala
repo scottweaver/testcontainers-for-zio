@@ -2,10 +2,10 @@ package io.github.scottweaver.zio.aspect
 
 import com.datastax.oss.driver.api.core.CqlSession
 import org.cognitor.cassandra.migration.keyspace.Keyspace
-import org.cognitor.cassandra.migration.{ Database, MigrationConfiguration, MigrationRepository, MigrationTask }
+import org.cognitor.cassandra.migration.{Database, MigrationConfiguration, MigrationRepository, MigrationTask}
 import zio._
 import zio.test.TestAspect
-import zio.test.TestAspect.{ before, beforeAll }
+import zio.test.TestAspect.{before, beforeAll}
 
 object CassandraMigrationAspect {
 

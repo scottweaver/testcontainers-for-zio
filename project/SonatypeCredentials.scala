@@ -5,9 +5,9 @@ object SonatypeCredentials extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  lazy val settings            = {
-    val sonatypeUsername    = sys.env.get("SONATYPE_USERNAME")
-    val sonatypePassword    = sys.env.get("SONATYPE_PASSWORD")
+  lazy val settings = {
+    val sonatypeUsername = sys.env.get("SONATYPE_USERNAME")
+    val sonatypePassword = sys.env.get("SONATYPE_PASSWORD")
     val sonatypeCredentials = (for {
       username <- sonatypeUsername
       password <- sonatypePassword

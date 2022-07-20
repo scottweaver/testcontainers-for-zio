@@ -1,7 +1,7 @@
 package io.github.scottweaver.zio.aspect
 
 import zio._
-import zio.test.TestAspect.{ before, beforeAll }
+import zio.test.TestAspect.{before, beforeAll}
 import io.github.scottweaver.models.JdbcInfo
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration

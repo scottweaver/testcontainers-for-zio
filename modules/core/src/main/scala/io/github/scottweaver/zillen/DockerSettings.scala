@@ -26,7 +26,7 @@ object DockerSettings {
               Some(ipe)
             )
           )
-        case t: Throwable              => ZIO.die(t)
+        case t: Throwable => ZIO.die(t)
       }
 
       def pathExists(path: Path) = ZIO.attempt(Files.exists(path)).orDie.flatMap { exists =>

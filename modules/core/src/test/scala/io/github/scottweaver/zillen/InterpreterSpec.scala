@@ -18,14 +18,14 @@ object InterpreterSpec extends ZIOSpecDefault {
       val exposedPorts = Port.Exposed.make(cport)
       val hostConfig   = HostConfig(Chunk(PortBinding.make(cport, HostPort.unsafeMake(5432))))
 
-      def createImage                 = Interpreter.run(Command.CreateImage(postgresImage))
+      def createImage = Interpreter.run(Command.CreateImage(postgresImage))
       def create(name: ContainerName) =
         Interpreter.run(Command.CreateContainer(env, exposedPorts, hostConfig, postgresImage, Some(name)))
-      def inspect(id: ContainerId)    = ContainerStatusPromise.readyRunningDeadOrExited(id)
-      def start(id: ContainerId)      = Interpreter.run(Command.StartContainer(id))
-      def stop(id: ContainerId)       = Interpreter.run(Command.StopContainer(id))
-      def exited(id: ContainerId)     = ContainerStatusPromise.deadOrExited(id)
-      def remove(id: ContainerId)     = Interpreter.run(
+      def inspect(id: ContainerId) = ContainerStatusPromise.readyRunningDeadOrExited(id)
+      def start(id: ContainerId)   = Interpreter.run(Command.StartContainer(id))
+      def stop(id: ContainerId)    = Interpreter.run(Command.StopContainer(id))
+      def exited(id: ContainerId)  = ContainerStatusPromise.deadOrExited(id)
+      def remove(id: ContainerId) = Interpreter.run(
         Command.RemoveContainer(id, Command.RemoveContainer.Force.yes, Command.RemoveContainer.Volumes.yes)
       )
 

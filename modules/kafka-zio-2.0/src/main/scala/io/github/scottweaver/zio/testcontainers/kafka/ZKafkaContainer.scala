@@ -37,8 +37,8 @@ object ZKafkaContainer {
           .withGroupId("test-group-id")
           .withCloseTimeout(5.seconds)
           .withProperties(
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG        -> "earliest",
-            ConsumerConfig.METADATA_MAX_AGE_CONFIG         -> "100",
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG -> "earliest",
+            ConsumerConfig.METADATA_MAX_AGE_CONFIG  -> "100",
             // ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG       -> "3000",
             ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG    -> "250",
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG         -> "10",

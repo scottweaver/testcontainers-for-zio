@@ -36,13 +36,13 @@ object Command {
 
     override def makeResponse(statusCode: Int, body: String) =
       statusCode match {
-        case 201        =>
+        case 201 =>
           CommandFailure.decodeResponse[CreateContainerResponse](
             body,
             self
           )
-        case 404        => CommandFailure.imageNotFound(self, image)
-        case 409        =>
+        case 404 => CommandFailure.imageNotFound(self, image)
+        case 409 =>
           CommandFailure
             .decodeResponse[DockerErrorMessage](body, self)
             .flatMap(msg =>
@@ -120,7 +120,7 @@ object Command {
         CommandFailure.unexpectedDockerApiError(body, this, statusCode)
   }
 
-  final case class StopContainer(containerId: ContainerId)  extends Command {
+  final case class StopContainer(containerId: ContainerId) extends Command {
     type Response = StopContainer.Result
 
     override def makeResponse(statusCode: Int, body: String) =

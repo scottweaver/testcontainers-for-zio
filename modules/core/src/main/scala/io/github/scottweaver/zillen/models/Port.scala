@@ -28,7 +28,7 @@ object Port {
     def make(ports: Port*): Exposed =
       Exposed(ports.toList)
 
-    private val emptyObj            = Json.Obj()
+    private val emptyObj = Json.Obj()
 
     // The Docker API has a weird way of representing exposed ports e.g `{"80/tcp":{}}`.
     implicit val encoder: JsonEncoder[Exposed] = JsonEncoder.map[String, Json.Obj].contramap[Exposed] { exposed =>

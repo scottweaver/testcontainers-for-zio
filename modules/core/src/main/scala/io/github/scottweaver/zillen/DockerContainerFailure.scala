@@ -47,7 +47,7 @@ object CommandFailure {
         ZIO.debug(s">>> Failed to decode response '${error}'") *> ZIO.fail(
           DockerApiDecodingFailure(body, command, error)
         )
-      case Right(a)    => ZIO.succeed(a)
+      case Right(a) => ZIO.succeed(a)
     }
 
   def containerNotFound(command: Command, containerId: ContainerId) =

@@ -67,7 +67,7 @@ object ZPostgreSQLContainer {
         container <- makeScopedContainer(settings)
         conn      <- makeScopedConnection(container)
       } yield {
-        val jdbcInfo   = JdbcInfo(
+        val jdbcInfo = JdbcInfo(
           driverClassName = container.driverClassName,
           jdbcUrl = container.jdbcUrl,
           username = container.username,

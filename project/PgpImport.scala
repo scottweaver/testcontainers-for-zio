@@ -18,7 +18,7 @@ object PgpImport extends AutoPlugin {
 
   import autoImport._
 
-  lazy val settings            = Seq(
+  lazy val settings = Seq(
     importPgpKey := {
       val log = streams.value.log
       log.info("Importing PGP key...")

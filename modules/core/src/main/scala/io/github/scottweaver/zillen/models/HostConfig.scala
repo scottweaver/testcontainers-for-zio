@@ -18,7 +18,7 @@ object HostConfig {
 
   object HostPort extends Subtype[Int] {
 
-    private[zillen] def unsafeMake(i: Int): HostPort    =
+    private[zillen] def unsafeMake(i: Int): HostPort =
       wrap(i)
 
     implicit val hostPortEncoder: JsonEncoder[HostPort] =
@@ -32,6 +32,18 @@ object HostConfig {
       PortBinding(containerPort, NonEmptyChunk(hostPort, additionalPorts: _*))
   }
 
+  /**
+   * Produces the JSON in the Docker API format:
+   * {{{
+   *   "PortBindings": {
+   *     "22/tcp": [
+   *     {
+   *       "HostPort": "11022"
+   *     }
+   * ]
+   *   }
+   * }}}
+   */
   implicit val PortBindingsEncoder: JsonEncoder[Chunk[PortBinding]] =
     JsonEncoder[Json.Obj].contramap[Chunk[PortBinding]] { portBindings =>
       def makeHostPortObj(hostPort: HostPort) = Json.Obj(

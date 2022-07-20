@@ -28,7 +28,7 @@ object ContainerStatusPromise {
     for {
       settings <- ZIO.service[Settings]
       ready    <- Promise.make[DockerContainerFailure, A]
-      _        <-
+      _ <-
         status
           .repeat(makeSchedule[A](settings.exponentialBackoffBase, settings.maxRetries)(readyIf))
           .flatMap(ready.succeed)

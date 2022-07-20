@@ -8,7 +8,7 @@ object EncodingSpec extends ZIOSpecDefault {
 
   val createImageResponseSuite = suite("CreateImageResponse")(
     test("[SCENARIO #1] should decode from JSON to a CreateImageResponse.") {
-      val json     =
+      val json =
         """{"status":"Downloading","progressDetail":{"current":1952210,"total":1952210},"progress":"[==================================================>]  1.952MB/1.952MB","id":"2a3ebcb7fbcc"}"""
       val response = json.fromJson[CreateImageResponse]
 

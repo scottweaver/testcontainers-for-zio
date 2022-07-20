@@ -8,7 +8,7 @@ class StatusCodeHandler(callback: (Int) => Unit) extends ChannelInboundHandlerAd
     msg match {
       case response: HttpResponse =>
         callback(response.status().code())
-      case _                      =>
+      case _ =>
     }
     super.channelRead(ctx, msg)
   }

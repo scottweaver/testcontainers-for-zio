@@ -4,13 +4,13 @@ ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
 ThisBuild / homepage      := Some(url("https://github.com/scottweaver/testcontainers-for-zio"))
 ThisBuild / licenses      := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-ThisBuild / scmInfo       := Some(
+ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/scottweaver/testcontainers-for-zio"),
     "scm:git@github.com:scottweaver/testcontainers-for-zio.git"
   )
 )
-ThisBuild / developers    := List(
+ThisBuild / developers := List(
   Developer(
     id = "scottweaver",
     name = "Scott T Weaver",
@@ -22,7 +22,7 @@ ThisBuild / developers    := List(
 crossScalaVersions := Nil
 commandAliases
 
-lazy val core                              = project
+lazy val core = project
   .in(file("modules/core"))
   .settings(settings(V.zio2Version))
   .settings(
@@ -37,12 +37,12 @@ lazy val core                              = project
     )
   )
 
-lazy val models                            = project
+lazy val models = project
   .in(file("modules/models"))
   .settings(settings())
   .settings(name := "zio-testcontainers-models")
 
-lazy val `db-migration-aspect`             = project
+lazy val `db-migration-aspect` = project
   .in(file("modules/db-migration-aspect"))
   .settings(settings())
   .settings(
@@ -54,7 +54,7 @@ lazy val `db-migration-aspect`             = project
   )
   .dependsOn(models, mysql % "test->test")
 
-lazy val `db-migration-aspect-Zio2`        = project
+lazy val `db-migration-aspect-Zio2` = project
   .in(file("modules/db-migration-aspect-zio-2.0"))
   .settings(settings(V.zio2Version))
   .settings(
@@ -66,7 +66,7 @@ lazy val `db-migration-aspect-Zio2`        = project
   )
   .dependsOn(models, mysqlZio2 % "test->test")
 
-lazy val liquibaseAspect                   = project
+lazy val liquibaseAspect = project
   .in(file("modules/zio-2.0-liquibase-aspect"))
   .settings(settings(V.zio2Version))
   .settings(
@@ -78,7 +78,7 @@ lazy val liquibaseAspect                   = project
   )
   .dependsOn(models, postgresZio2 % "test->test")
 
-lazy val mysql                             =
+lazy val mysql =
   project
     .in(file("modules/mysql"))
     .settings(settings())
@@ -91,7 +91,7 @@ lazy val mysql                             =
     )
     .dependsOn(models)
 
-lazy val mysqlZio2                         =
+lazy val mysqlZio2 =
   project
     .in(file("modules/mysql-zio-2.0"))
     .settings(settings(V.zio2Version))
@@ -104,7 +104,7 @@ lazy val mysqlZio2                         =
     )
     .dependsOn(models)
 
-lazy val postgres                          =
+lazy val postgres =
   project
     .in(file("modules/postgresql"))
     .settings(settings())
@@ -117,7 +117,7 @@ lazy val postgres                          =
     )
     .dependsOn(models)
 
-lazy val postgresZio2                      =
+lazy val postgresZio2 =
   project
     .in(file("modules/postgresql-zio-2.0"))
     .settings(settings(V.zio2Version))
@@ -130,7 +130,7 @@ lazy val postgresZio2                      =
     )
     .dependsOn(models, core)
 
-lazy val kafka                             =
+lazy val kafka =
   project
     .in(file("modules/kafka"))
     .settings(settings())
@@ -142,7 +142,7 @@ lazy val kafka                             =
       )
     )
 
-lazy val kafkaZio2                         =
+lazy val kafkaZio2 =
   project
     .in(file("modules/kafka-zio-2.0"))
     .settings(settings(V.zio2Version))
@@ -154,7 +154,7 @@ lazy val kafkaZio2                         =
       )
     )
 
-lazy val `cassandra-migration-aspect`      = project
+lazy val `cassandra-migration-aspect` = project
   .in(file("modules/cassandra-migration-aspect"))
   .settings(settings())
   .settings(
@@ -180,7 +180,7 @@ lazy val `cassandra-migration-aspect-Zio2` = project
   )
   .dependsOn(cassandraZio2 % "test->test")
 
-lazy val cassandra                         =
+lazy val cassandra =
   project
     .in(file("modules/cassandra"))
     .settings(settings())
@@ -192,7 +192,7 @@ lazy val cassandra                         =
       )
     )
 
-lazy val cassandraZio2                     =
+lazy val cassandraZio2 =
   project
     .in(file("modules/cassandra-zio-2.0"))
     .settings(settings(V.zio2Version))
@@ -213,7 +213,7 @@ def commonSettings(zioVersion: String = V.zioVersion) =
   Seq(
     scalaVersion       := V.scala213Version,
     crossScalaVersions := V.supportedScalaVersions,
-    scalacOptions      := {
+    scalacOptions := {
       CrossVersion.partialVersion(scalaVersion.value) match {
 
         case Some((2, 12)) => stdOpts212
@@ -236,28 +236,28 @@ def commonSettings(zioVersion: String = V.zioVersion) =
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _)) => Seq()
-        case _            =>
+        case _ =>
           Seq(
             "io.github.kitlangton" %% "zio-magic" % V.zioMagicVersion % Test
           )
       }
     },
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Test / fork        := true
+    Test / fork := true
   )
 
-lazy val publishSettings                              =
+lazy val publishSettings =
   Seq(
     pomIncludeRepository := { _ => false },
-    publishTo            := {
+    publishTo := {
       val nexus = "https://s01.oss.sonatype.org/"
       if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
       else Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
-    publishMavenStyle    := true
+    publishMavenStyle := true
   )
 
-lazy val commandAliases                               =
+lazy val commandAliases =
   addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias(
@@ -265,7 +265,7 @@ lazy val commandAliases                               =
       "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +kafkaZio2/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned; +liquibaseAspect/publishSigned; +cassandra-migration-aspect/publishSigned; +cassandra-migration-aspect-Zio2/publishSigned"
     )
 
-lazy val stdOpts212                                   = Seq(
+lazy val stdOpts212 = Seq(
   "-encoding",
   "UTF-8",
   "-explaintypes",
@@ -283,7 +283,7 @@ lazy val stdOpts212                                   = Seq(
   "-Xfatal-warnings"
 )
 
-lazy val stdOpts213                                   = Seq(
+lazy val stdOpts213 = Seq(
   "-Wunused:imports",
   "-Wunused:params",
   "-Wunused:patvars",
@@ -306,7 +306,7 @@ lazy val stdOpts213                                   = Seq(
   "-unchecked"
 )
 
-lazy val stdOpts3                                     = Seq(
+lazy val stdOpts3 = Seq(
   "-Xfatal-warnings",
   "-deprecation",
   "-explaintypes",

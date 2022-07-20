@@ -37,7 +37,7 @@ object ZKafkaContainerSpec extends DefaultRunnableSpec {
         val consumer = ZLayer.fromServiceManaged { settings: ConsumerSettings => Consumer.make(settings).orDie }
 
         val testCase = for {
-          _      <- Producer.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
+          _ <- Producer.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
           result <- Consumer
                       .subscribeAnd(Subscription.topics("test-topic"))
                       .plainStream(Serde.string, Serde.string)
