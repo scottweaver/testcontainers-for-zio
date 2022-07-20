@@ -11,7 +11,6 @@ final case class HostConfig(
 )
 
 object HostConfig {
-  
 
   val empty = HostConfig(Chunk.empty)
 
@@ -19,7 +18,7 @@ object HostConfig {
 
   object HostPort extends Subtype[Int] {
 
-    private [zillen] def unsafeMake(i: Int): HostPort =
+    private[zillen] def unsafeMake(i: Int): HostPort    =
       wrap(i)
 
     implicit val hostPortEncoder: JsonEncoder[HostPort] =
@@ -29,7 +28,7 @@ object HostConfig {
   final case class PortBinding(containerPort: Port, hostPorts: NonEmptyChunk[HostPort])
 
   object PortBinding {
-    def make(containerPort: Port, hostPort: HostPort, additionalPorts: HostPort*) = 
+    def make(containerPort: Port, hostPort: HostPort, additionalPorts: HostPort*) =
       PortBinding(containerPort, NonEmptyChunk(hostPort, additionalPorts: _*))
   }
 
@@ -47,6 +46,6 @@ object HostConfig {
       Json.Obj(tup)
     }
 
-  implicit val HostConfigEncoder: JsonEncoder[HostConfig]           = DeriveJsonEncoder.gen
+  implicit val HostConfigEncoder: JsonEncoder[HostConfig] = DeriveJsonEncoder.gen
 
 }

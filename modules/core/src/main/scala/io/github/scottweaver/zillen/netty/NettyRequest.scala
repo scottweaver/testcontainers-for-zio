@@ -33,7 +33,7 @@ object NettyRequest {
   def executeRequestWithResponse(request: HttpRequest) =
     ZIO.serviceWithZIO[NettyRequest](_.executeRequestWithResponse(request))
 
-  def live                                                                                 = ZLayer.fromZIO {
+  def live                                                                                           = ZLayer.fromZIO {
     for {
       socketPath <- DockerSettings.socketPath
       _          <- makeEventLoopGroup
@@ -43,7 +43,7 @@ object NettyRequest {
     } yield NettyRequestLive(channel, scope)
   }
 
-  private def channelInitializer[A <: Channel]()                                           =
+  private def channelInitializer[A <: Channel]()                                                     =
     new ChannelInitializer[A] {
       override def initChannel(ch: A): Unit = {
         ch.pipeline()
@@ -57,7 +57,7 @@ object NettyRequest {
       }
     }
 
-  private def makeKqueue(bootstrap: Bootstrap)                                             = ZIO.acquireRelease(
+  private def makeKqueue(bootstrap: Bootstrap)                                                       = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new KQueueEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-kqueue"))
 
@@ -69,7 +69,7 @@ object NettyRequest {
     }
   )(evlg => ZIO.attemptBlocking(evlg.shutdownGracefully().get()).ignoreLogged)
 
-  private def makeEpoll(bootstrap: Bootstrap)                                              = ZIO.acquireRelease(
+  private def makeEpoll(bootstrap: Bootstrap)                                                        = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new EpollEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-epoll"))
 
@@ -98,7 +98,7 @@ object NettyRequest {
       }
     }
 
-  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup]     =
+  private def makeEventLoopGroup: ZIO[Scope with Bootstrap, Throwable, EventLoopGroup]               =
     ZIO.serviceWithZIO[Bootstrap] { bootstrap =>
       if (Epoll.isAvailable())
         makeEpoll(bootstrap)

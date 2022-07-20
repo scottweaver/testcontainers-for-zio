@@ -316,8 +316,7 @@ lazy val stdOpts3                                     = Seq(
   "-language:postfixOps",
   "-unchecked",
   "-encoding",
-  "UTF-8",
-  "-source:3.0-migration"
+  "UTF-8"
 )
 
 ThisBuild / scalacOptions := stdOpts213
