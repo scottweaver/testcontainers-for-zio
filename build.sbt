@@ -204,6 +204,34 @@ lazy val cassandraZio2 =
       )
     )
 
+lazy val k3s                               =
+  project
+    .in(file("modules/k3s"))
+    .settings(settings())
+    .settings(
+      name := "zio-testcontainers-k3s",
+      libraryDependencies ++= Seq(
+        "org.testcontainers"             % "k3s"                            % V.testcontainersJavaVersion,
+        "com.coralogix"                 %% "zio-k8s-client"                 % V.zioK8s % Test,
+        "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio1" % V.sttp   % Test,
+        "com.softwaremill.sttp.client3" %% "slf4j-backend"                  % V.sttp   % Test
+      )
+    )
+
+lazy val k3sZio2                           =
+  project
+    .in(file("modules/k3s-zio-2.0"))
+    .settings(settings(V.zio2Version))
+    .settings(
+      name := "zio-2.0-testcontainers-k3s",
+      libraryDependencies ++= Seq(
+        "org.testcontainers"             % "k3s"                           % V.testcontainersJavaVersion,
+        "com.coralogix"                 %% "zio-k8s-client"                % V.zio2K8s % Test,
+        "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % V.sttp    % Test,
+        "com.softwaremill.sttp.client3" %% "slf4j-backend"                 % V.sttp    % Test
+      )
+    )
+
 def settings(zioVersion: String = V.zioVersion) =
   commonSettings(zioVersion) ++
     publishSettings ++
@@ -262,7 +290,7 @@ lazy val commandAliases =
     addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
     addCommandAlias(
       "publishAll",
-      "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +kafkaZio2/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned; +liquibaseAspect/publishSigned; +cassandra-migration-aspect/publishSigned; +cassandra-migration-aspect-Zio2/publishSigned"
+      "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +kafkaZio2/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned; +liquibaseAspect/publishSigned; +cassandra-migration-aspect/publishSigned; +cassandra-migration-aspect-Zio2/publishSigned; +kafkaZio2/publishSigned; +k3/publishSigned"
     )
 
 lazy val stdOpts212 = Seq(

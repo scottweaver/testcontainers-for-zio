@@ -13,6 +13,7 @@ object V {
   val zio2KafkaVersion           = "2.0.0"
   val zioHttpVersion             = "2.0.0-RC9"
   val testcontainersScalaVersion = "0.40.8"
+  val testcontainersJavaVersion  = "1.17.3"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"
   val slf4jVersion               = "1.7.32"
@@ -21,4 +22,7 @@ object V {
   val cassandraMigrationsVersion = "2.5.0_v4"
   val liquibaseVersion           = "4.13.0"
   val nettyVersion               = "4.1.79.Final"
+  val zioK8s                     = "1.4.7"
+  val zio2K8s                    = "2.0.0"
+  val sttp                       = "3.7.0"
 }
