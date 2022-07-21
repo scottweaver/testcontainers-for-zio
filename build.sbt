@@ -33,7 +33,8 @@ lazy val core = project
       "io.netty" % "netty-codec-http"              % V.nettyVersion,
       "io.netty" % "netty-handler"                 % V.nettyVersion,
       "io.netty" % "netty-transport-native-epoll"  % V.nettyVersion classifier "linux-x86_64",
-      "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-x86_64"
+      "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-x86_64",
+      "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-aarch_64",
     )
   )
 
