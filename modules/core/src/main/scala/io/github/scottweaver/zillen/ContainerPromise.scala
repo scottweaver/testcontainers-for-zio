@@ -5,7 +5,7 @@ import zio._
 import State.Status
 import Status._
 
-object ContainerStatusPromise {
+object ContainerPromise {
 
   final case class Settings(exponentialBackoffBase: Duration, maxRetries: Int)
 
@@ -22,7 +22,6 @@ object ContainerStatusPromise {
   def readyWhenA[A](containerId: ContainerId, toA: InspectContainerResponse => A)(readyIf: A => Boolean) = {
     val status = ZIO.debug(s">>> Calling InspectContainer") *> Container
       .inspectContainer(containerId)
-      .tap(icr => ZIO.debug(s">>> InspectContainerResponse('${containerId}'): $icr"))
       .map(toA) <* ZIO.debug(s">>> InspectContainer returned")
 
     for {
@@ -38,16 +37,16 @@ object ContainerStatusPromise {
 
   }
 
-  def readyWhen(containerId: ContainerId, readyIf: InspectContainerResponse => Boolean) =
+  def whenReady(containerId: ContainerId, readyIf: InspectContainerResponse => Boolean) =
     readyWhenA[InspectContainerResponse](containerId, identity)(readyIf)
 
-  def readyWhenStatus(containerId: ContainerId, readyIf: Status*) =
+  def whenStatusIs(containerId: ContainerId, readyIf: Status*) =
     readyWhenA[Status](containerId, _.state.status)(readyIf.contains)
 
-  def readyRunningDeadOrExited(containerId: ContainerId) =
-    readyWhenStatus(containerId, Running, Dead, Exited)
+  def whenRunning(containerId: ContainerId) =
+    whenStatusIs(containerId, Running)
 
-  def deadOrExited(containerId: ContainerId) =
-    readyWhenStatus(containerId, Dead, Exited)
+  def whenDeadOrExited(containerId: ContainerId) =
+    whenStatusIs(containerId, Dead, Exited)
 
 }

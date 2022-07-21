@@ -3,18 +3,22 @@ package io.github.scottweaver.zillen
 import io.github.scottweaver.zillen.models._
 import zio.json._
 import zio._
+import io.github.scottweaver.zillen.DockerContainerFailure.InvalidDockerRuntimeState
 
-sealed trait DockerContainerFailure
+sealed trait DockerContainerFailure { self =>
+
+  def asException: Exception = self match {
+    case InvalidDockerRuntimeState(msg, cause)                         => new Exception(msg, cause.orNull)
+    case DockerContainerFailure.InvalidDockerConfiguration(msg, cause) => new Exception(msg, cause.orNull)
+    case cf: CommandFailure                                            => new Exception(cf.command.toString()) // TODO: This needs to be better.
+  }
+}
 
 object DockerContainerFailure {
 
   final case class InvalidDockerRuntimeState(msg: String, cause: Option[Throwable]) extends DockerContainerFailure
 
   final case class InvalidDockerConfiguration(msg: String, cause: Option[Throwable]) extends DockerContainerFailure
-
-  final case class UnresponsiveContainerTimeout(containerId: ContainerId, totalAttempts: Int)
-      extends DockerContainerFailure
-
 }
 
 sealed trait CommandFailure extends DockerContainerFailure {

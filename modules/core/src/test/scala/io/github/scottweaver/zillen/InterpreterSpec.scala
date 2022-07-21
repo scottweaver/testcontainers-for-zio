@@ -21,10 +21,10 @@ object InterpreterSpec extends ZIOSpecDefault {
       def createImage = Interpreter.run(Command.CreateImage(postgresImage))
       def create(name: ContainerName) =
         Interpreter.run(Command.CreateContainer(env, exposedPorts, hostConfig, postgresImage, Some(name)))
-      def inspect(id: ContainerId) = ContainerStatusPromise.readyRunningDeadOrExited(id)
+      def inspect(id: ContainerId) = ContainerPromise.whenRunning(id)
       def start(id: ContainerId)   = Interpreter.run(Command.StartContainer(id))
       def stop(id: ContainerId)    = Interpreter.run(Command.StopContainer(id))
-      def exited(id: ContainerId)  = ContainerStatusPromise.deadOrExited(id)
+      def exited(id: ContainerId)  = ContainerPromise.whenDeadOrExited(id)
       def remove(id: ContainerId) = Interpreter.run(
         Command.RemoveContainer(id, Command.RemoveContainer.Force.yes, Command.RemoveContainer.Volumes.yes)
       )
@@ -55,7 +55,7 @@ object InterpreterSpec extends ZIOSpecDefault {
         )
       }.provide(
         Scope.default,
-        ContainerStatusPromise.Settings.default,
+        ContainerPromise.Settings.default,
         DockerSettings.default,
         ZLayer.succeed(new Bootstrap),
         NettyRequest.live,

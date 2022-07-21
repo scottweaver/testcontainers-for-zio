@@ -19,7 +19,10 @@ object Interpreter {
 
   val live = ZLayer.fromZIO(ZIO.serviceWith[NettyRequest](InterpreterLive.apply))
 
-  def run(command: Command) = ZIO.serviceWithZIO[Interpreter](_.run(command))
+  def run(command: Command) =
+    ZIO.serviceWithZIO[Interpreter](_.run(command))
+  // def run[A](command: Command)(implicit ev0: A =:= command.Response): DockerIO[Interpreter, A] =
+  //   ZIO.serviceWithZIO[Interpreter](_.run(command).map(_.asInstanceOf[A]))
 }
 
 final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter {

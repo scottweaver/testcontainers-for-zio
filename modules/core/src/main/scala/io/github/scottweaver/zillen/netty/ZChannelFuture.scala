@@ -10,7 +10,7 @@ import java.util.concurrent.CancellationException
  *
  * @param jFuture
  */
-final class ZChannelFuture[A] private (jFuture: Future[A]) {
+private[zillen] final class ZChannelFuture[A] private (jFuture: Future[A]) {
 
   /**
    * Resolves when the underlying future resolves and removes the handler

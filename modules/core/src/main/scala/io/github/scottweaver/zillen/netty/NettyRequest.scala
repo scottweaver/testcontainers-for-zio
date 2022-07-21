@@ -19,7 +19,7 @@ import io.github.scottweaver.zillen._
  *   - https://github.com/dream11/zio-http
  *   - https://github.com/docker-java/docker-java
  */
-trait NettyRequest {
+private[zillen] trait NettyRequest {
   def executeRequest(request: HttpRequest): Task[Int]
 
   def executeRequestWithResponse(request: HttpRequest): Task[(Int, String)]
@@ -29,9 +29,9 @@ object NettyRequest {
 
   type ZioChannelFactory = () => ZIO[Any, Throwable, Channel]
 
-  def executeRequest(request: HttpRequest) = ZIO.serviceWithZIO[NettyRequest](_.executeRequest(request))
+  private[zillen] def executeRequest(request: HttpRequest) = ZIO.serviceWithZIO[NettyRequest](_.executeRequest(request))
 
-  def executeRequestWithResponse(request: HttpRequest) =
+  private[zillen] def executeRequestWithResponse(request: HttpRequest) =
     ZIO.serviceWithZIO[NettyRequest](_.executeRequestWithResponse(request))
 
   def live = ZLayer.fromZIO {

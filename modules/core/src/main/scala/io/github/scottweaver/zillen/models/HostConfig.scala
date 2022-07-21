@@ -5,6 +5,7 @@ import zio._
 import HostConfig.PortBinding
 import zio.json._
 import zio.json.ast._
+import io.github.scottweaver.zillen.netty.Network
 
 final case class HostConfig(
   @jsonField("PortBindings") portBindings: Chunk[PortBinding]
@@ -30,6 +31,10 @@ object HostConfig {
   object PortBinding {
     def make(containerPort: Port, hostPort: HostPort, additionalPorts: HostPort*) =
       PortBinding(containerPort, NonEmptyChunk(hostPort, additionalPorts: _*))
+
+    def makeAutoMapped(containerPort: Port) = {
+      Network.findFreePort.map(openPort => PortBinding(containerPort, NonEmptyChunk(HostPort.unsafeMake(openPort))))
+    }  
   }
 
   /**

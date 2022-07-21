@@ -8,7 +8,7 @@ import java.io._
 import java.nio.charset.Charset
 import io.netty.buffer.ByteBuf
 
-class StreamedBodyHandler(callback: () => Unit) extends ChannelInboundHandlerAdapter {
+private[zillen] class StreamedBodyHandler(callback: () => Unit) extends ChannelInboundHandlerAdapter {
 
   private val pos = new PipedOutputStream()
   private val pis = new PipedInputStream()
