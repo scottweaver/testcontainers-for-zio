@@ -40,8 +40,19 @@ object EncodingSpec extends ZIOSpecDefault {
     test("should encode to the correct JSON format.") {
       import HostConfig._
 
-      val hc: HostConfig = HostConfig(Chunk(PortBinding.make(Port(8080, Port.Protocol.TCP), HostPort.unsafeMake(8081))))
-      val json           = hc.toJsonPretty
+      val hc: HostConfig =
+        HostConfig(PortMap.makeOneToOne(ProtocolPort(8080, Protocol.TCP) -> HostInterface.makeUnsafeFromPort(8081)))
+      val json = hc.toJsonPretty
+      println(json)
+
+      assertTrue(true)
+    }
+  )
+
+  val hostPortSuite = suite("HostPort")(
+    test("should encode to the correct JSON format.") {
+      val hp = HostInterface.makeUnsafeFromPort(8081)
+      val json         = hp.toJsonPretty
       println(json)
 
       assertTrue(true)
@@ -49,10 +60,10 @@ object EncodingSpec extends ZIOSpecDefault {
   )
 
   val portSuite =
-    suite("Port")(
+    suite("ProtocolPort")(
       test("""should encode an exposed port to the bespoke docker format e.g. port 80 on TCP = `{"80/tcp":{}}`.""") {
 
-        val exposedPorts = Port.Exposed.make(Port.makeTCPPort(80))
+        val exposedPorts = ProtocolPort.Exposed.make(ProtocolPort.makeTCPPort(80))
 
         val json = exposedPorts.toJson
 

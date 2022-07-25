@@ -72,8 +72,9 @@ final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter
         case c @ InspectContainer(containerId) =>
           val uri     = s"http://localhost/v1.41/containers/${containerId}/json"
           val request = makeGET(uri)
-          CommandFailure
+          val resp = CommandFailure
             .nettyRequest(c, nettyRequest.executeRequestWithResponse(request), uri)
+          resp.tap(resp =>  ZIO.debug(s">>> InspectContainer: ${resp}"))
         case c @ CreateContainer(env, exposedPorts, hostConfig, image, name) =>
           val nameQuery = name.map(n => s"?name=$n").getOrElse("")
           val uri       = s"http://localhost/v1.41/containers/create${nameQuery}"
