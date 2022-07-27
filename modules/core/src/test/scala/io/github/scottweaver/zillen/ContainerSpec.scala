@@ -3,8 +3,6 @@ package io.github.scottweaver.zillen
 import zio.test._
 import zio._
 import io.github.scottweaver.zillen.models._
-import io.github.scottweaver.zillen.netty.NettyRequest
-import io.netty.bootstrap.Bootstrap
 
 object ContainerSpec extends ZIOSpecDefault {
 
@@ -32,14 +30,9 @@ object ContainerSpec extends ZIOSpecDefault {
           status == State.Status.Running
         )
       }
-
     }
   ).provide(
     Scope.default,
-    ZLayer.succeed(new Bootstrap),
-    NettyRequest.live,
-    DockerSettings.default,
-    InspectContainerPromise.Settings.default,
-    Interpreter.live
+    Docker.layer(),
   ) @@ TestAspect.withLiveClock
 }

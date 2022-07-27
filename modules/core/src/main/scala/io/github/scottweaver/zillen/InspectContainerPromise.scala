@@ -7,21 +7,17 @@ import Status._
 
 object InspectContainerPromise {
 
-  final case class Settings(exponentialBackoffBase: Duration, maxRetries: Int)
-
-  object Settings {
-    val default = ZLayer.succeed(Settings(250.millis, 5))
-  }
+  final case class Settings(exponentialBackOffBase: Duration, maxRetries: Int)
 
   type ScheduleContext[A] = (InspectContainerResponse, A)
 
   private def makeSchedule[A](base: Duration, maxRetries: Int)(
     readyIf:  A => Boolean
   ): Schedule[Any, ScheduleContext[A], ScheduleContext[A]] =
-    (Schedule
-      .recurUntil[ScheduleContext[A]] { case (_, a) => readyIf(a) } && Schedule.exponential(base) && Schedule.recurs(
+    Schedule
+      .recurUntil[ScheduleContext[A]] { case (_, a) => readyIf(a) } <* Schedule.exponential(base) <* Schedule.recurs(
       maxRetries
-    )) *> Schedule.identity
+    )
 
   def readyWhenA[A](containerId: ContainerId, toA: InspectContainerResponse => A)(readyIf: A => Boolean) = {
     val toAPLus = (resp: InspectContainerResponse) => resp -> toA(resp)
@@ -35,7 +31,7 @@ object InspectContainerPromise {
       ready    <- Promise.make[DockerContainerFailure, ScheduleContext[A]]
       _ <-
         status
-          .repeat(makeSchedule[A](settings.exponentialBackoffBase, settings.maxRetries)(readyIf))
+          .repeat(makeSchedule[A](settings.exponentialBackOffBase, settings.maxRetries)(readyIf))
           .flatMap(ready.succeed)
           // .flatMap { case r @ (_, b) => 
           //   readyIf(b) match {

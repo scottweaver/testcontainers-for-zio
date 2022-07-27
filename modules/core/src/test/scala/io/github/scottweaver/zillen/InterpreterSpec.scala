@@ -2,8 +2,7 @@ package io.github.scottweaver.zillen
 
 import zio.test._
 import io.github.scottweaver.zillen.models._
-import io.netty.bootstrap.Bootstrap
-import io.github.scottweaver.zillen.netty.NettyRequest
+import io.github.scottweaver.zillen.netty.NettyRequestHandler
 import zio._
 
 object InterpreterSpec extends ZIOSpecDefault {
@@ -54,11 +53,10 @@ object InterpreterSpec extends ZIOSpecDefault {
         )
       }.provide(
         Scope.default,
-        InspectContainerPromise.Settings.default,
-        DockerSettings.default,
-        ZLayer.succeed(new Bootstrap),
-        NettyRequest.live,
-        Interpreter.live
+        DockerSettings.default(),
+        netty.nettyBootstrapLayer,
+        NettyRequestHandler.layer,
+        Interpreter.layer
       )
     }
   ) @@ TestAspect.sequential @@ TestAspect.withLiveClock

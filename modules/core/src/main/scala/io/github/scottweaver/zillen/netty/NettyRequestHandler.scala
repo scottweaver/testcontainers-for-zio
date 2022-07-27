@@ -19,22 +19,22 @@ import io.github.scottweaver.zillen._
  *   - https://github.com/dream11/zio-http
  *   - https://github.com/docker-java/docker-java
  */
-private[zillen] trait NettyRequest {
+private[zillen] trait NettyRequestHandler {
   def executeRequest(request: HttpRequest): Task[Int]
 
   def executeRequestWithResponse(request: HttpRequest): Task[(Int, String)]
 }
 
-object NettyRequest {
+object NettyRequestHandler {
 
   type ZioChannelFactory = () => ZIO[Any, Throwable, Channel]
 
-  private[zillen] def executeRequest(request: HttpRequest) = ZIO.serviceWithZIO[NettyRequest](_.executeRequest(request))
+  private[zillen] def executeRequest(request: HttpRequest) = ZIO.serviceWithZIO[NettyRequestHandler](_.executeRequest(request))
 
   private[zillen] def executeRequestWithResponse(request: HttpRequest) =
-    ZIO.serviceWithZIO[NettyRequest](_.executeRequestWithResponse(request))
+    ZIO.serviceWithZIO[NettyRequestHandler](_.executeRequestWithResponse(request))
 
-  def live = ZLayer.fromZIO {
+  def layer = ZLayer.fromZIO {
     for {
       socketPath <- DockerSettings.socketPath
       _          <- makeEventLoopGroup
@@ -58,7 +58,7 @@ object NettyRequest {
       }
     }
 
-  private def makeKqueue(bootstrap: Bootstrap) = ZIO.acquireRelease(
+  private def makeKQueue(bootstrap: Bootstrap) = ZIO.acquireRelease(
     ZIO.attempt {
       val evlg = new KQueueEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-kqueue"))
 
@@ -74,11 +74,8 @@ object NettyRequest {
     ZIO.attempt {
       val evlg = new EpollEventLoopGroup(0, new DefaultThreadFactory("zio-zillen-epoll"))
 
-      // val channelFactory: ChannelFactory[EpollDomainSocketChannel] = () => new EpollDomainSocketChannel()
-
       bootstrap
         .group(evlg)
-        // .channelFactory(channelFactory)
         .channel(classOf[EpollDomainSocketChannel])
         .handler(channelInitializer[EpollDomainSocketChannel]())
       evlg
@@ -104,14 +101,14 @@ object NettyRequest {
       if (Epoll.isAvailable())
         makeEpoll(bootstrap)
       else if (KQueue.isAvailable())
-        makeKqueue(bootstrap)
+        makeKQueue(bootstrap)
       else
         ZIO.fail(new Exception("Could not create the appropriate event loop group.  Reason: OS not supported."))
     }
 
 }
 
-final case class NettyRequestLive(channelFactory: NettyRequest.ZioChannelFactory, scope: Scope) extends NettyRequest {
+final case class NettyRequestLive(channelFactory: NettyRequestHandler.ZioChannelFactory, scope: Scope) extends NettyRequestHandler {
 
   override def executeRequest(request: HttpRequest): Task[Int] = {
 

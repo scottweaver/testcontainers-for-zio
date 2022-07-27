@@ -3,22 +3,40 @@ package io.github.scottweaver.zillen
 import io.github.scottweaver.zillen.models._
 import zio.json._
 import zio._
-import io.github.scottweaver.zillen.DockerContainerFailure.InvalidDockerRuntimeState
+import io.github.scottweaver.zillen.DockerContainerFailure._
 
 sealed trait DockerContainerFailure { self =>
 
   def asException: Exception = self match {
-    case InvalidDockerRuntimeState(msg, cause)                         => new Exception(msg, cause.orNull)
-    case DockerContainerFailure.InvalidDockerConfiguration(msg, cause) => new Exception(msg, cause.orNull)
-    case cf: CommandFailure                                            => new Exception(cf.command.toString()) // TODO: This needs to be better.
+    case InvalidDockerRuntimeState(msg, cause)  => new Exception(msg, cause.orNull)
+    case InvalidDockerConfiguration(msg, cause) => new Exception(msg, cause.orNull)
+    case ContainerReadyCheckFailure(msg, cause) => new Exception(msg, cause.orNull)
+    case ContainerReadinessTimeout(msg)         => new Exception(msg)
+    case cf: CommandFailure                     => new Exception(cf.command.toString()) // TODO: This needs to be better.
   }
 }
 
 object DockerContainerFailure {
 
-  final case class InvalidDockerRuntimeState(msg: String, cause: Option[Throwable]) extends DockerContainerFailure
+  final case class InvalidDockerRuntimeState(msg: String, cause: Option[Throwable] = None)
+      extends DockerContainerFailure
 
-  final case class InvalidDockerConfiguration(msg: String, cause: Option[Throwable]) extends DockerContainerFailure
+  final case class InvalidDockerConfiguration(msg: String, cause: Option[Throwable] = None)
+      extends DockerContainerFailure
+
+  final case class ContainerReadinessTimeout(msg: String) extends DockerContainerFailure
+
+  final case class ContainerReadyCheckFailure(msg: String, cause: Option[Throwable] = None)
+      extends DockerContainerFailure
+
+  def fromConfigurationException(context: String, t: Throwable): InvalidDockerConfiguration = {
+    val msg = s"${context} Cause: ${t.getMessage}"
+    InvalidDockerConfiguration(msg, Some(t))
+  }
+
+  def fromConfigurationException(t: Throwable): InvalidDockerConfiguration = {
+    fromConfigurationException("Failed to initialize Docker container.", t)
+  }
 }
 
 sealed trait CommandFailure extends DockerContainerFailure {

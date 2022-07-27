@@ -21,7 +21,7 @@ object NettyRequestSpec extends ZIOSpecDefault {
         )
         request.headers().set(HttpHeaderNames.HOST, "daemon")
 
-        val testCase = NettyRequest.executeRequest(request)
+        val testCase = NettyRequestHandler.executeRequest(request)
 
         testCase.map { statusCode =>
           assertTrue(statusCode == 200)
@@ -39,7 +39,7 @@ object NettyRequestSpec extends ZIOSpecDefault {
         )
         request.headers().set(HttpHeaderNames.HOST, "daemon")
 
-        val testCase = NettyRequest.executeRequestWithResponse(request)
+        val testCase = NettyRequestHandler.executeRequestWithResponse(request)
 
         testCase.map { case (statusCode, body) =>
           println(s">>> BODY: ${body}")
@@ -49,9 +49,9 @@ object NettyRequestSpec extends ZIOSpecDefault {
     )
       .provideShared(
         ZLayer.succeed(new Bootstrap),
-        DockerSettings.default,
+        DockerSettings.default(),
         Scope.default,
-        NettyRequest.live,
+        NettyRequestHandler.layer,
         Annotations.live
       )
 

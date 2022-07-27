@@ -1,7 +1,7 @@
 package io.github.scottweaver.zillen
 
 import zio._
-import io.github.scottweaver.zillen.netty.NettyRequest
+import io.github.scottweaver.zillen.netty.NettyRequestHandler
 import io.netty.handler.codec.http._
 import io.netty.buffer.Unpooled
 import io.github.scottweaver.zillen.models.CreateContainerRequest
@@ -17,15 +17,13 @@ trait Interpreter {
 
 object Interpreter {
 
-  val live = ZLayer.fromZIO(ZIO.serviceWith[NettyRequest](InterpreterLive.apply))
+  val layer = ZLayer.fromZIO(ZIO.serviceWith[NettyRequestHandler](InterpreterLive.apply))
 
   def run(command: Command) =
     ZIO.serviceWithZIO[Interpreter](_.run(command))
-  // def run[A](command: Command)(implicit ev0: A =:= command.Response): DockerIO[Interpreter, A] =
-  //   ZIO.serviceWithZIO[Interpreter](_.run(command).map(_.asInstanceOf[A]))
 }
 
-final case class InterpreterLive(nettyRequest: NettyRequest) extends Interpreter {
+final case class InterpreterLive(nettyRequest: NettyRequestHandler) extends Interpreter {
 
   private def makeRequest(uri: String, method: HttpMethod, byteBuf: Option[ByteBuf]) = {
     val request: HttpRequest = new DefaultFullHttpRequest(

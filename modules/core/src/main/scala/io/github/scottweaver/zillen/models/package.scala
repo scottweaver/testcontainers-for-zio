@@ -33,6 +33,4 @@ package object models {
     validation.toEither.left.map(errorMsg)
   }
 
-
-
 }

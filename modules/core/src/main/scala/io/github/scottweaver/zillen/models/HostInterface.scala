@@ -6,7 +6,10 @@ import zio.prelude.Newtype
 final case class HostInterface(
   @jsonField("HostIp") hostIp: Option[String],
   @jsonField("HostPort") hostPort: HostInterface.HostPort
-)
+) {
+
+  val hostAddress: String = s"${hostIp.getOrElse("0.0.0.0")}:${hostPort}"
+}
 
 object HostInterface {
 

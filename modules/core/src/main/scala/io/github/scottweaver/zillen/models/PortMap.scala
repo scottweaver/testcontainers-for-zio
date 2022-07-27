@@ -5,7 +5,7 @@ import zio._
 import zio.json._
 import io.github.scottweaver.zillen._
 
-object PortMap extends Newtype[Map[ProtocolPort, NonEmptyChunk[HostInterface]]] {
+object PortMap extends Subtype[Map[ProtocolPort, NonEmptyChunk[HostInterface]]] {
 
   val empty: PortMap = wrap(Map.empty)
 
@@ -25,7 +25,17 @@ object PortMap extends Newtype[Map[ProtocolPort, NonEmptyChunk[HostInterface]]] 
     withHostPort.map(make)
   }
 
+  def makeFromExposedPorts(exposedPorts: ProtocolPort.Exposed): RIO[Network, PortMap] =
+    makeAutoMapped(exposedPorts.ports:_*)
+
   implicit val PortMapCodec: JsonCodec[PortMap] =
     JsonCodec.map[ProtocolPort, NonEmptyChunk[HostInterface]].transform(wrap, unwrap)
+  
+  implicit class Syntax(portMap: PortMap) {
+
+    def findExternalHostPort(port: Int, protocol: Protocol): Option[HostInterface] = {
+      portMap.get(ProtocolPort(port, protocol)).map(_.head)
+    }
+  }
 
 }
