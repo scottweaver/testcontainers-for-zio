@@ -1,44 +1,60 @@
 package io.github.scottweaver.zio.testcontainers.postgresql
 
-import io.github.scottweaver.zillen.models._
 import io.github.scottweaver.zillen._
-import zio._
-import java.sql.DriverManager
-import java.sql.Connection
 import io.github.scottweaver.models.JdbcInfo
-import io.github.scottweaver.zillen.DockerContainerFailure._
+import zio._
+import java.sql._
 
 object PostgresContainer {
 
   final case class Settings(
     imageVersion: String,
-    databaseName: String,
-    username: String,
-    password: String
+    password: String,
+    databaseName: Option[String],
+    username: Option[String],
+    additionalEnv: Env
   ) {
 
     private[postgresql] def toEnv: Env =
-      Env.make(
-        "POSTGRES_USER"     -> username,
-        "POSTGRES_PASSWORD" -> password,
-        "POSTGRES_DB"       -> databaseName
-      )
+      Docker
+        .makeEnv(
+          "POSTGRES_PASSWORD" -> password
+        )
+        .withOptionals(
+          "POSTGRES_USER" -> username,
+          "POSTGRES_DB"   -> databaseName
+        ) && additionalEnv
 
-    private[postgresql] def toImage = Image.make(s"postgres:$imageVersion")
+    private[postgresql] def toImage = Docker.makeImageZIO(s"postgres:$imageVersion")
+  }
+
+  object Settings {
+
+    def default(builder: Settings => Settings = identity) = ZLayer.succeed(
+      builder(
+        Settings(
+          imageVersion = "latest",
+          password = "password",
+          databaseName = None,
+          username = None,
+          additionalEnv = Docker.makeEnv()
+        )
+      )
+    )
   }
 
   def makeUrl(portMap: PortMap, settings: Settings) = {
-    val hostInterface = portMap.findExternalHostPort(5432, Protocol.TCP)
+    val hostInterface = portMap.findExternalHostPort(5432, Docker.protocol.TCP)
+    val user          = settings.username.getOrElse("postgres")
+    val databaseName  = settings.databaseName.getOrElse(user)
     hostInterface match {
       case Some(hostInterface) =>
         ZIO.succeed(
-          s"jdbc:postgresql://${hostInterface.hostAddress}/${settings.databaseName}?user=${settings.username}&password=${settings.password}"
+          s"jdbc:postgresql://${hostInterface.hostAddress}/${databaseName}?user=${user}&password=${settings.password}"
         )
       case None =>
-        ZIO.fail(
-          DockerContainerFailure.InvalidDockerConfiguration(
-            s"No listening host port found for Postgres container for internal port '5432/tcp'."
-          )
+        Docker.failInvalidConfig(
+          s"No listening host port found for Postgres container for internal port '5432/tcp'."
         )
     }
   }
@@ -46,9 +62,10 @@ object PostgresContainer {
   def makeConnection(url: String) = {
     val acquireConn = ZIO
       .attempt(DriverManager.getConnection(url))
-      .mapError(fromConfigurationException(s"Failed to establish a connection to Postgres", _))
     val releaseConn = (conn: Connection) => ZIO.attempt(conn.close()).ignoreLogged
-    ZIO.acquireRelease(acquireConn)(releaseConn)
+    ZIO
+      .acquireRelease(acquireConn)(releaseConn)
+      .tapError(t => ZIO.logError(s"Failed to establish a connection to Postgres @ '$url'. Cause: ${t.getMessage})"))
   }
 
   def check(conn: Connection) =
@@ -58,67 +75,56 @@ object PostgresContainer {
       rs.next()
       rs.getInt(1)
     }.mapError(
-      fromConfigurationException(s"Failed to execute query against Postgres.", _)
+      Docker.invalidConfig(s"Failed to execute query against Postgres.")
     ).flatMap { i =>
       if (i == 1)
         ZIO.succeed(true)
       else
-        ZIO.fail(
-          DockerContainerFailure.ContainerReadyCheckFailure(s"Postgres query check failed, expected 1, got $i")
-        )
+        Docker.failReadyCheckFailed(s"Postgres query check failed, expected 1, got $i")
     }).catchAll { case _ =>
       ZIO.succeed(false)
     }
 
-  val makeCommand: ZIO[Settings with Network, DockerContainerFailure, Command.CreateContainer] = {
-    val exposedPorts = ProtocolPort.Exposed.make(ProtocolPort.makeTCPPort(5432))
+  val makeCommand: DockerIO[Settings with Network, Command.CreateContainer] = {
+    val exposedPorts = Docker.makeExposedTCPPorts(5432)
     for {
       settings <- ZIO.service[Settings]
-      name <- ContainerName
-                .make("zio-postgres-test-container")
-                .toZIO
-                .mapError(DockerContainerFailure.InvalidDockerConfiguration(_))
-      image <- settings.toImage.toZIO.mapError(DockerContainerFailure.InvalidDockerConfiguration(_, None))
-      portMap <- PortMap
-                   .makeFromExposedPorts(exposedPorts)
-                   .mapError(
-                     fromConfigurationException(
-                       s"Failed to create Docker PortMap.",
-                       _
-                     )
-                   )
-    } yield Command.CreateContainer(
+      name     <- Docker.makeContainerNameZIO("zio-postgres-test-container")
+      image    <- settings.toImage
+      portMap  <- Docker.automapExposedPorts(exposedPorts)
+    } yield Docker.cmd.createContainer(
       env = settings.toEnv,
       exposedPorts = exposedPorts,
-      hostConfig = HostConfig(portMap),
+      hostConfig = Docker.makeHostConfig(portMap),
       image = image,
       containerName = Some(name)
     )
 
   }
 
-  val layer = ZLayer.fromZIO {
+  val layer = ZLayer.fromZIOEnvironment {
     for {
       settings                 <- ZIO.service[Settings]
-      containerAndPromise      <- makeCommand.flatMap(Container.makeScopedContainer)
+      containerAndPromise      <- makeCommand.flatMap(Docker.makeScopedContainer)
       (createResponse, promise) = containerAndPromise
-      inspectAndStatusResponse <- promise.await
-      (inspectResp, status)     = inspectAndStatusResponse
-      url                      <- makeUrl(inspectResp.hostConfig.portBindings, settings)
+      _                        <- promise.await
+      container                <- Docker.inspectContainer(createResponse.id)
+      url <- makeUrl(container.hostConfig.portBindings, settings)
       driverClassName <- ZIO
                            .attempt(DriverManager.getDriver(url).getClass.getName)
-                           .mapError(DockerContainerFailure.fromConfigurationException(_))
-      conn <- makeConnection(url)
-      ready = check(conn)
-      _    <- ReadyCheck.awaitReadyContainer(createResponse.id, _ => ready)
+                           .mapError(Docker.invalidConfig(s"Failed to get driver class name for Postgres @ '$url'."))
+      ready    = makeConnection(url).flatMap(check).provide(Scope.default)
+      promise <- ReadyCheck.makePromise[Any](createResponse.id, _ => ready)
+      _       <- promise.await
+      conn    <- makeConnection(url).orDie
     } yield {
-      val jdbcInfo   = JdbcInfo(driverClassName, url, settings.username, settings.password)
+      val jdbcInfo   = JdbcInfo(driverClassName, url, settings.username.getOrElse("postgres"), settings.password)
       val dataSource = new org.postgresql.ds.PGSimpleDataSource()
       dataSource.setUrl(jdbcInfo.jdbcUrl)
       dataSource.setUser(jdbcInfo.username)
       dataSource.setPassword(jdbcInfo.password)
 
-      ZEnvironment(jdbcInfo, dataSource, conn, inspectResp)
+      ZEnvironment(jdbcInfo, dataSource, conn, container)
     }
 
   }

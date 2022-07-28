@@ -1,0 +1,45 @@
+package io.github.scottweaver.zillen
+
+import zio._
+import scala.annotation.nowarn
+import models.State
+
+trait ReadyCheckOps {
+
+  @nowarn
+  def makeReadyCheckPromise[T: Tag](
+    containerId: ContainerId,
+    check: Container => ZIO[Any, Throwable, Boolean]
+  ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] = for {
+    settings   <- ZIO.serviceWith[ContainerSettings[T]](_.readyCheckSettings)
+    readyCheck <- ZIO.service[ReadyCheck]
+    ready      <- readyCheck.makePromise(containerId, check, settings)
+  } yield ready
+  
+  @nowarn
+  def makeRunningCheckPromise[T: Tag](
+    containerId: ContainerId,
+    check: Container => ZIO[Any, Throwable, Boolean]
+  ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] = for {
+    settings   <- ZIO.serviceWith[ContainerSettings[T]](_.readyCheckSettings)
+    readyCheck <- ZIO.service[ReadyCheck]
+    ready      <- readyCheck.makePromise(containerId, check, settings)
+  } yield ready
+
+  def readyWhenStatusPromise[T: Tag](
+    containerId: ContainerId,
+    statuses: State.Status*
+  ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] =
+    makeReadyCheckPromise(containerId, c => ZIO.succeed(statuses.contains(c.state.status)))
+
+  def readyWhenRunningPromise[T: Tag](
+    containerId: ContainerId
+  ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] =
+    readyWhenStatusPromise(containerId, Docker.status.Running)
+
+  def doneWhenDeadOrExitedPromise[T: Tag](
+    containerId: ContainerId
+  ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] =
+    readyWhenStatusPromise(containerId, Docker.status.Exited, Docker.status.Dead)
+
+}

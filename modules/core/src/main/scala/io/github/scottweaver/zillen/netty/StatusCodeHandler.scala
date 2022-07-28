@@ -1,4 +1,6 @@
-package io.github.scottweaver.zillen.netty
+package io.github.scottweaver
+package zillen
+package netty
 
 import io.netty.channel._
 import io.netty.handler.codec.http.HttpResponse

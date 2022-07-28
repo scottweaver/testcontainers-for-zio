@@ -1,4 +1,5 @@
-package io.github.scottweaver.zillen
+package io.github.scottweaver
+package zillen
 
 import io.github.scottweaver.zillen.models._
 import zio._

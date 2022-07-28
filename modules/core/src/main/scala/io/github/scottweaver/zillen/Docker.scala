@@ -1,9 +1,18 @@
 package io.github.scottweaver.zillen
 
-import io.github.scottweaver.zillen.netty._
+import netty._
 
-object Docker {
+object Docker extends ContainerOps with ModelOps with FailureOps with ReadyCheckOps {
 
-  def layer(builder: DockerSettings => DockerSettings = identity) =
-    DockerSettings.default(builder)  >+>  (nettyBootstrapLayer >>> NettyRequestHandler.layer >>> Interpreter.layer)
+  object cmd extends CommandOps
+
+  def layer(
+    dockerSettingsBuilder: DockerSettings => DockerSettings = identity,
+    containerSettingsBuilder: ContainerSettings[Any] => ContainerSettings[Any] = identity
+  ) =
+    DockerSettings.default(
+      dockerSettingsBuilder
+    ) >+> (nettyBootstrapLayer >>> NettyRequestHandler.layer >>> Interpreter.layer) >+> ContainerSettings.default(
+      containerSettingsBuilder
+    ) >+> Network.layer ++ ReadyCheck.layer
 }

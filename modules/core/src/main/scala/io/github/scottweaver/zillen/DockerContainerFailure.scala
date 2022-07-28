@@ -12,7 +12,7 @@ sealed trait DockerContainerFailure { self =>
     case InvalidDockerConfiguration(msg, cause) => new Exception(msg, cause.orNull)
     case ContainerReadyCheckFailure(msg, cause) => new Exception(msg, cause.orNull)
     case ContainerReadinessTimeout(msg)         => new Exception(msg)
-    case cf: CommandFailure                     => new Exception(cf.command.toString()) // TODO: This needs to be better.
+    case cf: CommandFailure                     => new Exception(cf.toString()) // TODO: This needs to be better.
   }
 }
 
@@ -37,6 +37,7 @@ object DockerContainerFailure {
   def fromConfigurationException(t: Throwable): InvalidDockerConfiguration = {
     fromConfigurationException("Failed to initialize Docker container.", t)
   }
+
 }
 
 sealed trait CommandFailure extends DockerContainerFailure {

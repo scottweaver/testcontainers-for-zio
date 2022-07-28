@@ -2,37 +2,32 @@ package io.github.scottweaver.zillen
 
 import zio.test._
 import zio._
-import io.github.scottweaver.zillen.models._
 
 object ContainerSpec extends ZIOSpecDefault {
 
-  val postgresImage   = Image("postgres:latest")
-  val name            = ContainerName.unsafeMake("zio-postgres-test-container")
-  val env             = Env.make("POSTGRES_PASSWORD" -> "password")
-  val cport           = ProtocolPort.makeTCPPort(5432)
-  val exposedPorts    = ProtocolPort.Exposed.make(cport)
-  val hostConfig      = HostConfig(PortMap.makeOneToOne(cport -> HostInterface.makeUnsafeFromPort(5432)))
-  val createContainer = Command.CreateContainer(env, exposedPorts, hostConfig, postgresImage, Some(name))
+  val postgresImage   = Docker.makeImage("postgres:latest").toOption.get
+  val name            = Docker.makeContainerName("zio-postgres-test-container").toOption.get
+  val env             = Docker.makeEnv("POSTGRES_PASSWORD" -> "password")
+  val exposedPorts    = Docker.makeExposedTCPPorts(5432)
+  val hostConfig      = Docker.makeHostConfig(Docker.mirrorExposedPorts(exposedPorts))
+  val createContainer = Docker.cmd.createContainer(env, exposedPorts, hostConfig, postgresImage, Some(name))
 
   val spec = suite("ContainerSpec")(
     test("#scopedContainer should properly run the entire lifecycle of a container.") {
 
       val testCase = for {
-        createAndInspect <- Container.makeScopedContainer(createContainer)
-        (create, promise) = createAndInspect
-        inspectAndStatus <- promise.await
-        (inspect, status) = inspectAndStatus
+        scopedContainer         <- Docker.makeScopedContainer[Any](createContainer)
+        (create, runningPromise) = scopedContainer
+        running                 <- runningPromise.await
 
-      } yield (create, inspect, status)
+      } yield running
 
-      testCase.map { case (_, _, status) =>
-        assertTrue(
-          status == State.Status.Running
-        )
+      testCase.map { status =>
+        assertTrue(status)
       }
     }
   ).provide(
     Scope.default,
-    Docker.layer(),
+    Docker.layer()
   ) @@ TestAspect.withLiveClock
 }

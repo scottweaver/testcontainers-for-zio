@@ -1,4 +1,6 @@
-package io.github.scottweaver.zillen.models
+package io.github.scottweaver
+package zillen
+package models
 
 import zio.json._
 import zio.prelude.Newtype
@@ -8,7 +10,7 @@ final case class HostInterface(
   @jsonField("HostPort") hostPort: HostInterface.HostPort
 ) {
 
-  val hostAddress: String = s"${hostIp.getOrElse("0.0.0.0")}:${hostPort}"
+  val hostAddress: String = s"${hostIp.filter(_.nonEmpty).getOrElse("localhost")}:${hostPort}"
 }
 
 object HostInterface {
@@ -24,6 +26,9 @@ object HostInterface {
       JsonCodec.string.transformOrFail(s => safeIntFromString(s, s"Invalid host port").map(wrap), unwrap(_).toString)
 
   }
+
+  def fromPortProtocol(pp: ProtocolPort): HostInterface =
+    HostInterface(None, HostPort.unsafeMake(pp.portNumber))
 
   def makePortOnly(hostPort: HostPort): HostInterface =
     HostInterface(None, hostPort)

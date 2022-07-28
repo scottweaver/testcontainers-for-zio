@@ -1,8 +1,7 @@
 package io.github.scottweaver.zillen
 
 import zio.test._
-import io.github.scottweaver.zillen.models._
-import io.github.scottweaver.zillen.netty.NettyRequestHandler
+import models._
 import zio._
 
 object InterpreterSpec extends ZIOSpecDefault {
@@ -19,10 +18,10 @@ object InterpreterSpec extends ZIOSpecDefault {
       def createImage = Interpreter.run(Command.CreateImage(postgresImage))
       def create(name: ContainerName) =
         Interpreter.run(Command.CreateContainer(env, exposedPorts, hostConfig, postgresImage, Some(name)))
-      def inspect(id: ContainerId) = InspectContainerPromise.whenRunning(id)
+      def running(id: ContainerId) = Docker.readyWhenRunningPromise[Any](id) // ContainerStateCheck.whenRunning[Any](id)
       def start(id: ContainerId)   = Interpreter.run(Command.StartContainer(id))
       def stop(id: ContainerId)    = Interpreter.run(Command.StopContainer(id))
-      def exited(id: ContainerId)  = InspectContainerPromise.whenDeadOrExited(id)
+      def exited(id: ContainerId)  = Docker.doneWhenDeadOrExitedPromise[Any](id)
       def remove(id: ContainerId) = Interpreter.run(
         Command.RemoveContainer(id, Command.RemoveContainer.Force.yes, Command.RemoveContainer.Volumes.yes)
       )
@@ -33,30 +32,26 @@ object InterpreterSpec extends ZIOSpecDefault {
           createImage     <- createImage
           createdResponse <- create(name)
           started         <- start(createdResponse.id)
-          running         <- inspect(createdResponse.id).flatMap(_.await)
+          running         <- running(createdResponse.id).flatMap(_.await)
           stopping        <- stop(createdResponse.id)
           exited          <- exited(createdResponse.id).flatMap(_.await)
           removed         <- remove(createdResponse.id)
         } yield (createImage, createdResponse, started, running, stopping, exited, removed)
 
       testCase.map { case (createImage, createdResponse, started, running, stopping, exited, removed) =>
-        import State._
         println(createdResponse)
         assertTrue(
           createImage == postgresImage,
           createdResponse.warnings.isEmpty,
           started == createdResponse.id,
-          running._2 == Status.Running,
+          running,
           stopping == Command.StopContainer.Stopped(createdResponse.id),
-          exited._2 == Status.Exited,
+          exited,
           removed == createdResponse.id
         )
       }.provide(
         Scope.default,
-        DockerSettings.default(),
-        netty.nettyBootstrapLayer,
-        NettyRequestHandler.layer,
-        Interpreter.layer
+        Docker.layer()
       )
     }
   ) @@ TestAspect.sequential @@ TestAspect.withLiveClock

@@ -1,4 +1,6 @@
-package io.github.scottweaver.zillen.netty
+package io.github.scottweaver
+package zillen
+package netty
 
 import io.netty.channel.epoll._
 import io.netty.channel.kqueue._
@@ -11,7 +13,7 @@ import io.netty.handler.logging.LoggingHandler
 import io.netty.channel.unix.DomainSocketAddress
 import io.netty.channel.socket.DuplexChannel
 import zio.stream.ZSink
-import io.github.scottweaver.zillen._
+import zillen._
 
 /**
  * Inspirations and Due Respects:
