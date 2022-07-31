@@ -51,6 +51,7 @@ object InterpreterSpec extends ZIOSpecDefault {
         )
       }.provide(
         Scope.default,
+        ContainerSettings.default[Any](),
         Docker.layer()
       )
     }

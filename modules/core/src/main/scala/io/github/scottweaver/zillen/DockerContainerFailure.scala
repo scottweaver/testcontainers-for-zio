@@ -7,13 +7,7 @@ import io.github.scottweaver.zillen.DockerContainerFailure._
 
 sealed trait DockerContainerFailure { self =>
 
-  def asException: Exception = self match {
-    case InvalidDockerRuntimeState(msg, cause)  => new Exception(msg, cause.orNull)
-    case InvalidDockerConfiguration(msg, cause) => new Exception(msg, cause.orNull)
-    case ContainerReadyCheckFailure(msg, cause) => new Exception(msg, cause.orNull)
-    case ContainerReadinessTimeout(msg)         => new Exception(msg)
-    case cf: CommandFailure                     => new Exception(cf.toString()) // TODO: This needs to be better.
-  }
+  def asException: DockerContainerFailureException = DockerContainerFailureException(self) 
 }
 
 object DockerContainerFailure {
@@ -29,14 +23,8 @@ object DockerContainerFailure {
   final case class ContainerReadyCheckFailure(msg: String, cause: Option[Throwable] = None)
       extends DockerContainerFailure
 
-  def fromConfigurationException(context: String, t: Throwable): InvalidDockerConfiguration = {
-    val msg = s"${context} Cause: ${t.getMessage}"
-    InvalidDockerConfiguration(msg, Some(t))
-  }
 
-  def fromConfigurationException(t: Throwable): InvalidDockerConfiguration = {
-    fromConfigurationException("Failed to initialize Docker container.", t)
-  }
+  final case class DockerContainerFailureException(failure: DockerContainerFailure) extends Exception()
 
 }
 
@@ -67,7 +55,7 @@ object CommandFailure {
   def decodeResponse[A: JsonDecoder](body: String, command: Command): DockerIO[Any, A] =
     body.fromJson[A] match {
       case Left(error) =>
-        ZIO.debug(s">>> Failed to decode response '${error}'") *> ZIO.fail(
+        ZIO.debug(s"Failed to decode response '${error}'") *> ZIO.fail(
           DockerApiDecodingFailure(body, command, error)
         )
       case Right(a) => ZIO.succeed(a)

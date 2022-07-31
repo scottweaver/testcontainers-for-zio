@@ -3,7 +3,7 @@ package io.github.scottweaver.zillen
 import zio._
 import scala.annotation.nowarn
 
-final case class ContainerSettings[-A](
+final case class ContainerSettings[A](
   inspectContainerPromiseSettings: ReadyCheck.ContainerRunning,
   readyCheckSettings: ReadyCheck.ContainerReady
 ) { self =>
@@ -25,19 +25,14 @@ object ContainerSettings {
   val defaultPromisedSettings   = ReadyCheck.ContainerRunning(250.millis, 5)
   val defaultReadyCheckSettings = ReadyCheck.ContainerReady(250.millis, 5)
 
-  def default(builder: ContainerSettings[Any] => ContainerSettings[Any] = identity) =
+  @nowarn
+  def default[A: Tag](builder: ContainerSettings[A] => ContainerSettings[A] = identity[ContainerSettings[A]] _) =
     ZLayer.succeed {
       builder(
-        ContainerSettings[Any](
+        ContainerSettings[A](
           defaultPromisedSettings,
           defaultReadyCheckSettings
         )
       )
-    }
-
-  @nowarn
-  def layerFromDefault[A: Tag](builder: ContainerSettings[A] => ContainerSettings[A]) =
-    ZLayer.fromZIO {
-      ZIO.serviceWith[ContainerSettings[A]](cs => builder(cs.as[A]))
     }
 }

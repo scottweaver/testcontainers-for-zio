@@ -28,6 +28,7 @@ object ContainerSpec extends ZIOSpecDefault {
     }
   ).provide(
     Scope.default,
+    ContainerSettings.default[Any](),
     Docker.layer()
   ) @@ TestAspect.withLiveClock
 }

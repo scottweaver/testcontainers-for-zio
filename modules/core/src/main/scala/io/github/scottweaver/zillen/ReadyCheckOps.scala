@@ -7,17 +7,17 @@ import models.State
 trait ReadyCheckOps {
 
   @nowarn
-  def makeReadyCheckPromise[T: Tag](
+  def makeReadyCheckPromise[R, T: Tag](
     containerId: ContainerId,
-    check: Container => ZIO[Any, Throwable, Boolean]
-  ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] = for {
+    check: Container => ZIO[R, Throwable, Boolean]
+  ): DockerIO[ContainerSettings[T] with ReadyCheck with R, Promise[Nothing, Boolean]] = for {
     settings   <- ZIO.serviceWith[ContainerSettings[T]](_.readyCheckSettings)
     readyCheck <- ZIO.service[ReadyCheck]
-    ready      <- readyCheck.makePromise(containerId, check, settings)
+    ready      <- readyCheck.makePromise[R](containerId, check, settings)
   } yield ready
   
   @nowarn
-  def makeRunningCheckPromise[T: Tag](
+  def makeRunningCheckPromise[ T: Tag](
     containerId: ContainerId,
     check: Container => ZIO[Any, Throwable, Boolean]
   ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] = for {

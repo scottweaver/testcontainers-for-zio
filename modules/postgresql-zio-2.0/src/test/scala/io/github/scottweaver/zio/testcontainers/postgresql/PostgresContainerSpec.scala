@@ -7,7 +7,8 @@ import io.github.scottweaver.models.JdbcInfo
 import javax.sql.DataSource
 import io.github.scottweaver.zillen.Docker
 import io.github.scottweaver.zillen.models._
-import io.github.scottweaver.zio.testcontainers.postgresql.PostgresContainer
+import io.github.scottweaver.zio.testcontainers.postgresql._
+// import io.github.scottweaver.zillen.ContainerSettings
 
 object PostgresContainerSpec extends ZIOSpecDefault {
   def spec =
@@ -49,7 +50,7 @@ object PostgresContainerSpec extends ZIOSpecDefault {
         Scope.default,
         Docker.layer(),
         PostgresContainer.Settings.default(),
-        PostgresContainer.layer
+        PostgresContainer.layer,
       ) @@ TestAspect.withLiveClock
     )
 }

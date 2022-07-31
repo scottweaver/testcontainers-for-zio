@@ -7,12 +7,10 @@ object Docker extends ContainerOps with ModelOps with FailureOps with ReadyCheck
   object cmd extends CommandOps
 
   def layer(
-    dockerSettingsBuilder: DockerSettings => DockerSettings = identity,
-    containerSettingsBuilder: ContainerSettings[Any] => ContainerSettings[Any] = identity
+    dockerSettingsBuilder: DockerSettings => DockerSettings = identity
   ) =
     DockerSettings.default(
       dockerSettingsBuilder
-    ) >+> (nettyBootstrapLayer >>> NettyRequestHandler.layer >>> Interpreter.layer) >+> ContainerSettings.default(
-      containerSettingsBuilder
-    ) >+> Network.layer ++ ReadyCheck.layer
+    ) >+> (nettyBootstrapLayer >>> NettyRequestHandler.layer >>> Interpreter.layer) >+>
+      Network.layer ++ ReadyCheck.layer
 }

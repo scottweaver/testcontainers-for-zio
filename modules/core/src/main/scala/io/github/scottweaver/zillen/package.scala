@@ -11,7 +11,7 @@ package object zillen {
 
   type ContainerName = models.ContainerName.Type
 
-  type DockerIO[R, A] = ZIO[R, DockerContainerFailure, A]
+  type DockerIO[-R, +A] = ZIO[R, DockerContainerFailure, A]
 
   type DockerSocketPath = DockerSettings.DockerSocketPath.Type
 

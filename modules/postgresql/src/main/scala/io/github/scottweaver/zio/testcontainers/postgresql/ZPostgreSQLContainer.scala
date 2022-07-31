@@ -1,9 +1,9 @@
 package io.github.scottweaver.zio.testcontainers.postgres
 
-import zio._
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.sql.DriverManager
+import zio._
 import java.sql.Connection
 import io.github.scottweaver.models.JdbcInfo
 import javax.sql.DataSource
