@@ -17,7 +17,7 @@ object PortMap extends Subtype[Map[ProtocolPort, NonEmptyChunk[HostInterface]]] 
   def makeOneToOne(portMaps: (ProtocolPort, HostInterface)*): PortMap =
     make(portMaps.map { case (port, hostPort) => (port, NonEmptyChunk(hostPort)) }: _*)
 
-  def makeAutoMapped(containerPorts: ProtocolPort*): RIO[Network, PortMap] = {
+  def makeAutoMapped(containerPorts: ProtocolPort*): DockerIO[Network, PortMap] = {
     val withHostPort = ZIO
       .foreach(containerPorts)(port =>
         Network.findOpenPort.map(openPort =>
@@ -27,7 +27,7 @@ object PortMap extends Subtype[Map[ProtocolPort, NonEmptyChunk[HostInterface]]] 
     withHostPort.map(mapped => make(mapped.toSeq: _*))
   }
 
-  def makeFromExposedPorts(exposedPorts: ProtocolPort.Exposed): RIO[Network, PortMap] =
+  def makeFromExposedPorts(exposedPorts: ProtocolPort.Exposed): DockerIO[Network, PortMap] =
     makeAutoMapped(exposedPorts.ports: _*)
 
   implicit val PortMapCodec: JsonCodec[PortMap] =

@@ -36,7 +36,6 @@ private[zillen] trait ModelOps { self: FailureOps =>
   def automapExposedPorts(exposed: ProtocolPort.Exposed): DockerIO[Network, PortMap] =
     PortMap
       .makeFromExposedPorts(exposed)
-      .mapError(invalidConfig(s"Failed to create Docker PortMap."))
 
   def makeTCPPort(port: Int): ProtocolPort = ProtocolPort.makeTCPPort(port)
 

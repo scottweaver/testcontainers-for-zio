@@ -23,6 +23,8 @@ private[zillen] trait FailureOps {
     val msg0 = cause.map(t => s"${msg} Cause: ${t.getMessage}").getOrElse(msg)
     InvalidDockerRuntimeState(msg0, cause)
   }
+  def invalidRuntimeState(msg: String)(t: Throwable): InvalidDockerRuntimeState = invalidRuntimeState(msg, Some(t))
+
 
   def readyCheckFailed(msg: String, cause: Option[Throwable] = None) =
     ContainerReadyCheckFailure(msg, cause)
