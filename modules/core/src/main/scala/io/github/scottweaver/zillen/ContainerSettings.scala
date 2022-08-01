@@ -1,7 +1,6 @@
 package io.github.scottweaver.zillen
 
 import zio._
-import scala.annotation.nowarn
 
 final case class ContainerSettings[A](
   inspectContainerPromiseSettings: ReadyCheck.ContainerRunning,
@@ -25,7 +24,6 @@ object ContainerSettings {
   val defaultPromisedSettings   = ReadyCheck.ContainerRunning(250.millis, 5)
   val defaultReadyCheckSettings = ReadyCheck.ContainerReady(250.millis, 5)
 
-  @nowarn
   def default[A: Tag](builder: ContainerSettings[A] => ContainerSettings[A] = identity[ContainerSettings[A]] _) =
     ZLayer.succeed {
       builder(

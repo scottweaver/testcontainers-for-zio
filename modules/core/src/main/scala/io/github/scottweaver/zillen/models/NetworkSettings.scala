@@ -9,6 +9,6 @@ final case class NetworkSettings(
 )
 
 object NetworkSettings {
-    implicit val networkSettingsCodec: JsonCodec[NetworkSettings] =
-      DeriveJsonCodec.gen[NetworkSettings]
+  implicit val networkSettingsCodec: JsonCodec[NetworkSettings] =
+    DeriveJsonCodec.gen[NetworkSettings]
 }

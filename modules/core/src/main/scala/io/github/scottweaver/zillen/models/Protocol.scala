@@ -18,6 +18,6 @@ object Protocol {
   case object UDP  extends Protocol { val asField = "udp"  }
   case object SCTP extends Protocol { val asField = "sctp" }
 
-  implicit val ProtocolCodec:  JsonCodec[Protocol] =
+  implicit val ProtocolCodec: JsonCodec[Protocol] =
     JsonCodec.string.transformOrFail(fromString, _.asField)
 }

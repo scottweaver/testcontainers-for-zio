@@ -33,14 +33,16 @@ object PostgresContainerSpec extends ZIOSpecDefault {
           conn      <- ZIO.service[Connection]
           ds        <- ZIO.service[DataSource]
           container <- ZIO.service[InspectContainerResponse]
-          _  <- ZIO.service[JdbcInfo]
+          _         <- ZIO.service[JdbcInfo]
           result    <- sqlTestQuery(conn)
           result2   <- sqlTestOnDs(ds)
         } yield assertTrue(
           result == 1,
           result2 == 1,
           container.hostConfig.portBindings.findExternalHostPort(5432, Protocol.TCP).nonEmpty,
-          container.name.head == ContainerName.unsafeMake("/zio-postgres-test-container") // Docker adds a preceding slash to the original container name.
+          container.name.head == ContainerName.unsafeMake(
+            "/zio-postgres-test-container"
+          ) // Docker adds a preceding slash to the original container name.
           // jdbcInfo.jdbcUrl == container.jdbcUrl,
           // jdbcInfo.username == container.username,
           // jdbcInfo.password == container.password,
@@ -50,7 +52,7 @@ object PostgresContainerSpec extends ZIOSpecDefault {
         Scope.default,
         Docker.layer(),
         PostgresContainer.Settings.default(),
-        PostgresContainer.layer,
+        PostgresContainer.layer
       ) @@ TestAspect.withLiveClock
     )
 }

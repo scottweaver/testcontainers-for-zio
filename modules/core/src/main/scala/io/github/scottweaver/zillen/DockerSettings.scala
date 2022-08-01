@@ -4,7 +4,7 @@ import zio._
 import zio.prelude._
 
 final case class DockerSettings(
-  socketPath: DockerSocketPath,
+  socketPath: DockerSocketPath
   // inspectContainerPromiseSettings: InspectContainerPromise.Settings,
   // readyCheckSettings: ReadyCheck.Settings
 ) { self =>
@@ -30,7 +30,6 @@ object DockerSettings {
 
   val socketPath = ZIO.serviceWith[DockerSettings](_.socketPath)
 
-
   def default(
     builder: DockerSettings => DockerSettings = identity
   ) =
@@ -40,7 +39,7 @@ object DockerSettings {
       for {
         _ <- validFilePath(defaultPath).mapError(_.asException).orDie
       } yield {
-          builder(DockerSettings(DockerSocketPath(defaultPath)))
+        builder(DockerSettings(DockerSocketPath(defaultPath)))
       }
     }
 

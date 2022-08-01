@@ -51,8 +51,8 @@ object EncodingSpec extends ZIOSpecDefault {
 
   val hostPortSuite = suite("HostPort")(
     test("should encode to the correct JSON format.") {
-      val hp = HostInterface.makeUnsafeFromPort(8081)
-      val json         = hp.toJsonPretty
+      val hp   = HostInterface.makeUnsafeFromPort(8081)
+      val json = hp.toJsonPretty
       println(json)
 
       assertTrue(true)

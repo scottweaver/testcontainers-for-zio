@@ -7,7 +7,7 @@ import io.github.scottweaver.zillen.DockerContainerFailure._
 
 sealed trait DockerContainerFailure { self =>
 
-  def asException: DockerContainerFailureException = DockerContainerFailureException(self) 
+  def asException: DockerContainerFailureException = DockerContainerFailureException(self)
 }
 
 object DockerContainerFailure {
@@ -22,7 +22,6 @@ object DockerContainerFailure {
 
   final case class ContainerReadyCheckFailure(msg: String, cause: Option[Throwable] = None)
       extends DockerContainerFailure
-
 
   final case class DockerContainerFailureException(failure: DockerContainerFailure) extends Exception()
 

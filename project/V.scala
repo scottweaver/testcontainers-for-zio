@@ -12,7 +12,7 @@ object V {
   val zioKafkaVersion            = "0.17.1"
   val zio2KafkaVersion           = "2.0.0"
   val zioHttpVersion             = "2.0.0-RC9"
-  val testcontainersScalaVersion = "0.40.8"
+  val testcontainersScalaVersion = "0.40.10"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"
   val slf4jVersion               = "1.7.32"

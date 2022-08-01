@@ -8,7 +8,7 @@ final case class InspectContainerResponse(
   @jsonField("HostConfig") hostConfig: HostConfig,
   @jsonField("Name") name: Option[ContainerName],
   @jsonField("NetworkSettings") networkSettings: NetworkSettings,
-  @jsonField("State") state: State,
+  @jsonField("State") state: State
 )
 
 object InspectContainerResponse {

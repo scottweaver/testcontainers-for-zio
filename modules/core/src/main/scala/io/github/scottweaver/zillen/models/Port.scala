@@ -5,11 +5,11 @@ package models
 import zio.json._
 
 final case class Port(
-    @jsonField("PrivatePort") privatePort: Int,
-    @jsonField("PublicPort") publicPort: Int,
-    @jsonField("Type") protocol: Protocol
+  @jsonField("PrivatePort") privatePort: Int,
+  @jsonField("PublicPort") publicPort: Int,
+  @jsonField("Type") protocol: Protocol
 )
 
 object Port {
-    implicit val json: JsonCodec[Port] = DeriveJsonCodec.gen[Port]
+  implicit val json: JsonCodec[Port] = DeriveJsonCodec.gen[Port]
 }

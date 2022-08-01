@@ -11,7 +11,6 @@ final case class ProtocolPort(portNumber: Int, protocol: Protocol) {
 
 object ProtocolPort {
 
-
   implicit val PortEncoder: JsonEncoder[ProtocolPort] =
     JsonEncoder.string.contramap(_.asField)
 
@@ -19,10 +18,10 @@ object ProtocolPort {
     JsonDecoder.string.mapOrFail(ProtocolPort.fromString)
 
   implicit val PortFieldEncoder: JsonFieldEncoder[ProtocolPort] =
-    JsonFieldEncoder.string.contramap(_.asField) 
+    JsonFieldEncoder.string.contramap(_.asField)
 
   implicit val PortFieldDecoder: JsonFieldDecoder[ProtocolPort] =
-    JsonFieldDecoder.string.mapOrFail(fromString)   
+    JsonFieldDecoder.string.mapOrFail(fromString)
 
   def makeTCPPort(portNumber: Int): ProtocolPort =
     ProtocolPort(portNumber, Protocol.TCP)
@@ -41,7 +40,9 @@ object ProtocolPort {
       val portNumberStr = portSplit(0)
       val portNumber =
         try { Right(portNumberStr.toInt) }
-        catch { case t: Throwable => Left(s"Invalid port number, '$portNumberStr'.  Cause: ${t.getLocalizedMessage()}") }
+        catch {
+          case t: Throwable => Left(s"Invalid port number, '$portNumberStr'.  Cause: ${t.getLocalizedMessage()}")
+        }
       portNumber.flatMap { portNumber =>
         Protocol
           .fromString(portSplit(1))
@@ -67,6 +68,5 @@ object ProtocolPort {
       exposed.ports.map(port => port.asField -> emptyObj).toMap
     }
   }
-
 
 }

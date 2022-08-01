@@ -12,6 +12,6 @@ object HostConfig {
 
   val empty = HostConfig(PortMap.empty)
 
-  implicit val HostConfigCodec: JsonCodec[HostConfig]  = DeriveJsonCodec.gen[HostConfig]
+  implicit val HostConfigCodec: JsonCodec[HostConfig] = DeriveJsonCodec.gen[HostConfig]
 
 }

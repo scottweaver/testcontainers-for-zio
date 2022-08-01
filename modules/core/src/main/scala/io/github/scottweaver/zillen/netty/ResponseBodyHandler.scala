@@ -6,7 +6,8 @@ import io.netty.channel._
 import io.netty.handler.codec.http._
 import java.nio.charset.Charset
 
-private[zillen] class ResponseContentHandler(val callback: (String, Boolean) => Unit) extends ChannelInboundHandlerAdapter {
+private[zillen] class ResponseContentHandler(val callback: (String, Boolean) => Unit)
+    extends ChannelInboundHandlerAdapter {
   override def channelRead(ctx: ChannelHandlerContext, msg: Object): Unit = {
     msg match {
       case content: DefaultHttpContent =>

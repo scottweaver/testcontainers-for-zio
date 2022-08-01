@@ -24,8 +24,10 @@ commandAliases
 
 lazy val core = project
   .in(file("modules/core"))
-  .settings(settings(V.zio2Version))
   .settings(
+    baseSettings(V.zio2Version),
+    publishSettings,
+    commandAliases,
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-prelude"                   % V.zioPreludeVersion,
       "dev.zio" %% "zio-json"                      % V.zioJsonVersion,
@@ -34,7 +36,7 @@ lazy val core = project
       "io.netty" % "netty-handler"                 % V.nettyVersion,
       "io.netty" % "netty-transport-native-epoll"  % V.nettyVersion classifier "linux-x86_64",
       "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-x86_64",
-      "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-aarch_64",
+      "io.netty" % "netty-transport-native-kqueue" % V.nettyVersion classifier "osx-aarch_64"
     )
   )
 
@@ -210,7 +212,7 @@ def settings(zioVersion: String = V.zioVersion) =
     publishSettings ++
     commandAliases
 
-def commonSettings(zioVersion: String = V.zioVersion) =
+def baseSettings(zioVersion: String): Seq[Setting[_]] =
   Seq(
     scalaVersion       := V.scala213Version,
     crossScalaVersions := V.supportedScalaVersions,
@@ -227,12 +229,9 @@ def commonSettings(zioVersion: String = V.zioVersion) =
       "org.slf4j" % "slf4j-api" % V.slf4jVersion
     ),
     libraryDependencies ++= Seq(
-      "dev.zio"       %% "zio"                       % zioVersion,
-      "com.dimafeng"  %% "testcontainers-scala-core" % V.testcontainersScalaVersion,
-      "dev.zio"       %% "zio-test"                  % zioVersion,
-      "org.slf4j"      % "slf4j-api"                 % V.slf4jVersion,
-      "ch.qos.logback" % "logback-classic"           % V.logbackVersion % Test,
-      "dev.zio"       %% "zio-test-sbt"              % zioVersion       % Test
+      "dev.zio" %% "zio"          % zioVersion,
+      "dev.zio" %% "zio-test"     % zioVersion,
+      "dev.zio" %% "zio-test-sbt" % zioVersion % Test
     ),
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -245,6 +244,19 @@ def commonSettings(zioVersion: String = V.zioVersion) =
     },
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     Test / fork := true
+  )
+
+def commonSettings(zioVersion: String = V.zioVersion) =
+  baseSettings(zioVersion) ++ Seq(
+    // Prevent slf4j 2.x from ruining EVERYTHING :(
+    dependencyOverrides ++= Seq(
+      "org.slf4j" % "slf4j-api" % V.slf4jVersion
+    ),
+    libraryDependencies ++= Seq(
+      "com.dimafeng"  %% "testcontainers-scala-core" % V.testcontainersScalaVersion,
+      "org.slf4j"      % "slf4j-api"                 % V.slf4jVersion,
+      "ch.qos.logback" % "logback-classic"           % V.logbackVersion % Test
+    )
   )
 
 lazy val publishSettings =
@@ -264,6 +276,9 @@ lazy val commandAliases =
     addCommandAlias(
       "publishAll",
       "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +kafkaZio2/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned; +liquibaseAspect/publishSigned; +cassandra-migration-aspect/publishSigned; +cassandra-migration-aspect-Zio2/publishSigned"
+    ) ++ addCommandAlias(
+      "verifyBuild",
+      s"check; ++${V.scala3Version}! test; ++${V.scala212Version}! test; ++${V.scala213Version}! test;"
     )
 
 lazy val stdOpts212 = Seq(
@@ -291,7 +306,8 @@ lazy val stdOpts213 = Seq(
   "-Wunused:privates",
   "-Wvalue-discard",
   "-Xfatal-warnings",
-  "-Xlint:_,-type-parameter-shadow,-byname-implicit",
+  "-Ywarn-macros:after",
+  "-Xlint:_,-type-parameter-shadow,-byname-implicit,-infer-any",
   "-Xsource:2.13",
   "-Yrangepos",
   "-Ywarn-numeric-widen",

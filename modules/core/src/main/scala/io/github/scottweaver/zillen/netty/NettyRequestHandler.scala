@@ -31,7 +31,8 @@ object NettyRequestHandler {
 
   type ZioChannelFactory = () => ZIO[Any, Throwable, Channel]
 
-  private[zillen] def executeRequest(request: HttpRequest) = ZIO.serviceWithZIO[NettyRequestHandler](_.executeRequest(request))
+  private[zillen] def executeRequest(request: HttpRequest) =
+    ZIO.serviceWithZIO[NettyRequestHandler](_.executeRequest(request))
 
   private[zillen] def executeRequestWithResponse(request: HttpRequest) =
     ZIO.serviceWithZIO[NettyRequestHandler](_.executeRequestWithResponse(request))
@@ -110,7 +111,8 @@ object NettyRequestHandler {
 
 }
 
-final case class NettyRequestLive(channelFactory: NettyRequestHandler.ZioChannelFactory, scope: Scope) extends NettyRequestHandler {
+final case class NettyRequestLive(channelFactory: NettyRequestHandler.ZioChannelFactory, scope: Scope)
+    extends NettyRequestHandler {
 
   override def executeRequest(request: HttpRequest): Task[Int] = {
 

@@ -1,12 +1,10 @@
 package io.github.scottweaver.zillen
 
 import zio._
-import scala.annotation.nowarn
 import models.State
 
 trait ReadyCheckOps {
 
-  @nowarn
   def makeReadyCheckPromise[R, T: Tag](
     containerId: ContainerId,
     check: Container => ZIO[R, Throwable, Boolean]
@@ -15,9 +13,8 @@ trait ReadyCheckOps {
     readyCheck <- ZIO.service[ReadyCheck]
     ready      <- readyCheck.makePromise[R](containerId, check, settings)
   } yield ready
-  
-  @nowarn
-  def makeRunningCheckPromise[ T: Tag](
+
+  def makeRunningCheckPromise[T: Tag](
     containerId: ContainerId,
     check: Container => ZIO[Any, Throwable, Boolean]
   ): DockerIO[ContainerSettings[T] with ReadyCheck, Promise[Nothing, Boolean]] = for {

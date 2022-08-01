@@ -24,20 +24,19 @@ object PortMap extends Subtype[Map[ProtocolPort, NonEmptyChunk[HostInterface]]] 
           port -> NonEmptyChunk(HostInterface.makePortOnly(HostInterface.HostPort.unsafeMake(openPort)))
         )
       )
-    withHostPort.map(make)
+    withHostPort.map(mapped => make(mapped.toSeq: _*))
   }
 
   def makeFromExposedPorts(exposedPorts: ProtocolPort.Exposed): RIO[Network, PortMap] =
-    makeAutoMapped(exposedPorts.ports:_*)
+    makeAutoMapped(exposedPorts.ports: _*)
 
   implicit val PortMapCodec: JsonCodec[PortMap] =
     JsonCodec.map[ProtocolPort, NonEmptyChunk[HostInterface]].transform(wrap, unwrap)
-  
+
   implicit class Syntax(portMap: PortMap) {
 
-    def findExternalHostPort(port: Int, protocol: Protocol): Option[HostInterface] = {
+    def findExternalHostPort(port: Int, protocol: Protocol): Option[HostInterface] =
       portMap.get(ProtocolPort(port, protocol)).map(_.head)
-    }
   }
 
 }

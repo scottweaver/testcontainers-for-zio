@@ -65,7 +65,10 @@ object Command {
 
     override def makeResponse(statusCode: Int, body: String) =
       statusCode match {
-        case 200        => CommandFailure.decodeResponse[InspectContainerResponse](body, self).tapError(_ => ZIO.debug(s"InspectContainerResponse Raw: $body"))
+        case 200 =>
+          CommandFailure
+            .decodeResponse[InspectContainerResponse](body, self)
+            .tapError(_ => ZIO.debug(s"InspectContainerResponse Raw: $body"))
         case 404        => CommandFailure.containerNotFound(self, containerId)
         case statusCode => CommandFailure.unexpectedDockerApiError(body, self, statusCode)
       }

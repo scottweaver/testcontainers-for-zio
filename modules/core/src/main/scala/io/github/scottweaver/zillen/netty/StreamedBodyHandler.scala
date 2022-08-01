@@ -25,8 +25,7 @@ private[zillen] class StreamedBodyHandler(callback: () => Unit) extends ChannelI
         val noCRLF = acc.filterNot(isCRLF).toArray
         val str    = new String(noCRLF, Charset.forName("UTF-8"))
         (Chunk.empty, Some(str))
-      } else
-        (acc :+ b, None)
+      } else (acc :+ b, None)
     }
     .collect { case Some(s) => s }
     .filterNot(_.isEmpty)

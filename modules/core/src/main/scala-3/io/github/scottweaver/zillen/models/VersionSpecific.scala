@@ -1,16 +1,16 @@
-package io.github.scottweaver.zillen.models
+package io.github.scottweaver
+package zillen
 
 import zio.prelude._
 
 object VersionSpecific {
 
   trait ContainerNameAssertion { self: Subtype[String] =>
-    override inline def assertion = 
-     Assertion.matches("""^/?[a-zA-Z0-9][a-zA-Z0-9_.-]+$""")
+    override inline def assertion =
+      Assertion.matches("""^/?[a-zA-Z0-9][a-zA-Z0-9_.-]+$""")
   }
 
-
   trait HostPortValidation { self: Subtype[Int] =>
-    override inline def assertion =      Assertion.between(1, 65535)
+    override inline def assertion = Assertion.between(1, 65535)
   }
 }
