@@ -16,11 +16,12 @@
 
 package io.github.scottweaver.zio.testcontainers.cassandra
 
-import zio._
-import com.dimafeng.testcontainers.CassandraContainer
-import java.net.InetSocketAddress
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.internal.core.metadata.DefaultEndPoint
+import com.dimafeng.testcontainers.CassandraContainer
+import zio._
+
+import java.net.InetSocketAddress
 // import org.testcontainers.utility.DockerImageName
 
 object ZCassandraContainer {

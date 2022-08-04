@@ -80,11 +80,11 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
   import autoImport._
 
   def stdSettings: Seq[Setting[_]] = Seq(
-    crossScalaVersions      := Seq(V.Scala212, V.Scala213, V.Scala3),
-    scalaVersion            := V.Scala213,
-    zioSeries               := ZIOSeries.Series2X,
-    needsZio                := true,
-    scalacOptions := ScalaCompilerSettings.stdScalacOptions(scalaVersion.value),
+    crossScalaVersions := Seq(V.Scala212, V.Scala213, V.Scala3),
+    scalaVersion       := V.Scala213,
+    zioSeries          := ZIOSeries.Series2X,
+    needsZio           := true,
+    scalacOptions      := ScalaCompilerSettings.stdScalacOptions(scalaVersion.value),
     libraryDependencies ++= {
       if (needsZio.value)
         Seq(

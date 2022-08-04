@@ -160,7 +160,7 @@ lazy val postgres =
     )
     .dependsOn(models)
 
-    // addCompilerPlugin("org.scalameta" % "semanticdb-scalac" % "4.5.11" cross CrossVersion.full)
+// addCompilerPlugin("org.scalameta" % "semanticdb-scalac" % "4.5.11" cross CrossVersion.full)
 lazy val postgresZio2 =
   project
     .in(file("modules/postgresql-zio-2.0"))
@@ -171,10 +171,9 @@ lazy val postgresZio2 =
       libraryDependencies ++= Seq(
         "com.dimafeng"  %% "testcontainers-scala-postgresql" % V.testcontainersScalaVersion,
         "org.postgresql" % "postgresql"                      % V.postgresqlDriverVersion
-      ),
+      )
     )
     .dependsOn(models, core)
-
 
 lazy val kafka =
   project

@@ -16,16 +16,14 @@
 
 package io.github.scottweaver.zio.testcontainers.kafka
 
-import zio._
-import zio.test._
-import zio.test.Assertion._
-import zio.kafka.consumer.ConsumerSettings
 import com.dimafeng.testcontainers.KafkaContainer
-import zio.kafka.producer.ProducerSettings
-import zio.kafka.producer.Producer
-import zio.kafka.consumer.Consumer
+import zio._
+import zio.kafka.consumer.{Consumer, ConsumerSettings, Subscription}
+import zio.kafka.producer.{Producer, ProducerSettings}
 import zio.kafka.serde.Serde
-import zio.kafka.consumer.Subscription
+import zio.test.Assertion._
+import zio.test._
+
 import TestAspect._
 
 object ZKafkaContainerSpec extends ZIOSpecDefault {

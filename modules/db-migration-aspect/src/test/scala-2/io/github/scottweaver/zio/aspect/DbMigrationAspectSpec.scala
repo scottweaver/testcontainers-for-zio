@@ -16,13 +16,15 @@
 
 package io.github.scottweaver.zio.aspect
 
-import zio._
-import zio.test._
-import zio.test.Assertion._
-import TestAspect.sequential
 import io.github.scottweaver.zio.testcontainers.mysql.ZMySQLContainer
-import java.sql.Connection
+import zio._
 import zio.magic._
+import zio.test.Assertion._
+import zio.test._
+
+import java.sql.Connection
+
+import TestAspect.sequential
 
 object DbMigrationAspectSpec extends DefaultRunnableSpec {
   def spec = suite("DatabaseMigrationAspect")(

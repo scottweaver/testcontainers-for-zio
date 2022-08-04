@@ -16,11 +16,12 @@
 
 package io.github.scottweaver.zio.testcontainers.postgresql
 
-import io.github.scottweaver.zillen._
 import io.github.scottweaver.models.JdbcInfo
+import io.github.scottweaver.zillen._
+import zio._
+
 import java.sql._
 import javax.sql.DataSource
-import zio._
 
 final class PostgresContainer
     extends ContainerBootstrap[PostgresContainer.RIn, PostgresContainer.ROut, PostgresContainer](

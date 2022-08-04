@@ -16,14 +16,14 @@
 
 package io.github.scottweaver.zio.testcontainers.mysql
 
-import zio._
 import com.dimafeng.testcontainers.MySQLContainer
-import org.testcontainers.utility.DockerImageName
-import java.sql.DriverManager
-import java.sql.Connection
-import io.github.scottweaver.models.JdbcInfo
-import javax.sql.DataSource
 import com.mysql.cj.jdbc.MysqlDataSource
+import io.github.scottweaver.models.JdbcInfo
+import org.testcontainers.utility.DockerImageName
+import zio._
+
+import java.sql.{Connection, DriverManager}
+import javax.sql.DataSource
 object ZMySQLContainer {
 
   final case class Settings(

@@ -16,12 +16,12 @@
 
 package io.github.scottweaver.zio.testcontainers.postgres
 
-import zio._
 import com.dimafeng.testcontainers.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
-import java.sql.DriverManager
-// import java.sql.Connection
 import io.github.scottweaver.models.JdbcInfo
+import org.testcontainers.utility.DockerImageName
+import zio._
+
+import java.sql.DriverManager
 // import javax.sql.DataSource
 
 object ZPostgreSQLContainer {

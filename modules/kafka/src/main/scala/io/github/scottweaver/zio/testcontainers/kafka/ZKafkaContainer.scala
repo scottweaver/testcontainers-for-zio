@@ -16,12 +16,11 @@
 
 package io.github.scottweaver.zio.testcontainers.kafka
 
+import com.dimafeng.testcontainers.KafkaContainer
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import zio._
 import zio.duration._
-import com.dimafeng.testcontainers.KafkaContainer
-import zio.kafka.consumer.ConsumerSettings
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import zio.kafka.consumer.Consumer
+import zio.kafka.consumer.{Consumer, ConsumerSettings}
 import zio.kafka.producer.ProducerSettings
 
 object ZKafkaContainer {

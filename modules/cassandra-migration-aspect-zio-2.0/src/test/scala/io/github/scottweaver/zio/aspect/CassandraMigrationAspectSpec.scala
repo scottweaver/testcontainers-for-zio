@@ -16,12 +16,12 @@
 
 package io.github.scottweaver.zio.aspect
 
+import com.datastax.oss.driver.api.core.CqlSession
+import io.github.scottweaver.zio.testcontainers.cassandra.ZCassandraContainer
 import zio._
 import zio.test.Assertion._
 import zio.test.TestAspect.sequential
 import zio.test._
-import com.datastax.oss.driver.api.core.CqlSession
-import io.github.scottweaver.zio.testcontainers.cassandra.ZCassandraContainer
 
 import java.util.UUID
 

@@ -16,11 +16,12 @@
 
 package io.github.scottweaver.zio.testcontainers.postgres
 
-import zio._
-import zio.test._
-import java.sql.Connection
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import io.github.scottweaver.models.JdbcInfo
+import zio._
+import zio.test._
+
+import java.sql.Connection
 import javax.sql.DataSource
 
 object ZPostgreSQLContainerSpec extends DefaultRunnableSpec {
