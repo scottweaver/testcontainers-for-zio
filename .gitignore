@@ -78,6 +78,7 @@ project/plugins/project/
 project/metals.sbt
 .bloop/
 project/secret
+metals.sbt
 
 .vscode/settings.json
 project/project/metals.sbt
