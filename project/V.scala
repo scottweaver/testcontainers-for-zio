@@ -4,8 +4,8 @@ object V {
   val scala212Version            = "2.12.16"
   val scala3Version              = "3.1.3"
   val supportedScalaVersions     = List(scala213Version, scala212Version, scala3Version)
-  val zioVersion                 = "1.0.15"
-  val zio2Version                = "2.0.0"
+  val zio1xVersion               = "1.0.15"
+  val zio2xVersion               = "2.0.0"
   val zioJsonVersion             = "0.3.0-RC10"
   val zioPreludeVersion          = "1.0.0-RC15"
   val zioMagicVersion            = "0.3.10"
@@ -21,4 +21,21 @@ object V {
   val cassandraMigrationsVersion = "2.5.0_v4"
   val liquibaseVersion           = "4.13.0"
   val nettyVersion               = "4.1.79.Final"
+
+  private val versions: Map[String, String] = {
+    import org.snakeyaml.engine.v2.api.{Load, LoadSettings}
+
+    import java.util.{List => JList, Map => JMap}
+    import scala.jdk.CollectionConverters._
+
+    val doc = new Load(LoadSettings.builder().build())
+      .loadFromReader(scala.io.Source.fromFile(".github/workflows/ci.yml").bufferedReader())
+    val yaml = doc.asInstanceOf[JMap[String, JMap[String, JMap[String, JMap[String, JMap[String, JList[String]]]]]]]
+    val list = yaml.get("jobs").get("test").get("strategy").get("matrix").get("scala").asScala
+    list.map(v => (v.split('.').take(2).mkString("."), v)).toMap
+  }
+
+  val Scala212: String = versions("2.12")
+  val Scala213: String = versions("2.13")
+  val Scala3: String   = versions("3.1")
 }

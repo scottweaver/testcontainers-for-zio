@@ -1,9 +1,12 @@
-ThisBuild / version       := "0.8.0"
+import ZioEcosystemProjectPlugin.autoImport._
+
+ThisBuild / version       := "0.9.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
 ThisBuild / homepage      := Some(url("https://github.com/scottweaver/testcontainers-for-zio"))
-ThisBuild / licenses      := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / startYear     := Some(2021)
+ThisBuild / licenses      := List("Apache-2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/scottweaver/testcontainers-for-zio"),
@@ -19,19 +22,44 @@ ThisBuild / developers := List(
   )
 )
 
-crossScalaVersions := Nil
-commandAliases
+lazy val root = project
+  .in(file("."))
+  .settings(
+    name               := "testcontainers-for-zio",
+    publish / skip     := true,
+    crossScalaVersions := Nil
+  )
+  .aggregate(
+    core,
+    models,
+    `db-migration-aspect`,
+    `db-migration-aspect-Zio2`,
+    liquibaseAspect,
+    mysql,
+    mysqlZio2,
+    postgres,
+    postgresZio2,
+    kafka,
+    kafkaZio2,
+    cassandra,
+    cassandraZio2,
+    `cassandra-migration-aspect`,
+    `cassandra-migration-aspect-Zio2`
+    // benchmarks,
+    // docs
+  )
 
 lazy val core = project
   .in(file("modules/core"))
   .settings(
-    baseSettings(V.zio2Version),
+    name      := "zillen",
+    zioSeries := ZIOSeries.Series2X,
+    testSettings,
     publishSettings,
-    commandAliases,
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio-prelude"                   % V.zioPreludeVersion,
       "dev.zio" %% "zio-json"                      % V.zioJsonVersion,
-      "dev.zio" %% "zio-streams"                   % V.zio2Version,
+      "dev.zio" %% "zio-streams"                   % V.zio2xVersion,
       "io.netty" % "netty-codec-http"              % V.nettyVersion,
       "io.netty" % "netty-handler"                 % V.nettyVersion,
       "io.netty" % "netty-transport-native-epoll"  % V.nettyVersion classifier "linux-x86_64",
@@ -42,41 +70,50 @@ lazy val core = project
 
 lazy val models = project
   .in(file("modules/models"))
-  .settings(settings())
-  .settings(name := "zio-testcontainers-models")
+  .settings(
+    name     := "zio-testcontainers-models",
+    needsZio := false,
+    publishSettings
+  )
 
 lazy val `db-migration-aspect` = project
   .in(file("modules/db-migration-aspect"))
-  .settings(settings())
   .settings(
+    zioSeries := ZIOSeries.Series1X,
+    testSettings,
+    publishSettings,
     name := "zio-db-migration-aspect",
     libraryDependencies ++= Seq(
       "org.flywaydb" % "flyway-core" % V.flywayVersion,
-      "dev.zio"     %% "zio-test"    % V.zioVersion
+      "dev.zio"     %% "zio-test"    % V.zio1xVersion
     )
   )
   .dependsOn(models, mysql % "test->test")
 
 lazy val `db-migration-aspect-Zio2` = project
   .in(file("modules/db-migration-aspect-zio-2.0"))
-  .settings(settings(V.zio2Version))
   .settings(
+    zioSeries := ZIOSeries.Series2X,
+    testSettings,
+    publishSettings,
     name := "zio-2.0-db-migration-aspect",
     libraryDependencies ++= Seq(
       "org.flywaydb" % "flyway-core" % V.flywayVersion,
-      "dev.zio"     %% "zio-test"    % V.zio2Version
+      "dev.zio"     %% "zio-test"    % V.zio2xVersion
     )
   )
   .dependsOn(models, mysqlZio2 % "test->test")
 
 lazy val liquibaseAspect = project
   .in(file("modules/zio-2.0-liquibase-aspect"))
-  .settings(settings(V.zio2Version))
   .settings(
+    zioSeries := ZIOSeries.Series2X,
+    testSettings,
+    publishSettings,
     name := "zio-2.0-liquibase-aspect",
     libraryDependencies ++= Seq(
       "org.liquibase" % "liquibase-core" % V.liquibaseVersion,
-      "dev.zio"      %% "zio-test"       % V.zio2Version
+      "dev.zio"      %% "zio-test"       % V.zio2xVersion
     )
   )
   .dependsOn(models, postgresZio2 % "test->test")
@@ -84,8 +121,9 @@ lazy val liquibaseAspect = project
 lazy val mysql =
   project
     .in(file("modules/mysql"))
-    .settings(settings())
     .settings(
+      zioSeries := ZIOSeries.Series1X,
+      testcontainersScalaSettings,
       name := "zio-testcontainers-mysql",
       libraryDependencies ++= Seq(
         "com.dimafeng" %% "testcontainers-scala-mysql" % V.testcontainersScalaVersion,
@@ -97,8 +135,9 @@ lazy val mysql =
 lazy val mysqlZio2 =
   project
     .in(file("modules/mysql-zio-2.0"))
-    .settings(settings(V.zio2Version))
     .settings(
+      zioSeries := ZIOSeries.Series2X,
+      testcontainersScalaSettings,
       name := "zio-2.0-testcontainers-mysql",
       libraryDependencies ++= Seq(
         "com.dimafeng" %% "testcontainers-scala-mysql" % V.testcontainersScalaVersion,
@@ -110,8 +149,9 @@ lazy val mysqlZio2 =
 lazy val postgres =
   project
     .in(file("modules/postgresql"))
-    .settings(settings())
     .settings(
+      zioSeries := ZIOSeries.Series1X,
+      testcontainersScalaSettings,
       name := "zio-testcontainers-postgresql",
       libraryDependencies ++= Seq(
         "com.dimafeng"  %% "testcontainers-scala-postgresql" % V.testcontainersScalaVersion,
@@ -123,8 +163,9 @@ lazy val postgres =
 lazy val postgresZio2 =
   project
     .in(file("modules/postgresql-zio-2.0"))
-    .settings(settings(V.zio2Version))
     .settings(
+      zioSeries := ZIOSeries.Series2X,
+      testcontainersScalaSettings,
       name := "zio-2.0-testcontainers-postgresql",
       libraryDependencies ++= Seq(
         "com.dimafeng"  %% "testcontainers-scala-postgresql" % V.testcontainersScalaVersion,
@@ -136,8 +177,9 @@ lazy val postgresZio2 =
 lazy val kafka =
   project
     .in(file("modules/kafka"))
-    .settings(settings())
     .settings(
+      zioSeries := ZIOSeries.Series1X,
+      testcontainersScalaSettings,
       name := "zio-testcontainers-kafka",
       libraryDependencies ++= Seq(
         "dev.zio"      %% "zio-kafka"                  % V.zioKafkaVersion,
@@ -148,8 +190,9 @@ lazy val kafka =
 lazy val kafkaZio2 =
   project
     .in(file("modules/kafka-zio-2.0"))
-    .settings(settings(V.zio2Version))
     .settings(
+      zioSeries := ZIOSeries.Series2X,
+      testcontainersScalaSettings,
       name := "zio-2.0-testcontainers-kafka",
       libraryDependencies ++= Seq(
         "dev.zio"      %% "zio-kafka"                  % V.zio2KafkaVersion,
@@ -159,26 +202,30 @@ lazy val kafkaZio2 =
 
 lazy val `cassandra-migration-aspect` = project
   .in(file("modules/cassandra-migration-aspect"))
-  .settings(settings())
   .settings(
+    zioSeries := ZIOSeries.Series1X,
+    testSettings,
+    publishSettings,
     name := "zio-cassandra-migration-aspect",
     libraryDependencies ++= Seq(
       "org.cognitor.cassandra" % "cassandra-migration" % V.cassandraMigrationsVersion,
       "com.datastax.oss"       % "java-driver-core"    % V.cassandraDriverVersion,
-      "dev.zio"               %% "zio-test"            % V.zioVersion
+      "dev.zio"               %% "zio-test"            % V.zio1xVersion
     )
   )
   .dependsOn(cassandra % "test->test")
 
 lazy val `cassandra-migration-aspect-Zio2` = project
   .in(file("modules/cassandra-migration-aspect-zio-2.0"))
-  .settings(settings(V.zio2Version))
   .settings(
+    zioSeries := ZIOSeries.Series2X,
+    testSettings,
+    publishSettings,
     name := "zio-2.0-cassandra-migration-aspect",
     libraryDependencies ++= Seq(
       "org.cognitor.cassandra" % "cassandra-migration" % V.cassandraMigrationsVersion,
       "com.datastax.oss"       % "java-driver-core"    % V.cassandraDriverVersion,
-      "dev.zio"               %% "zio-test"            % V.zioVersion
+      "dev.zio"               %% "zio-test"            % V.zio1xVersion
     )
   )
   .dependsOn(cassandraZio2 % "test->test")
@@ -186,9 +233,10 @@ lazy val `cassandra-migration-aspect-Zio2` = project
 lazy val cassandra =
   project
     .in(file("modules/cassandra"))
-    .settings(settings())
     .settings(
-      name := "zio-testcontainers-cassandra",
+      zioSeries := ZIOSeries.Series1X,
+      name      := "zio-testcontainers-cassandra",
+      testcontainersScalaSettings,
       libraryDependencies ++= Seq(
         "com.dimafeng"    %% "testcontainers-scala-cassandra" % V.testcontainersScalaVersion,
         "com.datastax.oss" % "java-driver-core"               % V.cassandraDriverVersion
@@ -198,8 +246,9 @@ lazy val cassandra =
 lazy val cassandraZio2 =
   project
     .in(file("modules/cassandra-zio-2.0"))
-    .settings(settings(V.zio2Version))
     .settings(
+      zioSeries := ZIOSeries.Series2X,
+      testcontainersScalaSettings,
       name := "zio-2.0-testcontainers-cassandra",
       libraryDependencies ++= Seq(
         "com.dimafeng"    %% "testcontainers-scala-cassandra" % V.testcontainersScalaVersion,
@@ -207,47 +256,22 @@ lazy val cassandraZio2 =
       )
     )
 
-def settings(zioVersion: String = V.zioVersion) =
-  commonSettings(zioVersion) ++
-    publishSettings ++
-    commandAliases
+def testSettings: Seq[Setting[_]] = Seq(
+  libraryDependencies ++= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq()
+      case _ if zioSeries.value == ZIOSeries.Series1X && needsZio.value =>
+        Seq(
+          "io.github.kitlangton" %% "zio-magic" % V.zioMagicVersion % Test
+        )
+      case _ => Seq()
+    }
+  },
+  Test / fork := true
+)
 
-def baseSettings(zioVersion: String): Seq[Setting[_]] =
-  Seq(
-    scalaVersion       := V.scala213Version,
-    crossScalaVersions := V.supportedScalaVersions,
-    scalacOptions := {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-
-        case Some((2, 12)) => stdOpts212
-        case Some((2, 13)) => stdOpts213
-        case _             => stdOpts3
-      }
-    },
-    // Prevent slf4j 2.x from ruining EVERYTHING :(
-    dependencyOverrides ++= Seq(
-      "org.slf4j" % "slf4j-api" % V.slf4jVersion
-    ),
-    libraryDependencies ++= Seq(
-      "dev.zio" %% "zio"          % zioVersion,
-      "dev.zio" %% "zio-test"     % zioVersion,
-      "dev.zio" %% "zio-test-sbt" % zioVersion % Test
-    ),
-    libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((3, _)) => Seq()
-        case _ =>
-          Seq(
-            "io.github.kitlangton" %% "zio-magic" % V.zioMagicVersion % Test
-          )
-      }
-    },
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Test / fork := true
-  )
-
-def commonSettings(zioVersion: String = V.zioVersion) =
-  baseSettings(zioVersion) ++ Seq(
+def testcontainersScalaSettings =
+  testSettings ++ Seq(
     // Prevent slf4j 2.x from ruining EVERYTHING :(
     dependencyOverrides ++= Seq(
       "org.slf4j" % "slf4j-api" % V.slf4jVersion
@@ -257,7 +281,7 @@ def commonSettings(zioVersion: String = V.zioVersion) =
       "org.slf4j"      % "slf4j-api"                 % V.slf4jVersion,
       "ch.qos.logback" % "logback-classic"           % V.logbackVersion % Test
     )
-  )
+  ) ++ publishSettings
 
 lazy val publishSettings =
   Seq(
@@ -269,71 +293,3 @@ lazy val publishSettings =
     },
     publishMavenStyle := true
   )
-
-lazy val commandAliases =
-  addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
-    addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck") ++
-    addCommandAlias(
-      "publishAll",
-      "+cassandra/publishSigned; +cassandraZio2/publishSigned; +models/publishSigned; +mysql/publishSigned; +mysqlZio2/publishSigned; +postgres/publishSigned; +postgresZio2/publishSigned; +kafka/publishSigned; +kafkaZio2/publishSigned; +db-migration-aspect/publishSigned; +db-migration-aspect-Zio2/publishSigned; +liquibaseAspect/publishSigned; +cassandra-migration-aspect/publishSigned; +cassandra-migration-aspect-Zio2/publishSigned"
-    ) ++ addCommandAlias(
-      "verifyBuild",
-      s"check; ++${V.scala3Version}! test; ++${V.scala212Version}! test; ++${V.scala213Version}! test;"
-    )
-
-lazy val stdOpts212 = Seq(
-  "-encoding",
-  "UTF-8",
-  "-explaintypes",
-  "-Yrangepos",
-  "-feature",
-  "-language:higherKinds",
-  "-language:existentials",
-  "-language:postfixOps",
-  "-Xlint:_,-type-parameter-shadow",
-  "-Xsource:2.13",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard",
-  "-unchecked",
-  "-deprecation",
-  "-Xfatal-warnings"
-)
-
-lazy val stdOpts213 = Seq(
-  "-Wunused:imports",
-  "-Wunused:params",
-  "-Wunused:patvars",
-  "-Wunused:privates",
-  "-Wvalue-discard",
-  "-Xfatal-warnings",
-  "-Ywarn-macros:after",
-  "-Xlint:_,-type-parameter-shadow,-byname-implicit,-infer-any",
-  "-Xsource:2.13",
-  "-Yrangepos",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard",
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-explaintypes",
-  "-feature",
-  "-language:existentials",
-  "-language:higherKinds",
-  "-language:postfixOps",
-  "-unchecked"
-)
-
-lazy val stdOpts3 = Seq(
-  "-Xfatal-warnings",
-  "-deprecation",
-  "-explaintypes",
-  "-feature",
-  "-language:existentials",
-  "-language:higherKinds",
-  "-language:postfixOps",
-  "-unchecked",
-  "-encoding",
-  "UTF-8"
-)
-
-ThisBuild / scalacOptions := stdOpts213
