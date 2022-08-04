@@ -122,7 +122,7 @@ object Command {
       val yes = wrap("true")
       val no  = wrap("false")
 
-      implicit class Syntax(val volumes: Volumes.Type) extends AnyVal {
+      implicit class Syntax(private val volumes: Volumes.Type) extends AnyVal {
         def asQueryParam = s"volumes=${volumes}"
       }
     }

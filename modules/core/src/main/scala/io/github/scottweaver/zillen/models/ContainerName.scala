@@ -18,8 +18,8 @@ package io.github.scottweaver
 package zillen
 package models
 
-import zio.prelude._
 import zio.json._
+import zio.prelude._
 
 object ContainerName extends Subtype[String] with VersionSpecific.ContainerNameAssertion {
 

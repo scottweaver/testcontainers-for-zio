@@ -16,9 +16,10 @@
 
 package io.github.scottweaver.zillen
 
-import zio.test._
-import models._
 import zio._
+import zio.test._
+
+import models._
 
 object InterpreterSpec extends ZIOSpecDefault {
 

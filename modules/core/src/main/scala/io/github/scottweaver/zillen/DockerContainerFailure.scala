@@ -16,10 +16,10 @@
 
 package io.github.scottweaver.zillen
 
-import io.github.scottweaver.zillen.models._
-import zio.json._
-import zio._
 import io.github.scottweaver.zillen.DockerContainerFailure._
+import io.github.scottweaver.zillen.models._
+import zio._
+import zio.json._
 
 sealed trait DockerContainerFailure { self =>
 

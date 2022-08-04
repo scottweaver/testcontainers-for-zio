@@ -16,8 +16,8 @@
 
 package io.github.scottweaver.zillen
 
-import zio.test._
 import zio._
+import zio.test._
 
 object ContainerSpec extends ZIOSpecDefault {
 

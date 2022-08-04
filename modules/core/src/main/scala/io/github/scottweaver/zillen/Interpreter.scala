@@ -16,16 +16,14 @@
 
 package io.github.scottweaver.zillen
 
-import zio._
-import io.github.scottweaver.zillen.netty.NettyRequestHandler
-import io.netty.handler.codec.http._
-import io.netty.buffer.Unpooled
-import io.github.scottweaver.zillen.models.CreateContainerRequest
-import zio.json._
+import io.github.scottweaver.zillen.Command.StopContainer.{NotRunning, Stopped}
 import io.github.scottweaver.zillen.Command._
-import io.netty.buffer.ByteBuf
-import io.github.scottweaver.zillen.Command.StopContainer.NotRunning
-import io.github.scottweaver.zillen.Command.StopContainer.Stopped
+import io.github.scottweaver.zillen.models.CreateContainerRequest
+import io.github.scottweaver.zillen.netty.NettyRequestHandler
+import io.netty.buffer.{ByteBuf, Unpooled}
+import io.netty.handler.codec.http._
+import zio._
+import zio.json._
 
 trait Interpreter {
   def run(command: Command): DockerIO[Any, command.Response]

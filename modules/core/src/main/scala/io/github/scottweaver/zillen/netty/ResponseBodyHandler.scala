@@ -20,6 +20,7 @@ package netty
 
 import io.netty.channel._
 import io.netty.handler.codec.http._
+
 import java.nio.charset.Charset
 
 private[zillen] class ResponseContentHandler(val callback: (String, Boolean) => Unit)

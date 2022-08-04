@@ -18,13 +18,14 @@ package io.github.scottweaver
 package zillen
 package netty
 
+import io.netty.buffer.ByteBuf
 import io.netty.channel._
+import io.netty.handler.codec.http._
 import zio._
 import zio.stream._
-import io.netty.handler.codec.http._
+
 import java.io._
 import java.nio.charset.Charset
-import io.netty.buffer.ByteBuf
 
 private[zillen] class StreamedBodyHandler(callback: () => Unit) extends ChannelInboundHandlerAdapter {
 

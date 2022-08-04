@@ -18,11 +18,12 @@ package io.github.scottweaver
 package zillen
 package netty
 
-import zio.test._
-import zio._
-import io.netty.handler.codec.http._
-import io.netty.buffer.Unpooled
 import io.netty.bootstrap.Bootstrap
+import io.netty.buffer.Unpooled
+import io.netty.handler.codec.http._
+import zio._
+import zio.test._
+
 import zillen._
 
 object NettyRequestSpec extends ZIOSpecDefault {

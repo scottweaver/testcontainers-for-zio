@@ -18,17 +18,18 @@ package io.github.scottweaver
 package zillen
 package netty
 
+import io.netty.bootstrap.Bootstrap
+import io.netty.channel._
 import io.netty.channel.epoll._
 import io.netty.channel.kqueue._
-import io.netty.bootstrap.Bootstrap
-import zio._
-import io.netty.util.concurrent.DefaultThreadFactory
-import io.netty.channel._
+import io.netty.channel.socket.DuplexChannel
+import io.netty.channel.unix.DomainSocketAddress
 import io.netty.handler.codec.http._
 import io.netty.handler.logging.LoggingHandler
-import io.netty.channel.unix.DomainSocketAddress
-import io.netty.channel.socket.DuplexChannel
+import io.netty.util.concurrent.DefaultThreadFactory
+import zio._
 import zio.stream.ZSink
+
 import zillen._
 
 /**

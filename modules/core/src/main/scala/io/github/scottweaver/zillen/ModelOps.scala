@@ -17,9 +17,10 @@
 package io.github.scottweaver
 package zillen
 
-import models._
 import zio._
 import zio.prelude._
+
+import models._
 
 private[zillen] trait ModelOps { self: FailureOps =>
 

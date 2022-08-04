@@ -18,6 +18,7 @@ package io.github.scottweaver
 package zillen
 
 import zio._
+
 import DockerContainerFailure._
 
 private[zillen] trait FailureOps {

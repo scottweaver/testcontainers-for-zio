@@ -16,9 +16,9 @@
 
 package io.github.scottweaver.zillen.models
 
-import zio.test._
-import zio.json._
 import zio._
+import zio.json._
+import zio.test._
 
 object EncodingSpec extends ZIOSpecDefault {
 

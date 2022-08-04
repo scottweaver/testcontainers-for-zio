@@ -18,9 +18,9 @@ package io.github.scottweaver
 package zillen
 package models
 
-import zio.prelude._
 import zio.json._
 import zio.json.ast.Json
+import zio.prelude._
 
 object DockerErrorMessage extends Subtype[String] {
 

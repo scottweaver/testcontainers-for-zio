@@ -16,8 +16,8 @@
 
 package io.github.scottweaver.zillen
 
-import zio.ZLayer
 import io.netty.bootstrap.Bootstrap
+import zio.ZLayer
 
 package object netty {
   val nettyBootstrapLayer = ZLayer.succeed(new Bootstrap)

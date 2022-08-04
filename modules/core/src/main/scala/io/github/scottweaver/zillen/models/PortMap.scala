@@ -18,10 +18,10 @@ package io.github.scottweaver
 package zillen
 package models
 
-import zio.prelude._
+import io.github.scottweaver.zillen._
 import zio._
 import zio.json._
-import io.github.scottweaver.zillen._
+import zio.prelude._
 
 object PortMap extends Subtype[Map[ProtocolPort, NonEmptyChunk[HostInterface]]] {
 

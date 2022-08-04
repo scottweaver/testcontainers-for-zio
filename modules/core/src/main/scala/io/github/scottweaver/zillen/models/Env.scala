@@ -18,8 +18,8 @@ package io.github.scottweaver
 package zillen
 package models
 
-import zio.prelude._
 import zio.json._
+import zio.prelude._
 
 object Env extends Subtype[Map[String, String]] {
 
@@ -32,7 +32,7 @@ object Env extends Subtype[Map[String, String]] {
       (env.map { case (k, v) => s"${k}=${v}" }).toSeq
     }
 
-  implicit class Syntax(val env: Env) extends AnyVal {
+  implicit class Syntax(private val env: Env) extends AnyVal {
 
     def withOptionals(kvs: (String, Option[String])*): Env =
       wrap(env ++ (kvs.collect { case (k, Some(v)) => (k, v) }))

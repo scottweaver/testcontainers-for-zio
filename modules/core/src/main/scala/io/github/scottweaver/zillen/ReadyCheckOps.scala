@@ -17,6 +17,7 @@
 package io.github.scottweaver.zillen
 
 import zio._
+
 import models.State
 
 trait ReadyCheckOps {

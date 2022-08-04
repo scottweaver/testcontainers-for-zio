@@ -16,10 +16,10 @@
 
 package io.github.scottweaver.zillen
 
+import zio.NonEmptyChunk
 import zio.json._
 import zio.json.ast._
 import zio.prelude._
-import zio.NonEmptyChunk
 
 package object models {
 
