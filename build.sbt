@@ -160,6 +160,7 @@ lazy val postgres =
     )
     .dependsOn(models)
 
+    // addCompilerPlugin("org.scalameta" % "semanticdb-scalac" % "4.5.11" cross CrossVersion.full)
 lazy val postgresZio2 =
   project
     .in(file("modules/postgresql-zio-2.0"))
@@ -170,9 +171,10 @@ lazy val postgresZio2 =
       libraryDependencies ++= Seq(
         "com.dimafeng"  %% "testcontainers-scala-postgresql" % V.testcontainersScalaVersion,
         "org.postgresql" % "postgresql"                      % V.postgresqlDriverVersion
-      )
+      ),
     )
     .dependsOn(models, core)
+
 
 lazy val kafka =
   project
@@ -293,3 +295,18 @@ lazy val publishSettings =
     },
     publishMavenStyle := true
   )
+
+lazy val docs = project
+  .in(file("docs-source"))
+  .settings(
+    publish / skip := true,
+    moduleName     := "zio-testcontainers-docs",
+    scalacOptions -= "-Yno-imports",
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(root),
+    ScalaUnidoc / unidoc / target              := (LocalRootProject / baseDirectory).value / "website" / "static" / "api",
+    cleanFiles += (ScalaUnidoc / unidoc / target).value,
+    docusaurusCreateSite     := docusaurusCreateSite.dependsOn(Compile / unidoc).value,
+    docusaurusPublishGhpages := docusaurusPublishGhpages.dependsOn(Compile / unidoc).value
+  )
+  .dependsOn(root)
+  .enablePlugins(MdocPlugin, DocusaurusPlugin, ScalaUnidocPlugin)

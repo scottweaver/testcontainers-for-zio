@@ -3,6 +3,7 @@ import sbt.Keys._
 import scala.Console
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport._
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
+import scalafix.sbt.ScalafixPlugin.autoImport._
 
 object Tasks {
   private val strictCompilationProp = "enable.strict.compilation"
@@ -30,14 +31,16 @@ object Tasks {
     disableStrictCompilePure(log.info(_))
   }
 
-  val protoLint = taskKey[Unit]("Performs source-code linting for formatting and proper OSS license headers.")
+  val lint = taskKey[Unit]("Performs source-code linting for formatting and proper OSS license headers.")
 
-  lazy val protoLintImpl =
+  lazy val lintImpl =
     Def
       .sequential(
         Compile / scalafmtSbtCheck,
         scalafmtCheckAll,
-        Compile / headerCheckAll
+        Compile / headerCheckAll,
+        (Compile / scalafix).toTask(" --check"),
+        (Test / scalafix).toTask(" --check")
       )
 
   val build = taskKey[Unit]("Prepares sources, compiles and runs tests.")
@@ -45,9 +48,9 @@ object Tasks {
   private def buildImpl =
     Def
       .sequential(
-        protoLint,
-        clean,
         enableStrictCompile,
+        lintImpl,
+        clean,
         Test / test
       )
       .andFinally(disableStrictCompilePure(s => println(s"[info] $s")))
@@ -56,7 +59,7 @@ object Tasks {
     build                := buildImpl.value,
     enableStrictCompile  := enableStrictCompileImpl.value,
     disableStrictCompile := disableStrictCompileImpl.value,
-    protoLint            := protoLintImpl.value
+    lint                 := lintImpl.value
   )
 
 }

@@ -87,11 +87,13 @@ object ScalaCompilerSettings {
 
     val strictCompilation = sys.props.get("enable.strict.compilation").map(_.toBoolean).getOrElse(false)
 
-    if (sys.env.contains("CI") || strictCompilation) {
+    val finalSettings = if (sys.env.contains("CI") || strictCompilation) {
       versionedSettings :+ "-Xfatal-warnings"
     } else {
       versionedSettings
     }
+
+    finalSettings.filterNot(_.contains("semanticdb:targetroot"))
   }
 
 }

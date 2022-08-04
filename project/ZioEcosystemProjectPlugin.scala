@@ -1,4 +1,5 @@
 import explicitdeps.ExplicitDepsPlugin.autoImport._
+import scalafix.sbt.ScalafixPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 import sbtbuildinfo.BuildInfoKeys._
@@ -83,7 +84,7 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
     scalaVersion            := V.Scala213,
     zioSeries               := ZIOSeries.Series2X,
     needsZio                := true,
-    Compile / scalacOptions := ScalaCompilerSettings.stdScalacOptions(scalaVersion.value),
+    scalacOptions := ScalaCompilerSettings.stdScalacOptions(scalaVersion.value),
     libraryDependencies ++= {
       if (needsZio.value)
         Seq(
@@ -94,14 +95,14 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
       else Seq.empty
     },
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    // semanticdbEnabled := scalaVersion.value != V.Scala3, // enable SemanticDB
-    // semanticdbOptions += "-P:semanticdb:synthetics:on",
-    // semanticdbVersion                      := scalafixSemanticdb.revision, // use Scalafix compatible version
-    // ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value),
-    // ThisBuild / scalafixDependencies ++= List(
-    //   "com.github.liancheng" %% "organize-imports" % "0.5.0",
-    //   "com.github.vovapolu"  %% "scaluzzi"         % "0.1.18"
-    // ),
+    semanticdbEnabled := scalaVersion.value != V.Scala3, // enable SemanticDB
+    semanticdbOptions += "-P:semanticdb:synthetics:on",
+    semanticdbVersion                      := scalafixSemanticdb.revision, // use Scalafix compatible version
+    ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value),
+    ThisBuild / scalafixDependencies ++= List(
+      "com.github.liancheng" %% "organize-imports" % "0.6.0",
+      "com.github.vovapolu"  %% "scaluzzi"         % "0.1.23"
+    ),
     Test / parallelExecution := true,
     incOptions ~= (_.withLogRecompileOnMacro(false))
     // autoAPIMappings := true
@@ -137,9 +138,10 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
     s"""|${Banner(s"🐳 ${name.value} v.${version.value}")}
         |Useful sbt tasks:
         |${item("build")} - Checks source files for proper formatting, strictly compiles and runs tests.
-        |${item("check")} - Verifies that all source files are properly formatted.
-        |${item("prepare")} - Prepares sources by applying scalafmt and adding missing license headers.
+        |${item("lint")} - Verifies that all source files are properly formatted, have the correct license headers and have had all scalafix rules applied.
+        |${item("prepare")} - Prepares sources by applying scalafmt, adding missing license headers snd running scalafix.
         |${item("fmt")} - Formats source files using scalafmt.
+        |${item("fix")} - Fixes source files using using scalafix.
         |${item("enableStrictCompile")} - Enables strict compilation e.g. warnings become errors.
         |${item("disableStrictCompile")} - Disables strict compilation e.g. warnings are no longer treated as errors.
         |${item("~compile")} - Compiles all modules (file-watch enabled)

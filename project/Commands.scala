@@ -4,8 +4,9 @@ object Commands {
 
   lazy val settings =
     addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt") ++
-      addCommandAlias("prepare", "all scalafmtSbt scalafmt test:scalafmt headerCreateAll") ++
-      addCommandAlias("check", "all protoLint") ++
+    addCommandAlias("fix", "all scalafix test:scalafix") ++
+      addCommandAlias("prepare", "scalafmtSbt; scalafmt; test:scalafmt; headerCreateAll; scalafix; test:scalafix") ++
+      addCommandAlias("check", "all lint") ++
       addCommandAlias(
         "publishAll",
         "project /; +publishSigned"
