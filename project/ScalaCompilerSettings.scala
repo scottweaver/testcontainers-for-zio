@@ -93,7 +93,7 @@ object ScalaCompilerSettings {
       versionedSettings
     }
 
-    finalSettings.filterNot(_.contains("semanticdb:targetroot"))
+    finalSettings.filterNot(_.contains("semanticdb:targetroot")) // The presence of this flag causes scalac to fail.
   }
 
 }
