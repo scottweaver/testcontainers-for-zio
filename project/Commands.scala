@@ -7,5 +7,5 @@ object Commands {
       addCommandAlias("fix", "all scalafix test:scalafix") ++
       addCommandAlias("prepare", "scalafmtSbt; scalafmt; test:scalafmt; headerCreateAll; scalafix; test:scalafix") ++
       addCommandAlias("publishAll", "project /; +publishSigned") ++
-      addCommandAlias("site", "docs/docusaurusCreateSite")
+      addCommandAlias("site", "docs/clean; docs/docusaurusCreateSite")
 }

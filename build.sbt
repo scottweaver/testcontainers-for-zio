@@ -296,7 +296,7 @@ lazy val publishSettings =
   )
 
 lazy val docs = project
-  .in(file("docs-source"))
+  .in(file("docs-project"))
   .settings(
     publish / skip := true,
     moduleName     := "zio-testcontainers-docs",
@@ -308,4 +308,5 @@ lazy val docs = project
     docusaurusPublishGhpages := docusaurusPublishGhpages.dependsOn(Compile / unidoc).value
   )
   .dependsOn(root)
-  .enablePlugins(MdocPlugin, DocusaurusPlugin, ScalaUnidocPlugin)
+  .enablePlugins( DocusaurusPlugin, ScalaUnidocPlugin)
+  // .enablePlugins(MdocPlugin, DocusaurusPlugin, ScalaUnidocPlugin)
