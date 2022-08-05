@@ -48,9 +48,11 @@ object Tasks {
   private def buildImpl =
     Def
       .sequential(
-        enableStrictCompile,
-        lintImpl,
         clean,
+        enableStrictCompile,
+        Compile / compile,
+        Test / compile,
+        lint,
         Test / test
       )
       .andFinally(disableStrictCompilePure(s => println(s"[info] $s")))
