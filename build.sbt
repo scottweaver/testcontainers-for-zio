@@ -45,7 +45,6 @@ lazy val root = project
     cassandraZio2,
     `cassandra-migration-aspect`,
     `cassandra-migration-aspect-Zio2`
-    // benchmarks,
     // docs
   )
 
@@ -160,7 +159,6 @@ lazy val postgres =
     )
     .dependsOn(models)
 
-// addCompilerPlugin("org.scalameta" % "semanticdb-scalac" % "4.5.11" cross CrossVersion.full)
 lazy val postgresZio2 =
   project
     .in(file("modules/postgresql-zio-2.0"))
@@ -308,5 +306,4 @@ lazy val docs = project
     docusaurusPublishGhpages := docusaurusPublishGhpages.dependsOn(Compile / unidoc).value
   )
   .dependsOn(root)
-  .enablePlugins( DocusaurusPlugin, ScalaUnidocPlugin)
-  // .enablePlugins(MdocPlugin, DocusaurusPlugin, ScalaUnidocPlugin)
+  .enablePlugins(DocusaurusPlugin, ScalaUnidocPlugin, DocusaurusExtrasPlugin)
