@@ -6,9 +6,7 @@ import mdoc.DocusaurusPlugin.website
 
 object DocusaurusExtrasPlugin extends AutoPlugin {
 
-  // override def trigger = allRequirements
-
-  override def requires = mdoc.DocusaurusPlugin 
+  override def requires = mdoc.DocusaurusPlugin
 
   val docusaurus = inputKey[Unit]("docusaurus")
 
