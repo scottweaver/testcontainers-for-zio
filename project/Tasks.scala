@@ -1,5 +1,6 @@
 import sbt._
 import sbt.Keys._
+import complete.DefaultParsers._
 import scala.Console
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport._
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
@@ -31,18 +32,6 @@ object Tasks {
     disableStrictCompilePure(log.info(_))
   }
 
-  val lint = taskKey[Unit]("Performs source-code linting for formatting and proper OSS license headers.")
-
-  lazy val lintImpl =
-    Def
-      .sequential(
-        Compile / scalafmtSbtCheck,
-        scalafmtCheckAll,
-        Compile / headerCheckAll,
-        (Compile / scalafix).toTask(" --check"),
-        (Test / scalafix).toTask(" --check")
-      )
-
   val build = taskKey[Unit]("Prepares sources, compiles and runs tests.")
 
   private def buildImpl =
@@ -52,7 +41,6 @@ object Tasks {
         enableStrictCompile,
         Compile / compile,
         Test / compile,
-        lint,
         Test / test
       )
       .andFinally(disableStrictCompilePure(s => println(s"[info] $s")))
@@ -60,8 +48,8 @@ object Tasks {
   lazy val settings: Seq[Setting[_]] = Seq(
     build                := buildImpl.value,
     enableStrictCompile  := enableStrictCompileImpl.value,
-    disableStrictCompile := disableStrictCompileImpl.value,
-    lint                 := lintImpl.value
+    disableStrictCompile := disableStrictCompileImpl.value
+    // lint                 := lintImpl.value
   )
 
 }

@@ -45,7 +45,7 @@ jobs:
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
       - name: Run tests for Scala ${{ matrix.scala }}
-        run: sbt ++${{ matrix.scala }}! test
+        run: sbt ++${{ matrix.scala }}! enableStrictCompile test
 
   publish:
     runs-on: ubuntu-20.04
@@ -71,7 +71,7 @@ jobs:
         uses: coursier/cache-action@v6
       - name: Release artifacts
         # run: sbt importPgpKey publishAll
-        run: sbt publishAll
+        run: sbt publish-all
         env:
           # PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

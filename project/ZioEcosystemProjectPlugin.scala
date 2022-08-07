@@ -4,6 +4,8 @@ import sbt.Keys._
 import sbt._
 import sbtbuildinfo.BuildInfoKeys._
 import sbtbuildinfo._
+import scala.collection.mutable.LinkedHashMap
+import scala.collection.immutable.ListMap
 
 object ZioEcosystemProjectPlugin extends AutoPlugin {
 
@@ -31,6 +33,10 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
     val needsZio = settingKey[Boolean]("Indicates whether or not the project needs ZIO libraries.")
 
     val welcomeBannerEnabled = settingKey[Boolean]("Indicates whether or not to enable the welcome banner.")
+
+    val usefulTasksAndSettings = settingKey[Map[String, String]](
+      "A map of useful tasks and settings that will be displayed as part of the welcome banner."
+    )
 
   }
 
@@ -81,13 +87,23 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
 
   import autoImport._
 
+  private val defaultTasksAndSettings: Map[String, String] = Commands.ComposableCommand.makeHelp ++ ListMap(
+    "build"                                       -> "Lints source files then strictly compiles and runs tests.",
+    "enableStrictCompile"                         -> "Enables strict compilation e.g. warnings become errors.",
+    "disableStrictCompile"                        -> "Disables strict compilation e.g. warnings are no longer treated as errors.",
+    "~compile"                                    -> "Compiles all modules (file-watch enabled)",
+    "test"                                        -> "Runs all tests",
+    """testOnly *.YourSpec -- -t \"YourLabel\"""" -> "Only runs tests with matching term e.g.",
+  )
+
   def stdSettings: Seq[Setting[_]] = Seq(
-    crossScalaVersions   := Seq(V.Scala212, V.Scala213, V.Scala3),
-    scalaVersion         := V.Scala213,
-    zioSeries            := ZIOSeries.Series2X,
-    needsZio             := true,
-    welcomeBannerEnabled := true,
-    scalacOptions        := ScalaCompilerSettings.stdScalacOptions(scalaVersion.value),
+    crossScalaVersions     := Seq(V.Scala212, V.Scala213, V.Scala3),
+    scalaVersion           := V.Scala213,
+    zioSeries              := ZIOSeries.Series2X,
+    needsZio               := true,
+    welcomeBannerEnabled   := true,
+    usefulTasksAndSettings := defaultTasksAndSettings,
+    scalacOptions          := ScalaCompilerSettings.stdScalacOptions(scalaVersion.value),
     libraryDependencies ++= {
       if (needsZio.value)
         Seq(
@@ -107,13 +123,17 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
       "com.github.vovapolu"  %% "scaluzzi"         % "0.1.23"
     ),
     Test / parallelExecution := true,
-    incOptions ~= (_.withLogRecompileOnMacro(false))
-    // autoAPIMappings := true
+    incOptions ~= (_.withLogRecompileOnMacro(false)),
+    autoAPIMappings := true
   )
 
   def welcomeMessage = onLoadMessage := {
     if (welcomeBannerEnabled.value) {
       import scala.Console
+
+      val maxLen = usefulTasksAndSettings.value.keys.map(_.length).max
+
+      def normalizedPadding(s: String) = " " * (maxLen - s.length) 
 
       def header(text: String): String = s"${Console.RED}$text${Console.RESET}"
 
@@ -122,17 +142,8 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
 
       s"""|${Banner.trueColor(s"🐳 ${name.value} v.${version.value}")}
           |Useful sbt tasks:
-          |${item("build")} - Lints source files then strictly compiles and runs tests.
-          |${item("lint")} - Verifies that all source files are properly formatted, have the correct license headers and have had all scalafix rules applied.
-          |${item("prepare")} - Prepares sources by applying scalafmt, adding missing license headers and running scalafix.
-          |${item("fmt")} - Formats source files using scalafmt.
-          |${item("fix")} - Fixes source files using using scalafix.
-          |${item("enableStrictCompile")} - Enables strict compilation e.g. warnings become errors.
-          |${item("disableStrictCompile")} - Disables strict compilation e.g. warnings are no longer treated as errors.
-          |${item("~compile")} - Compiles all modules (file-watch enabled)
-          |${item("test")} - Runs all tests
-          |${item("testOnly *.YourSpec -- -t \"YourLabel\"")} - Only runs tests with matching term e.g.
-          |${item("site")} - Generates the ZIO microsite
+          |${usefulTasksAndSettings.value.map { case (task, description) => s"${item(task)} ${normalizedPadding(task)}${description}" }
+        .mkString("\n")}
       """.stripMargin
 
     } else ""
