@@ -144,7 +144,7 @@ libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-kafka" % "
 
 ### ZIO 2.x
 ```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-2.0-testcontainers-kafka" % "0.8.0"
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-kafka" % "0.8.0"
 ```
 
 
