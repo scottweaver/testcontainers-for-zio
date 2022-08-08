@@ -49,7 +49,6 @@ object Tasks {
     build                := buildImpl.value,
     enableStrictCompile  := enableStrictCompileImpl.value,
     disableStrictCompile := disableStrictCompileImpl.value
-    // lint                 := lintImpl.value
   )
 
 }

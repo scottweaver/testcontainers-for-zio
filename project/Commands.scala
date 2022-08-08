@@ -69,7 +69,7 @@ object Commands {
       quietOn >> "scalafmtSbt" >> "+scalafmt" >> "+Test / scalafmt" >> quietOff ?? ("fmt", "Formats source files using scalafmt.")
 
     val lint =
-      quietOn >> "+scalafmtSbtCheck" >> "+scalafmtCheckAll" >> "+headerCheckAll" >> fixLint >> quietOff ?? ("lint", "Verifies that all source files are properly formatted, have the correct license headers and have had all scalafix rules applied.")
+      quietOn >> "enableStrictCompile"  >> "+scalafmtSbtCheck" >> "+scalafmtCheckAll" >> "+headerCheckAll" >> fixLint >> "disableStrictCompile" >> quietOff ?? ("lint", "Verifies that all source files are properly formatted, have the correct license headers and have had all scalafix rules applied.")
 
     val prepare =
       quietOn >> "+headerCreateAll" >> "+scalafmtSbt" >> "+scalafmt" >> "+Test / scalafmt" >> fix >> quietOff ?? ("prepare", "Prepares sources by applying scalafmt, adding missing license headers and running scalafix.")
