@@ -33,7 +33,7 @@ object ZPostgreSQLContainer {
   )
 
   object Settings {
-    val default = ZLayer.succeed(
+    val default: ULayer[Has[Settings]] = ZLayer.succeed(
       Settings(
         "latest",
         PostgreSQLContainer.defaultDatabaseName,
@@ -50,7 +50,7 @@ object ZPostgreSQLContainer {
 
   val live: ZLayer[Has[Settings], Nothing, Provides] = {
 
-    def makeManagedConnection(container: PostgreSQLContainer) =
+    def makeManagedConnection(container: PostgreSQLContainer): ZManaged[Any, Nothing, Connection with AutoCloseable] =
       ZManaged.make(
         ZIO.effect {
           DriverManager.getConnection(
