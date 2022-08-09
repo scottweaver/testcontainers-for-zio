@@ -34,7 +34,8 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     strategy:
-      fail-fast: false
+      fail-fast: true
+      max-parallel: 1
       matrix:
         scala: ['2.12.16', '2.13.8', '3.1.2']
     steps:
