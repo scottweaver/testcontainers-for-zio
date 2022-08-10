@@ -44,13 +44,13 @@ object ZPostgreSQLContainer {
   }
 
   type Provides = Has[JdbcInfo]
-    with Has[Connection with AutoCloseable]
+    with Has[Connection]
     with Has[DataSource]
     with Has[PostgreSQLContainer]
 
   val live: ZLayer[Has[Settings], Nothing, Provides] = {
 
-    def makeManagedConnection(container: PostgreSQLContainer): ZManaged[Any, Nothing, Connection with AutoCloseable] =
+    def makeManagedConnection(container: PostgreSQLContainer) =
       ZManaged.make(
         ZIO.effect {
           DriverManager.getConnection(
@@ -102,7 +102,7 @@ object ZPostgreSQLContainer {
         dataSource.setUser(jdbcInfo.username)
         dataSource.setPassword(jdbcInfo.password)
 
-        Has(jdbcInfo) ++ Has(conn) ++ Has[DataSource](dataSource) ++ Has(container)
+        Has(jdbcInfo) ++ Has[Connection](conn) ++ Has[DataSource](dataSource) ++ Has(container)
       }
     }
   }
