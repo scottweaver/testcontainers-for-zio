@@ -33,7 +33,7 @@ object ZPostgreSQLContainer {
   )
 
   object Settings {
-    val default = ZLayer.succeed(
+    val default: ULayer[Has[Settings]] = ZLayer.succeed(
       Settings(
         "latest",
         PostgreSQLContainer.defaultDatabaseName,
@@ -44,7 +44,7 @@ object ZPostgreSQLContainer {
   }
 
   type Provides = Has[JdbcInfo]
-    with Has[Connection with AutoCloseable]
+    with Has[Connection]
     with Has[DataSource]
     with Has[PostgreSQLContainer]
 
@@ -102,7 +102,7 @@ object ZPostgreSQLContainer {
         dataSource.setUser(jdbcInfo.username)
         dataSource.setPassword(jdbcInfo.password)
 
-        Has(jdbcInfo) ++ Has(conn) ++ Has[DataSource](dataSource) ++ Has(container)
+        Has(jdbcInfo) ++ Has[Connection](conn) ++ Has[DataSource](dataSource) ++ Has(container)
       }
     }
   }
