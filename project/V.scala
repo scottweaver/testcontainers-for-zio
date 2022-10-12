@@ -35,7 +35,7 @@ object V {
     list.map(v => (v.split('.').take(2).mkString("."), v)).toMap
   }
 
-  val Scala212: String = versions("2.12")
-  val Scala213: String = versions("2.13")
-  val Scala3: String   = versions("3.1")
+  val Scala212: String = versions.getOrElse("2.12", "2.12.16")
+  val Scala213: String = versions.getOrElse("2.13", "2.13.8")
+  val Scala3: String   = versions.getOrElse("3.1", "3.1.3")
 }

@@ -43,10 +43,7 @@ object ZPostgreSQLContainer {
     )
   }
 
-  type Provides = Has[JdbcInfo]
-    with Has[Connection]
-    with Has[DataSource]
-    with Has[PostgreSQLContainer]
+  type Provides = Has[JdbcInfo] with Has[Connection] with Has[DataSource] with Has[PostgreSQLContainer]
 
   val live: ZLayer[Has[Settings], Nothing, Provides] = {
 
