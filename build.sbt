@@ -44,7 +44,8 @@ lazy val root = project
     cassandra,
     cassandraZio2,
     `cassandra-migration-aspect`,
-    `cassandra-migration-aspect-Zio2`
+    `cassandra-migration-aspect-Zio2`,
+    solrZio2
     // docs
   )
 
@@ -252,6 +253,19 @@ lazy val cassandraZio2 =
       libraryDependencies ++= Seq(
         "com.dimafeng"    %% "testcontainers-scala-cassandra" % V.testcontainersScalaVersion,
         "com.datastax.oss" % "java-driver-core"               % V.cassandraDriverVersion
+      )
+    )
+
+lazy val solrZio2 =
+  project
+    .in(file("modules/solr-zio-2.0"))
+    .settings(
+      zioSeries := ZIOSeries.Series2X,
+      testcontainersScalaSettings,
+      name := "zio-2.0-testcontainers-solr",
+      libraryDependencies ++= Seq(
+        "com.dimafeng" %% "testcontainers-scala-solr" % V.testcontainersScalaVersion,
+        "dev.zio"      %% "zio-http"                  % V.zioHttpVersion
       )
     )
 

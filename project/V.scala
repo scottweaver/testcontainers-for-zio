@@ -11,7 +11,7 @@ object V {
   val zioMagicVersion            = "0.3.10"
   val zioKafkaVersion            = "0.17.1"
   val zio2KafkaVersion           = "2.0.0"
-  val zioHttpVersion             = "2.0.0-RC9"
+  val zioHttpVersion             = "0.0.4"
   val testcontainersScalaVersion = "0.40.10"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"
