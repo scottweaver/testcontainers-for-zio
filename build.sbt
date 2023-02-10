@@ -1,6 +1,7 @@
 import ZioEcosystemProjectPlugin.autoImport._
 
-ThisBuild / version       := "0.9.1"
+
+ThisBuild / version       := "0.10.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
