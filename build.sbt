@@ -1,5 +1,6 @@
 import ZioEcosystemProjectPlugin.autoImport._
 
+
 ThisBuild / version       := "0.10.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
