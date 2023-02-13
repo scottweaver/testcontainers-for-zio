@@ -2,11 +2,11 @@ object V {
   val cassandraDriverVersion     = "4.14.1"
   val scala213Version            = "2.13.8"
   val scala212Version            = "2.12.16"
-  val scala3Version              = "3.1.3"
+  val scala3Version              = "3.2.2"
   val supportedScalaVersions     = List(scala213Version, scala212Version, scala3Version)
   val zio1xVersion               = "1.0.15"
-  val zio2xVersion               = "2.0.0"
-  val zioJsonVersion             = "0.3.0-RC10"
+  val zio2xVersion               = "2.0.8"
+  val zioJsonVersion             = "0.4.2"
   val zioPreludeVersion          = "1.0.0-RC15"
   val zioMagicVersion            = "0.3.10"
   val zioKafkaVersion            = "0.17.1"
@@ -37,5 +37,5 @@ object V {
 
   val Scala212: String = versions.getOrElse("2.12", "2.12.16")
   val Scala213: String = versions.getOrElse("2.13", "2.13.8")
-  val Scala3: String   = versions.getOrElse("3.1", "3.1.3")
+  val Scala3: String   = versions.getOrElse("3.2", "3.2.2")
 }
