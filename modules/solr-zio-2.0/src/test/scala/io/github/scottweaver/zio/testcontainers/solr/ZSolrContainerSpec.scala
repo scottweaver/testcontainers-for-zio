@@ -25,7 +25,7 @@ import zio.test._
 object ZSolrContainerSpec extends ZIOSpecDefault {
   override val spec =
     suite("ZSolrContainerSpec")(
-      test("Should start up a Solr continer that is ready") {
+      test("Should start up a Solr container that is ready") {
         for {
           container <- ZIO.service[SolrContainer]
           client    <- ZIO.service[Client]

@@ -1,6 +1,5 @@
 import ZioEcosystemProjectPlugin.autoImport._
 
-
 ThisBuild / version       := "0.10.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization  := "io.github.scottweaver"
@@ -266,7 +265,7 @@ lazy val solrZio2 =
       name := "zio-2.0-testcontainers-solr",
       libraryDependencies ++= Seq(
         "com.dimafeng" %% "testcontainers-scala-solr" % V.testcontainersScalaVersion,
-        "dev.zio"      %% "zio-http"                  % V.zioHttpVersion
+        "dev.zio"      %% "zio-http"                  % V.zioHttpVersion % Test
       )
     )
 
