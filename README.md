@@ -27,6 +27,9 @@
 [Link-SonatypeReleases-CassandraMigrationAspect]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-cassandra-migration-aspect_2.13/0.10.0/  "Sonatype Releases link"
 [Badge-SonatypeReleases-CassandraMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-cassandra-migration-aspect_2.13/0.10.0?label=maven-central%20%20cassandra-migration-aspect "Sonatype Releases badge"
 
+[Link-SonatypeReleases-Solr]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-testcontainers-solr_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Solr]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-solr_2.13/0.10.0?label=maven-central%20%20solr "Sonatype Releases badge"
+
 Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
 
 
@@ -204,6 +207,20 @@ libraryDependencies += "io.github.scottweaver" %% "zio-cassandra-migration-aspec
 ### ZIO 2.X
 ```scala
 libraryDependencies += "io.github.scottweaver" %% "zio-2-0-cassandra-migration-aspect" % "0.10.0"
+```
+
+
+## Solr
+
+[![Release Artifacts][Badge-SonatypeReleases-Solr]][Link-SonatypeReleases-Solr]
+
+Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.SolrContainer`.
+
+You can use the container host, solrPort to access the web interface. The settings can be customized with schema/solrconfig.xml urls to create a collection.
+
+### ZIO 2.x
+```scala
+libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-solr" % "0.10.0"
 ```
 
 
