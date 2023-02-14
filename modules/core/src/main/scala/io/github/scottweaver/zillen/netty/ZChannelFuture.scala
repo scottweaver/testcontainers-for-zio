@@ -46,7 +46,7 @@ private[zillen] final class ZChannelFuture[A] private (jFuture: Future[A]) {
             case _: CancellationException => cb(ZIO.succeed(Option.empty))
             case cause                    => cb(ZIO.fail(cause))
           }
-        jFuture.addListener(handler)
+        val _ = jFuture.addListener(handler)
       }
       .onInterrupt(ZIO.succeed(jFuture.removeListener(handler)))
   }

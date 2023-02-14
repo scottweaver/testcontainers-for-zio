@@ -70,8 +70,7 @@ object NettyRequestSpec extends ZIOSpecDefault {
         ZLayer.succeed(new Bootstrap),
         DockerSettings.default(),
         Scope.default,
-        NettyRequestHandler.layer,
-        Annotations.live
+        NettyRequestHandler.layer
       )
 
 }
