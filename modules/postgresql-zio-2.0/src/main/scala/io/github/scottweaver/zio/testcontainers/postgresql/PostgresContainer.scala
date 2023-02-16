@@ -28,7 +28,7 @@ final class PostgresContainer
       containerName = models.ContainerName("zio-postgres-test-container"),
       exposedPorts = Docker.makeExposedTCPPorts(5432),
       makeImage = ZIO.serviceWithZIO[PostgresContainer.Settings](settings =>
-        Docker.makeImageZIO(s"postgres:${settings.imageVersion}")
+        Docker.makeImageZIO(s"${settings.imageName}:${settings.imageVersion}")
       ),
       makeEnv = ZIO.serviceWith[PostgresContainer.Settings](_.toEnv)
     ) {
@@ -109,7 +109,8 @@ object PostgresContainer {
     password: String,
     databaseName: Option[String],
     username: Option[String],
-    additionalEnv: Env
+    additionalEnv: Env,
+    imageName: String = "postgres"
   ) {
 
     private[postgresql] def toEnv: Env =
@@ -122,7 +123,7 @@ object PostgresContainer {
           "POSTGRES_DB"   -> databaseName
         ) && additionalEnv
 
-    private[postgresql] def toImage = Docker.makeImageZIO(s"postgres:$imageVersion")
+    private[postgresql] def toImage = Docker.makeImageZIO(s"$imageName:$imageVersion")
   }
 
   object Settings {

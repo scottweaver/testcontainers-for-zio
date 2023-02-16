@@ -93,7 +93,7 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
     "disableStrictCompile"                        -> "Disables strict compilation e.g. warnings are no longer treated as errors.",
     "~compile"                                    -> "Compiles all modules (file-watch enabled)",
     "test"                                        -> "Runs all tests",
-    """testOnly *.YourSpec -- -t \"YourLabel\"""" -> "Only runs tests with matching term e.g.",
+    """testOnly *.YourSpec -- -t \"YourLabel\"""" -> "Only runs tests with matching term e.g."
   )
 
   def stdSettings: Seq[Setting[_]] = Seq(
@@ -133,7 +133,7 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
 
       val maxLen = usefulTasksAndSettings.value.keys.map(_.length).max
 
-      def normalizedPadding(s: String) = " " * (maxLen - s.length) 
+      def normalizedPadding(s: String) = " " * (maxLen - s.length)
 
       def header(text: String): String = s"${Console.RED}$text${Console.RESET}"
 
@@ -142,7 +142,9 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
 
       s"""|${Banner.trueColor(s"🐳 ${name.value} v.${version.value}")}
           |Useful sbt tasks:
-          |${usefulTasksAndSettings.value.map { case (task, description) => s"${item(task)} ${normalizedPadding(task)}${description}" }
+          |${usefulTasksAndSettings.value.map { case (task, description) =>
+        s"${item(task)} ${normalizedPadding(task)}${description}"
+      }
         .mkString("\n")}
       """.stripMargin
 

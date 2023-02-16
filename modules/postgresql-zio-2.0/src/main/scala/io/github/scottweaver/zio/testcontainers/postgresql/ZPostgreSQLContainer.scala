@@ -29,7 +29,8 @@ object ZPostgreSQLContainer {
     imageVersion: String,
     databaseName: String,
     username: String,
-    password: String
+    password: String,
+    imageName: String = "postgres"
   )
 
   object Settings {
@@ -64,7 +65,9 @@ object ZPostgreSQLContainer {
       ZIO.acquireRelease(
         ZIO.attempt {
           val containerDef = PostgreSQLContainer.Def(
-            dockerImageName = DockerImageName.parse(s"postgres:${settings.imageVersion}"),
+            dockerImageName = DockerImageName
+              .parse(s"${settings.imageName}:${settings.imageVersion}")
+              .asCompatibleSubstituteFor("postgres"),
             databaseName = settings.databaseName,
             username = settings.username,
             password = settings.password
