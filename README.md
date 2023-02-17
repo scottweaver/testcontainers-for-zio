@@ -27,8 +27,8 @@
 [Link-SonatypeReleases-CassandraMigrationAspect]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-cassandra-migration-aspect_2.13/0.10.0/  "Sonatype Releases link"
 [Badge-SonatypeReleases-CassandraMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-cassandra-migration-aspect_2.13/0.10.0?label=maven-central%20%20cassandra-migration-aspect "Sonatype Releases badge"
 
-[Link-SonatypeReleases-Solr]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-testcontainers-solr_2.13/0.10.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-Solr]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-solr_2.13/0.10.0?label=maven-central%20%20solr "Sonatype Releases badge"
+[Link-SonatypeReleases-Solr]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-2-0-testcontainers-solr_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Solr]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-testcontainers-solr_2.13/0.10.0?label=maven-central%20%20solr "Sonatype Releases badge"
 
 Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
 
