@@ -74,5 +74,5 @@ object ZPostgreSQLContainerSpec extends DefaultRunnableSpec {
     suite("ZPostgreSQLContainerSpec")(
       imageSpec("postgres"),
       imageSpec("timescale/timescaledb", "latest-pg12")
-    )
+    ) @@ TestAspect.sequential
 }
