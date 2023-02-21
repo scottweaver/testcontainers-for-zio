@@ -28,50 +28,55 @@ import javax.sql.DataSource
 // import io.github.scottweaver.zillen.ContainerSettings
 
 object PostgresContainerSpec extends ZIOSpecDefault {
+
+  private def imageSpec(imageName: String, imageVersion: String = "latest") =
+    test(s"Should start up a $imageName:$imageVersion container that can be queried.") {
+      def sqlTestQuery(conn: Connection) =
+        ZIO.attempt {
+          val stmt = conn.createStatement()
+          val rs   = stmt.executeQuery("SELECT 1")
+          rs.next()
+          rs.getInt(1)
+        }
+
+      def sqlTestOnDs(ds: DataSource) =
+        for {
+          conn   <- ZIO.attempt(ds.getConnection)
+          result <- sqlTestQuery(conn)
+
+        } yield (result)
+
+      val expectedContainerName = ContainerName.unsafeMake(
+        "/zio-postgres-test-container"
+      ) // Docker adds a preceding slash to the original container name.
+
+      for {
+        conn      <- ZIO.service[Connection]
+        ds        <- ZIO.service[DataSource]
+        container <- ZIO.service[InspectContainerResponse]
+        _         <- ZIO.service[JdbcInfo]
+        result    <- sqlTestQuery(conn)
+        result2   <- sqlTestOnDs(ds)
+      } yield assertTrue(
+        result == 1,
+        result2 == 1,
+        container.hostConfig.portBindings.findExternalHostPort(5432, Protocol.TCP).nonEmpty,
+        container.name.get == expectedContainerName
+        // jdbcInfo.jdbcUrl == container.jdbcUrl,
+        // jdbcInfo.username == container.username,
+        // jdbcInfo.password == container.password,
+        // jdbcInfo.driverClassName == container.driverClassName
+      )
+    }.provide(
+      Scope.default,
+      Docker.layer(),
+      PostgresContainer.Settings.default(builder = _.copy(imageName = imageName, imageVersion = imageVersion)),
+      PostgresContainer.layer
+    ) @@ TestAspect.withLiveClock
+
   def spec =
     suite("PostgresContainerSpec")(
-      test("Should start up a Postgres container that can be queried.") {
-        def sqlTestQuery(conn: Connection) =
-          ZIO.attempt {
-            val stmt = conn.createStatement()
-            val rs   = stmt.executeQuery("SELECT 1")
-            rs.next()
-            rs.getInt(1)
-          }
-
-        def sqlTestOnDs(ds: DataSource) =
-          for {
-            conn   <- ZIO.attempt(ds.getConnection)
-            result <- sqlTestQuery(conn)
-
-          } yield (result)
-
-        val expectedContainerName = ContainerName.unsafeMake(
-          "/zio-postgres-test-container"
-        ) // Docker adds a preceding slash to the original container name.
-
-        for {
-          conn      <- ZIO.service[Connection]
-          ds        <- ZIO.service[DataSource]
-          container <- ZIO.service[InspectContainerResponse]
-          _         <- ZIO.service[JdbcInfo]
-          result    <- sqlTestQuery(conn)
-          result2   <- sqlTestOnDs(ds)
-        } yield assertTrue(
-          result == 1,
-          result2 == 1,
-          container.hostConfig.portBindings.findExternalHostPort(5432, Protocol.TCP).nonEmpty,
-          container.name.get == expectedContainerName
-          // jdbcInfo.jdbcUrl == container.jdbcUrl,
-          // jdbcInfo.username == container.username,
-          // jdbcInfo.password == container.password,
-          // jdbcInfo.driverClassName == container.driverClassName
-        )
-      }.provideShared(
-        Scope.default,
-        Docker.layer(),
-        PostgresContainer.Settings.default(),
-        PostgresContainer.layer
-      ) @@ TestAspect.withLiveClock
-    )
+      imageSpec("postgres"),
+      imageSpec("timescale/timescaledb", "latest-pg14")
+    ) @@ TestAspect.sequential
 }
