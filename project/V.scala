@@ -14,7 +14,7 @@ object V {
   val zioHttpVersion             = "0.0.4"
   val zioAwsVersion              = "5.20.17.1"
   val awsV1Version               = "1.11.479"
-  val testcontainersScalaVersion = "0.40.10"
+  val testcontainersScalaVersion = "0.40.15"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"
   val slf4jVersion               = "1.7.32"
