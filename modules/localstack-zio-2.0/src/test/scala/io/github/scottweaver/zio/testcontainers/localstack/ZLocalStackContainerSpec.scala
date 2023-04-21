@@ -39,7 +39,7 @@ object ZLocalStackContainerSpec extends ZIOSpecDefault {
             _               <- s3.createBucket(CreateBucketRequest(bucket = BucketName("foo")))
             listBuckets     <- s3.listBuckets().flatMap(_.getBuckets)
             listBucketNames <- ZIO.foreach(listBuckets)(_.getName)
-          } yield assert(listBucketNames)(equalTo(List(BucketName("foo"))))
+          } yield assert(listBucketNames)(equalTo(List("foo")))
 
         testCase
       }
