@@ -5,9 +5,9 @@ object V {
   val scala3Version              = "3.2.2"
   val supportedScalaVersions     = List(scala213Version, scala212Version, scala3Version)
   val zio1xVersion               = "1.0.15"
-  val zio2xVersion               = "2.0.9"
+  val zio2xVersion               = "2.0.13"
   val zioJsonVersion             = "0.4.2"
-  val zioPreludeVersion          = "1.0.0-RC15"
+  val zioPreludeVersion          = "1.0.0-RC19"
   val zioMagicVersion            = "0.3.10"
   val zioKafkaVersion            = "0.17.1"
   val zio2KafkaVersion           = "2.0.0"
