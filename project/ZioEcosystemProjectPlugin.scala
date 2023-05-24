@@ -97,7 +97,7 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
   )
 
   def stdSettings: Seq[Setting[_]] = Seq(
-    crossScalaVersions     := Seq(V.Scala212, V.Scala213, V.Scala3),
+    crossScalaVersions     := Seq(V.Scala213),
     scalaVersion           := V.Scala213,
     zioSeries              := ZIOSeries.Series2X,
     needsZio               := true,
@@ -114,7 +114,7 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
       else Seq.empty
     },
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    semanticdbEnabled := scalaVersion.value != V.Scala3, // enable SemanticDB
+    semanticdbEnabled := true, // enable SemanticDB
     semanticdbOptions += "-P:semanticdb:synthetics:on",
     semanticdbVersion                      := scalafixSemanticdb.revision, // use Scalafix compatible version
     ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value),

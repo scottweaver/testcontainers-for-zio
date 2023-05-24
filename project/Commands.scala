@@ -53,18 +53,16 @@ object Commands {
     val quietOn = make("set welcomeBannerEnabled := false")
 
     val buildAll =
-      quietOn >> "project /" >> "+build" >> quietOff ?? ("build-all", s"Builds all modules for all defined Scala cross versions: ${V.Scala212}, ${V.Scala213} and ${V.Scala3}.")
+      quietOn >> "project /" >> "+build" >> quietOff ?? ("build-all", s"Builds all modules for all defined Scala cross versions: ${V.Scala213}.")
 
     def setScalaVersion(scalaVersion: String) = make(s"++$scalaVersion")
 
     def scalafix(scalaVersion: String, args: String = "") =
       setScalaVersion(scalaVersion) >> s"scalafix ${args}".trim() >> s"Test / scalafix ${args}".trim()
 
-    val fix = quietOn >> scalafix(V.Scala213) >> scalafix(
-      V.Scala212
-    ) >> quietOff ?? ("fix", "Fixes source files using using scalafix")
+    val fix = quietOn >> scalafix(V.Scala213) >> quietOff ?? ("fix", "Fixes source files using using scalafix")
 
-    val fixLint = quietOn >> scalafix(V.Scala213, "--check") >> scalafix(V.Scala212, "--check") >> quietOff
+    val fixLint = quietOn >> scalafix(V.Scala213, "--check") >> quietOff
 
     val fmt =
       quietOn >> "scalafmtSbt" >> "+scalafmt" >> "+Test / scalafmt" >> quietOff ?? ("fmt", "Formats source files using scalafmt.")
