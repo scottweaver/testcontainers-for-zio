@@ -9,6 +9,7 @@ addSbtPlugin("com.typesafe"                      % "sbt-mima-plugin"           %
 addSbtPlugin("de.heikoseeberger"                 % "sbt-header"                % "5.6.0")
 addSbtPlugin("org.scalameta"                     % "sbt-mdoc"                  % "2.3.3")
 addSbtPlugin("org.scalameta"                     % "sbt-scalafmt"              % "2.4.3")
+addSbtPlugin("com.codecommit"                    % "sbt-github-packages"       % "0.5.3")
 // addSbtPlugin("pl.project13.scala" % "sbt-jcstress" % "0.2.0")
 // addSbtPlugin("pl.project13.scala" % "sbt-jmh"      % "0.4.3")
 // addSbtPlugin("org.portable-scala"                % "sbt-scala-native-crossproject" % "1.0.0")

@@ -18,18 +18,20 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 60
     steps:
-    - name: Checkout current branch
-      uses: actions/checkout@v3.0.2
-    - name: Setup Java
-      uses: actions/setup-java@v2.5.0
-      with:
-        distribution: temurin
-        java-version: 17
-        check-latest: true
-    - name: Cache scala dependencies
-      uses: coursier/cache-action@v6
-    - name: Lint code
-      run: sbt lint
+      - name: Checkout current branch
+        uses: actions/checkout@v3.0.2
+      - name: Setup Java
+        uses: actions/setup-java@v2.5.0
+        with:
+          distribution: temurin
+          java-version: 17
+          check-latest: true
+      - name: Cache scala dependencies
+        uses: coursier/cache-action@v6
+      - name: Lint code
+        run: sbt lint
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   test:
     runs-on: ubuntu-20.04
@@ -37,7 +39,7 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        scala: ['2.12.16', '2.13.8', '3.2.2']
+        scala: [ '2.13.8' ]
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v3.0.2
@@ -51,21 +53,16 @@ jobs:
         uses: coursier/cache-action@v6
       - name: Run tests for Scala ${{ matrix.scala }}
         run: sbt ++${{ matrix.scala }}! enableStrictCompile test
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   publish:
     runs-on: ubuntu-20.04
-    environment: SONATYPE_PUBLISHING 
-    needs: [lint, test]
+    needs: [ lint, test ]
     if: github.ref_type == 'tag'
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v2
-      - name: Import GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v5
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }} 
       - name: Setup Java
         uses: actions/setup-java@v2.5.0
         with:
@@ -75,9 +72,6 @@ jobs:
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
       - name: Release artifacts
-        # run: sbt importPgpKey publishAll
-        run: sbt publish-all
+        run: sbt publish+
         env:
-          # PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          GITHUB_TOKEN: ${{ github.token }}
