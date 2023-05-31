@@ -59,7 +59,6 @@ object ZKafkaContainer {
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG         -> "10",
             ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG -> "true"
           )
-          .withPerPartitionChunkPrefetch(16)
           .withOffsetRetrieval(Consumer.OffsetRetrieval.Auto())
       }
     }
