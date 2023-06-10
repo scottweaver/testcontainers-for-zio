@@ -26,5 +26,6 @@ final case class CreateContainerResponse(
 )
 
 object CreateContainerResponse {
+  import ContainerId.ContainerIdCodec
   implicit val createContainerResponseDecoder: JsonDecoder[CreateContainerResponse] = DeriveJsonDecoder.gen
 }

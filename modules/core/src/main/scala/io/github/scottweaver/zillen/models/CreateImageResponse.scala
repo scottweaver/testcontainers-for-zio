@@ -39,6 +39,7 @@ object CreateImageResponse {
     implicit val IdDecoder: JsonDecoder[Id] = JsonDecoder.string.map(wrap(_))
   }
 
+  import CreateImageResponse.Id.IdDecoder
   implicit val CreateImageResponseDecoder: JsonDecoder[CreateImageResponse] = DeriveJsonDecoder.gen[CreateImageResponse]
 
 }

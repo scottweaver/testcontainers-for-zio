@@ -28,6 +28,7 @@ final case class InspectContainerResponse(
 )
 
 object InspectContainerResponse {
+  import ContainerName.ContainerNameCodec
   implicit val inspectContainerResponseJson: JsonDecoder[InspectContainerResponse] =
     DeriveJsonDecoder.gen
 }

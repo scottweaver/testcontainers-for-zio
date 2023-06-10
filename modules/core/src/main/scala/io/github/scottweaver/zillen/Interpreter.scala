@@ -18,6 +18,8 @@ package io.github.scottweaver.zillen
 
 import io.github.scottweaver.zillen.Command.StopContainer.{NotRunning, Stopped}
 import io.github.scottweaver.zillen.Command._
+import io.github.scottweaver.zillen.Command.RemoveContainer.Force.{Syntax => ForceSyntax}
+import io.github.scottweaver.zillen.Command.RemoveContainer.Volumes.{Syntax => VolumesSyntax}
 import io.github.scottweaver.zillen.models.CreateContainerRequest
 import io.github.scottweaver.zillen.netty.NettyRequestHandler
 import io.netty.buffer.{ByteBuf, Unpooled}
