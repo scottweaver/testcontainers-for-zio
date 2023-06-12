@@ -100,8 +100,10 @@ object CommandFailure {
       UnexpectedHttpError(cause, command, uri)
     }.flatMap(r => command.makeResponse(r, ""))
 
-  def unexpectedDockerApiError(body: String, command: Command, statusCode: Int): DockerIO[Any, command.Response] =
+  def unexpectedDockerApiError(body: String, command: Command, statusCode: Int): DockerIO[Any, command.Response] = {
+    import DockerErrorMessage.DockerErrorMessageDecoder
     decodeResponse[DockerErrorMessage](body, command).flatMap { message =>
       ZIO.fail(UnexpectedDockerApiError(message, command, statusCode))
     }
+  }
 }

@@ -28,5 +28,7 @@ final case class CreateContainerRequest(
 )
 
 object CreateContainerRequest {
+  import Env.EnvEncoder
+  import Image.ImageCodec
   implicit val encoder: JsonEncoder[CreateContainerRequest] = DeriveJsonEncoder.gen
 }

@@ -60,6 +60,7 @@ object Command {
           )
         case 404 => CommandFailure.imageNotFound(self, image)
         case 409 =>
+          import DockerErrorMessage.DockerErrorMessageDecoder
           CommandFailure
             .decodeResponse[DockerErrorMessage](body, self)
             .flatMap(msg =>
