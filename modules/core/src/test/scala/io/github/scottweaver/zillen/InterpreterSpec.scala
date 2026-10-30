@@ -30,11 +30,12 @@ object InterpreterSpec extends ZIOSpecDefault {
       val env          = Env.make("POSTGRES_PASSWORD" -> "password")
       val cport        = ProtocolPort.makeTCPPort(5432)
       val exposedPorts = ProtocolPort.Exposed.make(cport)
-      val hostConfig   = HostConfig(PortMap.makeOneToOne(cport -> HostInterface.makeUnsafeFromPort(5432)))
+      def hostConfig(hostPort: Int) =
+        HostConfig(PortMap.makeOneToOne(cport -> HostInterface.makeUnsafeFromPort(hostPort)))
 
       def createImage = Interpreter.run(Command.CreateImage(postgresImage))
-      def create(name: ContainerName) =
-        Interpreter.run(Command.CreateContainer(env, exposedPorts, hostConfig, postgresImage, Some(name)))
+      def create(name: ContainerName, hostPort: Int) =
+        Interpreter.run(Command.CreateContainer(env, exposedPorts, hostConfig(hostPort), postgresImage, Some(name)))
       def running(id: ContainerId) = Docker.readyWhenRunningPromise[Any](id) // ContainerStateCheck.whenRunning[Any](id)
       def start(id: ContainerId)   = Interpreter.run(Command.StartContainer(id))
       def stop(id: ContainerId)    = Interpreter.run(Command.StopContainer(id))
@@ -45,9 +46,10 @@ object InterpreterSpec extends ZIOSpecDefault {
 
       val testCase =
         for {
-          name            <- ContainerName.make("zio-postgres-test-container").toZIO
+          name            <- ContainerName.make("zillen-interpreter-spec").toZIO
+          hostPort        <- Network.findOpenPort
           createImage     <- createImage
-          createdResponse <- create(name)
+          createdResponse <- create(name, hostPort)
           started         <- start(createdResponse.id)
           running         <- running(createdResponse.id).flatMap(_.await)
           stopping        <- stop(createdResponse.id)

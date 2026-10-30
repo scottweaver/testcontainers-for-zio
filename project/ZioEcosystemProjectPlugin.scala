@@ -11,6 +11,22 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
+  /**
+   * How many forked test JVMs may run at once across the build. sbt's default
+   * is 1, which serialises every container suite; each module here starts one
+   * container, so a handful in flight is what the CI runner can carry.
+   */
+  val forkedTestGroups: Int =
+    sys.env.get("SBT_FORKED_TEST_GROUPS").flatMap(v => scala.util.Try(v.toInt).toOption).getOrElse(4)
+
+  override def globalSettings: Seq[Setting[_]] = Seq(
+    concurrentRestrictions := Seq(
+      Tags.limitAll(math.max(EvaluateTask.SystemProcessors, forkedTestGroups)),
+      Tags.limit(Tags.ForkedTestGroup, forkedTestGroups),
+      Tags.exclusiveGroup(Tags.Clean)
+    )
+  )
+
   object autoImport {
 
     val needsZio = settingKey[Boolean]("Indicates whether or not the project needs ZIO libraries.")
