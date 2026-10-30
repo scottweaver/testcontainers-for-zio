@@ -26,7 +26,7 @@ slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
 | Branch | Purpose | Status |
 |---|---|---|
 | `main` | trunk | at `7305385` (rules layer bootstrap) |
-| `chore/build-modernization` | issue #52: sbt / Scala / scalafix modernization, drop 2.12 | PR #55 open; lint + tests green on 2.13.18 and 3.3.9 except `core` / `postgresql-zio-2.0` locally (#53, CI unaffected) |
+| `chore/build-modernization` | issue #52: sbt / Scala / scalafix / CI modernization, drop 2.12, MySQL fix | PR #55 **CI green** on 2.13.18 + 3.3.9 at `90dc1ed` (5.5 min wall clock); awaiting owner review and merge; closes #52, #54 |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -35,18 +35,23 @@ deletion once confirmed merged.
 
 ## Next up
 
-1. Land `chore/build-modernization` (issue #52) once CI is green on
-   the new matrix; then wrap-up.
-2. Remove the ZIO 1.x modules and the `ZIOSeries` switch per
+1. Review and merge PR #55; then `/wrap-up 55`. Release note: MySQL
+   `Settings.default` image moved from `latest` to `8.4`.
+2. Triage the five pre-revival community PRs: #51 (testcontainers-scala
+   0.44.1, superseded by the 0.43.6 choice; close or fold into the
+   0.44 migration), #43 and #45 (ZIO / zio-kafka bumps, overlap with
+   item 4), #41 (LocalStack, issue #42) and #32 (k3s) as new layer-3
+   modules once the build is stable.
+3. Remove the ZIO 1.x modules and the `ZIOSeries` switch per
    ARCHITECTURE.md (decide: one PR or per-container as each migrates).
-3. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
+4. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
    `V.scala`; then move the Scala 3 line from 3.3 LTS to the current
    3.x and drop `-source:3.3` if `with` is gone. testcontainers-scala
    0.44 (testcontainers-java 2.0) is a separate package-rename
    migration.
-4. Plan the first zillen migration (`postgresql-zio-2.0` already
+5. Plan the first zillen migration (`postgresql-zio-2.0` already
    depends on `core`): design note, then PR.
-5. Prune stale remote branches; update README artifact coordinates for
+6. Prune stale remote branches; update README artifact coordinates for
    the next release.
 
 ## Most recent meaningful progress
@@ -57,7 +62,9 @@ deletion once confirmed merged.
   keeps `with` legal in shared source; testcontainers-scala 0.43.6
   and MySQL default image 8.4 fix the MySQL suites (#54). Risk: the
   8.4 pin is a published-default change and needs a release note;
-  Scala 3.10 returns only with the ZIO bump.
+  Scala 3.10 returns only with the ZIO bump. Later the same day: CI
+  matrix parallelised, docs-only paths ignored, run went from ~10 min
+  to 5.5 min; first fully green run.
 - **2026-10-29 — Build modernization branched (issue #52).** sbt
   1.13.1, sbt-scalafix 0.14.9, Scala 2.13.18 only on 2.x, 2.12
   removed from every build file and the CI matrix. Why: on JDK 21 the
@@ -74,11 +81,53 @@ deletion once confirmed merged.
 
 ## Blocked / waiting
 
+- PR #55 waits on owner review and merge.
 - A fully green local `sbt build` waits on #53 (zillen socket path);
   CI runners have `/var/run/docker.sock` so CI is unaffected. Locally
   the other suites pass with
   `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock` and
   `TESTCONTAINERS_DOCKER_CLIENT_STRATEGY=org.testcontainers.dockerclient.EnvironmentAndSystemPropertyClientProviderStrategy`.
+
+## Session handoff
+<!-- transient; owned by the checkpoint skill -->
+
+**Resume here:** review PR #55 (green at `90dc1ed`), merge, run
+`/wrap-up 55`; then start "Next up" item 2 (triage old PRs) or 3
+(delete ZIO 1.x modules).
+
+Decisions made 2026-10-30, all recorded in PR #55 / ARCHITECTURE.md:
+- Scala 3 line is 3.3 LTS, not 3.10, until ZIO leaves 2.0.x
+  (ZIO 2.0.9 trace macro fails on 3.4+; `-source:3.3` for `with`).
+- testcontainers-scala 0.43.6, not 0.44.1: 0.44 drags testcontainers-
+  java 2.0 package renames across every module (own PR).
+- MySQL default image pinned to `8.4` (testcontainers 1.21 my.cnf uses
+  `innodb_log_file_size`, removed in MySQL 26). Published-default
+  change; release note owed.
+- CI tuning rode PR #55 rather than a stacked branch because it only
+  touched the workflow file the PR already rewrote.
+
+Open questions for the owner:
+- Drop the `Pre-pull container images` step in `ci.yml`? Measured as a
+  wash (costs 29-50 s, saves ~20 s). Recommendation: drop.
+- `paths-ignore` skips docs-only PRs entirely; if branch protection
+  with required checks is ever added, revisit.
+
+Loose ends noticed, not acted on:
+- Two pre-fix workflow runs may still show "queued" (the `main` push
+  `7305385` and PR run `40984606588`); cancel by hand, they target the
+  retired `ubuntu-20.04` image and will never start.
+- Local `~/.testcontainers.properties` pins
+  `UnixSocketClientProviderStrategy`; combined with Docker Desktop's
+  default-socket setting off, local runs need the env vars listed in
+  "Blocked / waiting". Enabling "Allow the default Docker socket" in
+  Docker Desktop would remove the need, and would also unblock #53's
+  symptoms locally without code.
+- `ci.yml` publish job still reads `secrets.GPG_PASSPHRASE` while
+  ARCHITECTURE.md names `GPG_PASSWORD`; verify which secret exists
+  before the next release.
+- Scala 3 `-source:3.3` and `-Werror` live in `ScalaCompilerSettings`;
+  `scalafixDependencies` still carries `scaluzzi` 0.1.23, unverified
+  against scalafix 0.14 rules beyond "lint passes".
 
 ## Maintenance
 
