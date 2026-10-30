@@ -13,23 +13,6 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
 
   object autoImport {
 
-    sealed trait ZIOSeries {
-      def version: String
-    }
-
-    object ZIOSeries {
-      case object Series1X extends ZIOSeries {
-        override val version: String = V.zio1xVersion
-      }
-
-      case object Series2X extends ZIOSeries {
-        override val version: String = V.zio2xVersion
-      }
-
-    }
-
-    val zioSeries = settingKey[ZIOSeries]("Indicates whether to use ZIO 2.x or ZIO 1.x.")
-
     val needsZio = settingKey[Boolean]("Indicates whether or not the project needs ZIO libraries.")
 
     val welcomeBannerEnabled = settingKey[Boolean]("Indicates whether or not to enable the welcome banner.")
@@ -99,7 +82,6 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
   def stdSettings: Seq[Setting[_]] = Seq(
     crossScalaVersions     := Seq(V.Scala213, V.Scala3),
     scalaVersion           := V.Scala213,
-    zioSeries              := ZIOSeries.Series2X,
     needsZio               := true,
     welcomeBannerEnabled   := true,
     usefulTasksAndSettings := defaultTasksAndSettings,
@@ -107,9 +89,9 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
     libraryDependencies ++= {
       if (needsZio.value)
         Seq(
-          "dev.zio" %% "zio"          % zioSeries.value.version,
-          "dev.zio" %% "zio-test"     % zioSeries.value.version,
-          "dev.zio" %% "zio-test-sbt" % zioSeries.value.version % Test
+          "dev.zio" %% "zio"          % V.zioVersion,
+          "dev.zio" %% "zio-test"     % V.zioVersion,
+          "dev.zio" %% "zio-test-sbt" % V.zioVersion % Test
         )
       else Seq.empty
     },

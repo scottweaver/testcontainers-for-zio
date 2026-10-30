@@ -28,14 +28,14 @@ Established 2026-10-29 (bootstrap dialog with the project owner).
 
 ## Supported platforms
 
-- **ZIO 2.x is the only effect runtime.** (2026-10-29) ZIO 1.x
-  support is dropped. The `zio-1.x` modules (`mysql`, `postgresql`,
-  `cassandra`, `kafka`, `db-migration-aspect`,
-  `cassandra-migration-aspect`) and the `ZIOSeries.Series1X` build
-  switch are to be deleted; no new 1.x work is accepted. Until the
-  deletion lands, they remain in the aggregate but are frozen.
-  Reason: the dual-series build doubles every module and the
-  ecosystem has moved to 2.x.
+- **ZIO 2.x is the only effect runtime.** (2026-10-29; deleted
+  2026-10-30) ZIO 1.x support is dropped. The six 1.x modules
+  (`mysql`, `postgresql`, `cassandra`, `kafka`, `db-migration-aspect`,
+  `cassandra-migration-aspect`) and the `ZIOSeries` build switch were
+  removed in one PR; the ZIO version is the single `V.zioVersion`.
+  The 1.x artifacts remain on Maven Central at 0.10.0 and are not
+  maintained. Reason: the dual-series build doubled every module and
+  the ecosystem has moved to 2.x.
 - **Scala 2.13 and one Scala 3 line are the cross-build targets;
   Scala 2.12 is dropped.** (2026-10-29) `V.scala`,
   `crossScalaVersions`, the `build-all` command, and the CI matrix
@@ -172,8 +172,9 @@ changes; new readiness checks; docs and website content.
 
 ## Open items
 
-- **TBD (2026-10-29):** whether the ZIO 1.x modules are deleted in
-  one PR or retired per container as each migrates to zillen.
+- **Resolved (2026-10-30):** the ZIO 1.x modules were deleted in one
+  PR rather than per container; nothing depended on them and keeping
+  them doubled CI time.
 - **TBD (2026-10-29):** whether `models` is folded into `core` once
   testcontainers-scala is gone, or stays separate for non-ZIO
   consumers.

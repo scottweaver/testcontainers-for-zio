@@ -4,33 +4,35 @@
 
 [Link-Github]: https://github.com/scottweaver/testcontainers-for-zio "Github Repo Link"
 
-[Link-SonatypeReleases-Kafka]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-kafka_2.13/0.10.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-Kafka]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-kafka_2.13/0.10.0?label=maven-central%20%20kafka "Sonatype Releases badge"
+[Link-SonatypeReleases-Kafka]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-2-0-testcontainers-kafka_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Kafka]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-testcontainers-kafka_2.13/0.10.0?label=maven-central%20%20kafka "Sonatype Releases badge"
 
 
-[Link-SonatypeReleases-cassandra]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-cassandra_2.13/0.10.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-cassandra]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-cassandra_2.13/0.10.0?label=maven-central%20%20cassandra "Sonatype Releases badge"
+[Link-SonatypeReleases-cassandra]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-2-0-testcontainers-cassandra_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-cassandra]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-testcontainers-cassandra_2.13/0.10.0?label=maven-central%20%20cassandra "Sonatype Releases badge"
 
 
-[Link-SonatypeReleases-MySQL]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-mysql_2.13/0.10.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-MySQL]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-mysql_2.13/0.10.0?label=maven-central%20%20mysql "Sonatype Releases badge"
+[Link-SonatypeReleases-MySQL]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-2-0-testcontainers-mysql_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-MySQL]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-testcontainers-mysql_2.13/0.10.0?label=maven-central%20%20mysql "Sonatype Releases badge"
 
-[Link-SonatypeReleases-Postgresql]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-testcontainers-postgresql_2.13/0.10.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-Postgresql]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-testcontainers-postgresql_2.13/0.10.0?label=maven-central%20%20postgresql "Sonatype Releases badge"
+[Link-SonatypeReleases-Postgresql]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-2-0-testcontainers-postgresql_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-Postgresql]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-testcontainers-postgresql_2.13/0.10.0?label=maven-central%20%20postgresql "Sonatype Releases badge"
 
-[Link-SonatypeReleases-DbMigrationAspect]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-db-migration-aspect_2.13/0.10.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-DbMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-db-migration-aspect_2.13/0.10.0?label=maven-central%20%20db-migration-aspect "Sonatype Releases badge"
+[Link-SonatypeReleases-DbMigrationAspect]: https://oss.sonatype.org/content/repositories/releases/io/github/scottweaver/zio-2-0-db-migration-aspect_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-DbMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-db-migration-aspect_2.13/0.10.0?label=maven-central%20%20db-migration-aspect "Sonatype Releases badge"
 
 [Link-SonatypeReleases-LiquibaseAspect]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-2-0-liquibase-aspect_2.13/0.10.0/  "Sonatype Releases link"
 [Badge-SonatypeReleases-LiquibaseAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-liquibase-aspect_2.13/0.10.0?label=maven-central%20%20zio-2.0-liquibase-aspect "Sonatype Releases badge"
 
-[Link-SonatypeReleases-CassandraMigrationAspect]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-cassandra-migration-aspect_2.13/0.10.0/  "Sonatype Releases link"
-[Badge-SonatypeReleases-CassandraMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-cassandra-migration-aspect_2.13/0.10.0?label=maven-central%20%20cassandra-migration-aspect "Sonatype Releases badge"
+[Link-SonatypeReleases-CassandraMigrationAspect]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-2-0-cassandra-migration-aspect_2.13/0.10.0/  "Sonatype Releases link"
+[Badge-SonatypeReleases-CassandraMigrationAspect]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-cassandra-migration-aspect_2.13/0.10.0?label=maven-central%20%20cassandra-migration-aspect "Sonatype Releases badge"
 
 [Link-SonatypeReleases-Solr]: https://repo1.maven.org/maven2/io/github/scottweaver/zio-2-0-testcontainers-solr_2.13/0.10.0/  "Sonatype Releases link"
 [Badge-SonatypeReleases-Solr]: https://img.shields.io/maven-central/v/io.github.scottweaver/zio-2-0-testcontainers-solr_2.13/0.10.0?label=maven-central%20%20solr "Sonatype Releases badge"
 
 Provides idiomatic, easy-to-use ZLayers for [Testcontainers-scala](https://github.com/testcontainers/testcontainers-scala).
+
+All modules target ZIO 2.x. The ZIO 1.x artifacts (`zio-testcontainers-*`, `zio-db-migration-aspect`, `zio-cassandra-migration-aspect`) ended with release 0.10.0 and are no longer maintained.
 
 
 
@@ -78,11 +80,6 @@ The testcontainer runtime can get pretty noisy when it comes to logging.  To red
 
 Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.CassandraContainer` as well as also providing a managed `com.datastax.oss.driver.api.core.CqlSession`.
 
-### ZIO 1.x
-```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-cassandra" % "0.10.0"
-```
-
 ### ZIO 2.x
 ```scala
 libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-cassandra" % "0.10.0"
@@ -96,11 +93,6 @@ See test cases for example usage.
 
 Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.MySQLTestContainer` as well as also providing a managed `java.sql.Connection` and a `javax.sql.DataSource`.
 
-### ZIO 1.x
-```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-mysql" % "0.10.0"
-```
-
 ### ZIO 2.x
 ```scala
 libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-mysql" % "0.10.0"
@@ -113,11 +105,6 @@ See test cases for example usage.
 [![Release Artifacts][Badge-SonatypeReleases-Postgresql]][Link-SonatypeReleases-Postgresql]
 
 Provides a managed ZLayer that starts and stops a `com.dimafeng.testcontainers.PostgreSQLContainer` as well as also providing a managed `java.sql.Connection` and a `javax.sql.DataSource`.
-
-### ZIO 1.x
-```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-postgresql" % "0.10.0"
-```
 
 ### ZIO 2.x
 ```scala
@@ -140,11 +127,6 @@ You also have easy access to:
 You can use these to create a `zio.kafka.consumer.Consumer` and/or `zio.kafka.producer.Producer` that can be used to interact with the Kafka container instance.
 
 
-### ZIO 1.x
-```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-testcontainers-kafka" % "0.10.0"
-```
-
 ### ZIO 2.x
 ```scala
 libraryDependencies += "io.github.scottweaver" %% "zio-2-0-testcontainers-kafka" % "0.10.0"
@@ -162,11 +144,6 @@ Not really a test container, useful none the less.
 The `io.github.scottweaver.zio.aspect.DatabaseMigrationsAspect` provides a [ZIO TestAspect](https://javadoc.io/doc/dev.zio/zio-test_2.13/latest/zio/test/TestAspect.html) for running database migrations via [Flyway](https://flywaydb.org/).  It seamlessly integrates with the `ZMySQLContainer` or `ZPostrgeSQLContainer` by using the `io.github.scottweaver.zio.models.JdbcInfo` provided by `ZMySQLContainer.live` or `ZPostrgeSQLContainer.live` to run your migrations.
 
 If you are not using `ZMySQLContainer` or `ZPostrgeSQLContainer` you can just manually provide an appropriate `JdbcInfo` as a `ZLayer` to your tests that are using the `DbMigrationAspect`.
-
-### ZIO 1.X
-```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-db-migration-aspect" % "0.10.0"
-```
 
 ### ZIO 2.X
 ```scala
@@ -198,11 +175,6 @@ Not really a test container, useful none the less.
 The `io.github.scottweaver.zio.aspect.CassandraMigrationsAspect` provides a [ZIO TestAspect](https://javadoc.io/doc/dev.zio/zio-test_2.13/1.0.12/zio/test/TestAspect.html) for running database migrations via [Cassandra Schema Migration](https://github.com/patka/cassandra-migration).  It seemlessly integrates with the `ZCassandraContainer` by using the `com.datastax.oss.driver.api.core.CqlSession` provided by `ZCassandraContainer.live` to run your migrations.
 
 If you are not using `ZCassandraContainer` you can just manually provide an appropriate `com.datastax.oss.driver.api.core.CqlSession` as a `ZLayer` to your tests that are using the `CassandraMigrationAspect`.
-
-### ZIO 1.X
-```scala
-libraryDependencies += "io.github.scottweaver" %% "zio-cassandra-migration-aspect" % "0.10.0"
-```
 
 ### ZIO 2.X
 ```scala
