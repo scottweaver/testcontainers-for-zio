@@ -6,9 +6,21 @@ env:
 
 on:
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - '.claude/**'
+      - '.cursor/**'
+      - 'docs/**'
+      - 'website/**'
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '.claude/**'
+      - '.cursor/**'
+      - 'docs/**'
+      - 'website/**'
   release:
     types:
       - published
@@ -39,9 +51,9 @@ jobs:
 
   test:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     strategy:
-      fail-fast: true
-      max-parallel: 1
+      fail-fast: false
       matrix:
         scala: ['2.13.18', '3.3.9']
     steps:
@@ -57,6 +69,14 @@ jobs:
         uses: sbt/setup-sbt@v1
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
+      - name: Pre-pull container images
+        # Best effort: the suites pull whatever they need anyway. Keep in step with the
+        # default images in the container modules and test sources.
+        run: |
+          printf '%s\n' \
+            cassandra:3.11.2 solr:8.3.0 confluentinc/cp-kafka:7.6.1 mysql:8.4 \
+            postgres:latest timescale/timescaledb:latest-pg14 hello-world:latest \
+            | xargs -P 8 -n 1 docker pull -q || echo "::warning::some images failed to pre-pull"
       - name: Run tests for Scala ${{ matrix.scala }}
         run: sbt ++${{ matrix.scala }}! enableStrictCompile test
 
