@@ -10,26 +10,22 @@ Last updated: 2026-10-29
 ## Active workstream
 
 Reviving the project after a long pause (last release 0.10.0 in Feb
-2023; since then only PR #40, a postgres image-name fix, has landed). The current effort is a build modernization on
-`main`, uncommitted: `project/V.scala`, `Commands.scala`,
-`ZioEcosystemProjectPlugin.scala`, and `build.properties` drop Scala
-2.12 from the cross-build, bump Scala 2.13 to 2.13.18, point the
-Scala 3 lookup at 3.10.x, and bump sbt to 1.13.1. A new `clean.sh`
-removes sbt/Bloop/Metals output tree-wide. The binding decisions from
-the 2026-10-29 bootstrap dialog are: ZIO 2.x only (1.x modules
-frozen, slated for deletion), Scala 2.13 + current Scala 3, and
-`zillen` (`modules/core`) is the intended replacement for
-testcontainers-scala. Known inconsistencies left by the in-flight
-change: `V.scala` still declares `scala3Version = "3.2.2"` next to the
-`3.10.0` fallback, `ScalaCompilerSettings` still carries a 2.12
-branch, and
-`ci.yml` still tests `2.12.16 / 2.13.8 / 3.2.2`.
+2023; since then only PR #40, a postgres image-name fix, has landed).
+The first step is the build modernization on branch
+`chore/build-modernization` (issue #52): sbt 1.13.1, sbt-scalafix
+0.14.9, cross-build exactly Scala 2.13.18 + 3.10.0, Scala 2.12
+removed everywhere (`V.scala`, `ScalaCompilerSettings`, commands, CI
+matrix), plus a tree-wide `clean.sh`. The binding decisions from the
+2026-10-29 bootstrap dialog are: ZIO 2.x only (1.x modules frozen,
+slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
+(`modules/core`) is the intended replacement for testcontainers-scala.
 
 ## Branches in flight
 
 | Branch | Purpose | Status |
 |---|---|---|
-| `main` | trunk | at `f725b73` (PR #40) plus uncommitted build-modernization edits; tests not yet run against the new versions |
+| `main` | trunk | at `7305385` (rules layer bootstrap) |
+| `chore/build-modernization` | issue #52: sbt / Scala / scalafix modernization, drop 2.12 | PR open; `sbt lint` green on 2.13.18 and 3.10.0; test failures remaining are pre-existing (#53, #54) |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -38,10 +34,8 @@ deletion once confirmed merged.
 
 ## Next up
 
-1. Finish the cross-build cleanup on a branch: reconcile
-   `scala3Version` with the 3.10 lookup, remove the 2.12 branch from
-   `ScalaCompilerSettings`, update the `ci.yml` matrix to 2.13.18 and
-   the chosen 3.x, then run `sbt build-all` with Docker up and commit.
+1. Land `chore/build-modernization` (issue #52) once CI is green on
+   the new matrix; then wrap-up.
 2. Remove the ZIO 1.x modules and the `ZIOSeries` switch per
    ARCHITECTURE.md (decide: one PR or per-container as each migrates).
 3. Bump ZIO 2.x and testcontainers-scala to current releases in
@@ -53,6 +47,16 @@ deletion once confirmed merged.
 
 ## Most recent meaningful progress
 
+- **2026-10-29 — Build modernization branched (issue #52).** sbt
+  1.13.1, sbt-scalafix 0.14.9, Scala 2.13.18 + 3.10.0 only, 2.12
+  removed from every build file and the CI matrix. Why: on JDK 21 the
+  old 2.13.8 compiler could not even build the Zinc bridge, so nothing
+  compiled. Risk: CI has not yet run on the new matrix; `ci.yml` still
+  uses old action versions. Local `sbt build` still fails in `core`
+  and `postgresql-zio-2.0` (zillen hardcodes `/var/run/docker.sock`,
+  #53) and in the MySQL suites (`mysql:latest` rejects
+  `--skip-host-cache` from testcontainers 1.17, #54); neither is
+  caused by this branch.
 - **2026-10-29 — Rules layer bootstrapped.** Added `CLAUDE.md`
   (+ `AGENTS.md` symlink) and `.claude/rules/` with
   SCALA_BEST_PRACTICES, METHODOLOGIES, ARCHITECTURE, PROJECT, and this
@@ -64,7 +68,11 @@ deletion once confirmed merged.
 
 ## Blocked / waiting
 
-- *(nothing)*
+- A fully green local `sbt build` waits on #53 (zillen socket path)
+  and #54 (testcontainers bump for MySQL). Cassandra, Kafka, Solr,
+  and the 1.x postgres suites pass with
+  `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock` and
+  `TESTCONTAINERS_DOCKER_CLIENT_STRATEGY=org.testcontainers.dockerclient.EnvironmentAndSystemPropertyClientProviderStrategy`.
 
 ## Maintenance
 

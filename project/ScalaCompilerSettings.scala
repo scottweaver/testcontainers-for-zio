@@ -68,20 +68,10 @@ object ScalaCompilerSettings {
     "-Wvalue-discard"            // Warn when non-Unit expression results are unused.
   )
 
-  val scala212Settings: Seq[String] = baseSettings ++ Seq(
-    "-explaintypes",
-    "-Yrangepos",
-    "-Xlint:_,-missing-interpolator,-type-parameter-shadow",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-macros:after",
-    "-Ywarn-unused:-implicits"
-  )
-
   def stdScalacOptions(scalaVersion: String) = {
     val versionedSettings = CrossVersion.partialVersion(scalaVersion) match {
       case Some((3, _))  => scala3Settings
       case Some((2, 13)) => scala213Settings
-      case Some((2, 12)) => scala212Settings
       case _             => Seq.empty
     }
 
