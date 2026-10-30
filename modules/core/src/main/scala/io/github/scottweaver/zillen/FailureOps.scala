@@ -29,6 +29,8 @@ private[zillen] trait FailureOps {
 
   def failReadyCheckFailed(msg: String, cause: Option[Throwable] = None) = ZIO.fail(readyCheckFailed(msg, cause))
 
+  def failReadinessTimeout(msg: String) = ZIO.fail(ContainerReadinessTimeout(msg))
+
   def invalidConfig(msg: String, cause: Option[Throwable] = None): InvalidDockerConfiguration = {
     val msg0 = cause.map(t => s"${msg} Cause: ${t.getMessage}").getOrElse(msg)
     InvalidDockerConfiguration(msg0, cause)
