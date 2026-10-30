@@ -27,6 +27,7 @@ slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
 |---|---|---|
 | `main` | trunk | at `7305385` (rules layer bootstrap) |
 | `chore/build-modernization` | issue #52: sbt / Scala / scalafix / CI modernization, drop 2.12, MySQL fix, per-test timeouts | PR #55 was **green** at `90dc1ed` (5.5 min); the docs-only push `0145ccd` then timed out at 30 min (see #56). Timeouts + pre-pull removal pushed; **awaiting a green re-run**, then owner review and merge; closes #52, #54 |
+| `chore/remove-zio-1x` | delete the six ZIO 1.x modules + `ZIOSeries` switch; resolves the ARCHITECTURE TBD | PR #57, **stacked on #55** (base `chore/build-modernization`); CI pending; GitHub retargets to `main` once #55 merges |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -43,8 +44,10 @@ deletion once confirmed merged.
    0.44 migration), #43 and #45 (ZIO / zio-kafka bumps, overlap with
    item 4), #41 (LocalStack, issue #42) and #32 (k3s) as new layer-3
    modules once the build is stable.
-3. Remove the ZIO 1.x modules and the `ZIOSeries` switch per
-   ARCHITECTURE.md (decide: one PR or per-container as each migrates).
+3. Merge PR #57 (ZIO 1.x removal) after #55; `/wrap-up 57`.
+   Then parallelise the remaining container suites (plan drafted
+   2026-10-30: raise sbt's `ForkedTestGroup` limit, unique container
+   names and ephemeral ports in the zillen suites, smaller test heap).
 4. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
    `V.scala`; then move the Scala 3 line from 3.3 LTS to the current
    3.x and drop `-source:3.3` if `with` is gone. testcontainers-scala
@@ -61,6 +64,13 @@ deletion once confirmed merged.
 
 ## Most recent meaningful progress
 
+- **2026-10-30 (late) — ZIO 1.x removed (PR #57).** Six frozen
+  modules, the `ZIOSeries` switch, zio-magic and the 1.x zio-kafka line
+  deleted; one `V.zioVersion`. Also fixed the ZIO 2 cassandra aspect
+  pinning zio-test to 1.x. Why: half the CI test phase ran frozen
+  code. Risk: stacked on #55; merge order matters. Found while doing
+  it: the Liquibase aspect's `build.sbt` path does not match its source
+  directory, so that module compiles nothing (loose end below).
 - **2026-10-30 (late) — CI timeout diagnosed, guarded (#56).** The
   docs-only push to PR #55 ran CI anyway and both test jobs hit the
   30 min job limit: `ContainerSpec` in `core` hung after its container
@@ -107,10 +117,10 @@ deletion once confirmed merged.
 ## Session handoff
 <!-- transient; owned by the checkpoint skill -->
 
-**Resume here:** check that the CI run on PR #55's latest push is
-green (timeouts + pre-pull removal), review, merge, run `/wrap-up 55`;
-then start "Next up" item 2 (triage old PRs), 3 (delete ZIO 1.x
-modules), or 5 (#56, zillen request timeout).
+**Resume here:** confirm CI is green on PR #55 (timeouts + pre-pull
+removal) and on PR #57 (ZIO 1.x removal, stacked on #55). Merge #55,
+`/wrap-up 55`; then merge #57, `/wrap-up 57`. Next: the test
+parallelisation plan ("Next up" item 3) or #56.
 
 Decisions made 2026-10-30, all recorded in PR #55 / ARCHITECTURE.md:
 - Scala 3 line is 3.3 LTS, not 3.10, until ZIO leaves 2.0.x
@@ -132,6 +142,11 @@ Open questions for the owner:
   Consider pruning old caches or accepting slower runs for now.
 
 Loose ends noticed, not acted on:
+- `build.sbt` points `liquibaseAspect` at
+  `modules/zio-2.0-liquibase-aspect` (only a stale `target/`), while
+  the tracked sources live in `modules/liquibase-aspect-zio-2.0`. The
+  module compiles nothing and `LiquibaseAspectSpec` never runs. Fix the
+  path, then expect the suite to need work (it has not run in years).
 - `paths-ignore` on `pull_request` is evaluated against the whole PR
   diff, not the latest push, so a docs-only commit on a mixed PR still
   runs CI. The carve-out only skips PRs that are docs-only end to end.
