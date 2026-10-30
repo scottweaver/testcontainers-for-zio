@@ -36,6 +36,7 @@ slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
 | `chore/remove-zio-1x` | delete the six ZIO 1.x modules + `ZIOSeries` switch; resolves the ARCHITECTURE TBD | PR #57, **stacked on #55** (base `chore/build-modernization`); CI pending; GitHub retargets to `main` once #55 merges |
 | `fix/zillen-ready-check-promise` | #56: ready-check promise always completes; release = stop → remove; bootstrap fails typed on not-ready | PR #58 into `chore/build-modernization`; CI pending; **merge first** so #55 can go green |
 | `perf/parallel-container-tests` | 4 forked test JVMs at once, 1 GB test heap, unique container names / ephemeral port in zillen suites | PR #59 into `chore/remove-zio-1x`; CI pending; local aggregate `test` went from ~3 min serial to 22 s |
+| `fix/liquibase-module-path` | `build.sbt` path for `liquibaseAspect` fixed; module compiles and its 2 tests pass again | PR #60 into `perf/parallel-container-tests`; CI pending |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -54,15 +55,15 @@ deletion once confirmed merged.
    modules once the build is stable.
 3. Land the stack in order: #58 → `chore/build-modernization`; #55 →
    `main` (`/wrap-up 55`); merge `main` into #57, then #57 → `main`
-   (`/wrap-up 57`); #59 → `main` (`/wrap-up 59`).
+   (`/wrap-up 57`); #59 → `main` (`/wrap-up 59`); #60 → `main`
+   (`/wrap-up 60`).
 4. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
    `V.scala`; then move the Scala 3 line from 3.3 LTS to the current
    3.x and drop `-source:3.3` if `with` is gone. testcontainers-scala
    0.44 (testcontainers-java 2.0) is a separate package-rename
    migration.
-5. Fix the Liquibase module path in `build.sbt` (see loose ends) and
-   get `LiquibaseAspectSpec` running. Then, from #56: a per-request
-   HTTP timeout in zillen is still worth adding.
+5. From #56: a per-request HTTP timeout in zillen is still worth
+   adding (the hang is fixed; this is defence in depth).
 6. Plan the first zillen migration (`postgresql-zio-2.0` already
    depends on `core`): design note, then PR.
 7. Prune stale remote branches; update README artifact coordinates for
@@ -157,11 +158,9 @@ Open questions for the owner:
   Consider pruning old caches or accepting slower runs for now.
 
 Loose ends noticed, not acted on:
-- `build.sbt` points `liquibaseAspect` at
-  `modules/zio-2.0-liquibase-aspect` (only a stale `target/`), while
-  the tracked sources live in `modules/liquibase-aspect-zio-2.0`. The
-  module compiles nothing and `LiquibaseAspectSpec` never runs. Fix the
-  path, then expect the suite to need work (it has not run in years).
+- `modules/zio-2.0-liquibase-aspect/` is an untracked stale `target/`
+  left from the wrong `build.sbt` path (fixed in PR #60); `clean.sh` or
+  `rm -rf` it locally.
 - `paths-ignore` on `pull_request` is evaluated against the whole PR
   diff, not the latest push, so a docs-only commit on a mixed PR still
   runs CI. The carve-out only skips PRs that are docs-only end to end.
