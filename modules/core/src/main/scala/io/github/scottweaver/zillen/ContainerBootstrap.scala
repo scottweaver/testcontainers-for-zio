@@ -20,7 +20,7 @@ package zillen
 import zio._
 
 abstract class ContainerBootstrap[RI, RO, ME <: ContainerBootstrap[RI, RO, ME]](
-  containerName: ContainerName,
+  containerName: Option[ContainerName],
   exposedPorts: ExposedPorts,
   makeEnv: DockerIO[RI, Env],
   makeImage: DockerIO[RI, Image]
@@ -40,7 +40,7 @@ abstract class ContainerBootstrap[RI, RO, ME <: ContainerBootstrap[RI, RO, ME]](
       exposedPorts = exposedPorts,
       hostConfig = Docker.makeHostConfig(portMap),
       image = image,
-      containerName = Some(containerName)
+      containerName = containerName
     )
 
   type RI0 = RI with ReadyCheck with Interpreter with Network with ContainerSettings[ME] with Scope
@@ -50,7 +50,7 @@ abstract class ContainerBootstrap[RI, RO, ME <: ContainerBootstrap[RI, RO, ME]](
     def requireReady(ready: Boolean, what: String, id: ContainerId) =
       ZIO.unless(ready)(
         Docker.failReadinessTimeout(
-          s"Container '$id' ($containerName) did not become $what within the configured retries."
+          s"Container '$id' did not become $what within the configured retries."
         )
       )
 

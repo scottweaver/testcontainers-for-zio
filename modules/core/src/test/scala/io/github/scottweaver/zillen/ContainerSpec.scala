@@ -22,7 +22,7 @@ import zio.test._
 object ContainerSpec extends ZIOSpecDefault {
 
   val postgresImage   = Docker.makeImage("postgres:latest").toOption.get
-  val name            = Docker.makeContainerName("zio-postgres-test-container").toOption.get
+  val name            = Docker.makeContainerName("zillen-container-spec").toOption.get
   val env             = Docker.makeEnv("POSTGRES_PASSWORD" -> "password")
   val exposedPorts    = Docker.makeExposedTCPPorts(5432)
   val hostConfig      = Docker.makeHostConfig(Docker.mirrorExposedPorts(exposedPorts))

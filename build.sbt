@@ -172,7 +172,10 @@ lazy val solrZio2 =
     )
 
 def testSettings: Seq[Setting[_]] = Seq(
-  Test / fork := true
+  Test / fork := true,
+  // Several forked test JVMs run at once (see ZioEcosystemProjectPlugin.forkedTestGroups); keep each one small.
+  // A later -Xmx wins over the one in JDK_JAVA_OPTIONS.
+  Test / javaOptions ++= Seq("-Xmx1G", "-Xss4M")
 )
 
 def testcontainersScalaSettings =

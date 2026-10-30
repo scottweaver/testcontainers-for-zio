@@ -25,7 +25,7 @@ import javax.sql.DataSource
 
 final class PostgresContainer
     extends ContainerBootstrap[PostgresContainer.RIn, PostgresContainer.ROut, PostgresContainer](
-      containerName = models.ContainerName("zio-postgres-test-container"),
+      containerName = None,
       exposedPorts = Docker.makeExposedTCPPorts(5432),
       makeImage = ZIO.serviceWithZIO[PostgresContainer.Settings](settings =>
         Docker.makeImageZIO(s"${settings.imageName}:${settings.imageVersion}")

@@ -46,10 +46,6 @@ object PostgresContainerSpec extends ZIOSpecDefault {
 
         } yield (result)
 
-      val expectedContainerName = ContainerName.unsafeMake(
-        "/zio-postgres-test-container"
-      ) // Docker adds a preceding slash to the original container name.
-
       for {
         conn      <- ZIO.service[Connection]
         ds        <- ZIO.service[DataSource]
@@ -61,7 +57,7 @@ object PostgresContainerSpec extends ZIOSpecDefault {
         result == 1,
         result2 == 1,
         container.hostConfig.portBindings.findExternalHostPort(5432, Protocol.TCP).nonEmpty,
-        container.name.get == expectedContainerName
+        container.name.nonEmpty
         // jdbcInfo.jdbcUrl == container.jdbcUrl,
         // jdbcInfo.username == container.username,
         // jdbcInfo.password == container.password,
