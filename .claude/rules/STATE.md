@@ -5,7 +5,7 @@ first to learn where the project stands right now. It answers "where
 are we" — never "how does this work" (that's ARCHITECTURE.md and the
 code) and never "how should we work" (that's METHODOLOGIES.md).
 
-Last updated: 2026-10-29
+Last updated: 2026-10-30
 
 ## Active workstream
 
@@ -13,9 +13,10 @@ Reviving the project after a long pause (last release 0.10.0 in Feb
 2023; since then only PR #40, a postgres image-name fix, has landed).
 The first step is the build modernization on branch
 `chore/build-modernization` (issue #52): sbt 1.13.1, sbt-scalafix
-0.14.9, cross-build exactly Scala 2.13.18 + 3.10.0, Scala 2.12
+0.14.9, cross-build exactly Scala 2.13.18 + 3.3.9, Scala 2.12
 removed everywhere (`V.scala`, `ScalaCompilerSettings`, commands, CI
-matrix), plus a tree-wide `clean.sh`. The binding decisions from the
+matrix), testcontainers-scala 0.43.6 with the MySQL default image
+pinned to 8.4, plus a tree-wide `clean.sh`. The binding decisions from the
 2026-10-29 bootstrap dialog are: ZIO 2.x only (1.x modules frozen,
 slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
 (`modules/core`) is the intended replacement for testcontainers-scala.
@@ -25,7 +26,7 @@ slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
 | Branch | Purpose | Status |
 |---|---|---|
 | `main` | trunk | at `7305385` (rules layer bootstrap) |
-| `chore/build-modernization` | issue #52: sbt / Scala / scalafix modernization, drop 2.12 | PR open; `sbt lint` green on 2.13.18 and 3.10.0; test failures remaining are pre-existing (#53, #54) |
+| `chore/build-modernization` | issue #52: sbt / Scala / scalafix modernization, drop 2.12 | PR #55 open; lint + tests green on 2.13.18 and 3.3.9 except `core` / `postgresql-zio-2.0` locally (#53, CI unaffected) |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -38,8 +39,11 @@ deletion once confirmed merged.
    the new matrix; then wrap-up.
 2. Remove the ZIO 1.x modules and the `ZIOSeries` switch per
    ARCHITECTURE.md (decide: one PR or per-container as each migrates).
-3. Bump ZIO 2.x and testcontainers-scala to current releases in
-   `V.scala`; verify every `*-zio-2.0` suite is green.
+3. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
+   `V.scala`; then move the Scala 3 line from 3.3 LTS to the current
+   3.x and drop `-source:3.3` if `with` is gone. testcontainers-scala
+   0.44 (testcontainers-java 2.0) is a separate package-rename
+   migration.
 4. Plan the first zillen migration (`postgresql-zio-2.0` already
    depends on `core`): design note, then PR.
 5. Prune stale remote branches; update README artifact coordinates for
@@ -47,18 +51,18 @@ deletion once confirmed merged.
 
 ## Most recent meaningful progress
 
+- **2026-10-30 — PR #55 made CI-viable.** Runner moved off retired
+  `ubuntu-20.04`; Scala 3 line set to 3.3 LTS because ZIO 2.0.9's
+  trace macro fails on 3.4+ (ARCHITECTURE.md updated); `-source:3.3`
+  keeps `with` legal in shared source; testcontainers-scala 0.43.6
+  and MySQL default image 8.4 fix the MySQL suites (#54). Risk: the
+  8.4 pin is a published-default change and needs a release note;
+  Scala 3.10 returns only with the ZIO bump.
 - **2026-10-29 — Build modernization branched (issue #52).** sbt
-  1.13.1, sbt-scalafix 0.14.9, Scala 2.13.18 + 3.10.0 only, 2.12
+  1.13.1, sbt-scalafix 0.14.9, Scala 2.13.18 only on 2.x, 2.12
   removed from every build file and the CI matrix. Why: on JDK 21 the
   old 2.13.8 compiler could not even build the Zinc bridge, so nothing
-  compiled. The workflow also moved off the retired `ubuntu-20.04`
-  runner (jobs queued forever) to `ubuntu-24.04`, JDK 21, and current
-  actions. Risk: CI has not yet gone green on the new matrix; the
-  MySQL suites will fail there too (#54). Local `sbt build` fails in `core`
-  and `postgresql-zio-2.0` (zillen hardcodes `/var/run/docker.sock`,
-  #53) and in the MySQL suites (`mysql:latest` rejects
-  `--skip-host-cache` from testcontainers 1.17, #54); neither is
-  caused by this branch.
+  compiled.
 - **2026-10-29 — Rules layer bootstrapped.** Added `CLAUDE.md`
   (+ `AGENTS.md` symlink) and `.claude/rules/` with
   SCALA_BEST_PRACTICES, METHODOLOGIES, ARCHITECTURE, PROJECT, and this
@@ -70,9 +74,9 @@ deletion once confirmed merged.
 
 ## Blocked / waiting
 
-- A fully green local `sbt build` waits on #53 (zillen socket path)
-  and #54 (testcontainers bump for MySQL). Cassandra, Kafka, Solr,
-  and the 1.x postgres suites pass with
+- A fully green local `sbt build` waits on #53 (zillen socket path);
+  CI runners have `/var/run/docker.sock` so CI is unaffected. Locally
+  the other suites pass with
   `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock` and
   `TESTCONTAINERS_DOCKER_CLIENT_STRATEGY=org.testcontainers.dockerclient.EnvironmentAndSystemPropertyClientProviderStrategy`.
 

@@ -43,7 +43,7 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        scala: ['2.13.18', '3.10.0']
+        scala: ['2.13.18', '3.3.9']
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4

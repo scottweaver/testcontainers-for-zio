@@ -114,7 +114,7 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
       else Seq.empty
     },
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    semanticdbEnabled := scalaVersion.value != V.Scala3, // enable SemanticDB
+    semanticdbEnabled := CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 2), // scalafix needs it on 2.13 only
     semanticdbOptions += "-P:semanticdb:synthetics:on",
     semanticdbVersion                      := scalafixSemanticdb.revision, // use Scalafix compatible version
     ThisBuild / scalafixDependencies ++= List(

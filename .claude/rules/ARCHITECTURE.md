@@ -30,12 +30,18 @@ Established 2026-10-29 (bootstrap dialog with the project owner).
   deletion lands, they remain in the aggregate but are frozen.
   Reason: the dual-series build doubles every module and the
   ecosystem has moved to 2.x.
-- **Scala 2.13 and the current Scala 3 release are the cross-build
-  targets; Scala 2.12 is dropped.** (2026-10-29) `V.scala`,
+- **Scala 2.13 and one Scala 3 line are the cross-build targets;
+  Scala 2.12 is dropped.** (2026-10-29) `V.scala`,
   `crossScalaVersions`, the `build-all` command, and the CI matrix
-  must agree on exactly these two lines. Scala 3 tracks a current
-  3.x release, not a pinned old minor. Reason: 2.12 blocks dependency
+  must agree on exactly these two lines; the CI matrix is the source
+  of truth and `V.scala` reads it. Reason: 2.12 blocks dependency
   upgrades and no consumer has asked for it.
+- **The Scala 3 line is 3.3 LTS until ZIO is bumped past 2.0.x.**
+  (2026-10-30) ZIO 2.0.9's trace macro does not compile on Scala
+  3.4+, and the shared 2.13 source needs `-source:3.3` for `with` as
+  a type operator. When ZIO moves to 2.1.x (STATE.md "Next up"), the
+  line moves to the current 3.x release and `-source:3.3` is
+  revisited.
 - **Source compiles for both dialects from one tree.** Only syntax
   shared by 2.13 and 3 is used (see SCALA_BEST_PRACTICES.md
   "Cross-building"). Dialect-specific code lives in

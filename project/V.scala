@@ -8,7 +8,7 @@ object V {
   val zioKafkaVersion            = "0.17.1"
   val zio2KafkaVersion           = "2.0.0"
   val zioHttpVersion             = "0.0.4"
-  val testcontainersScalaVersion = "0.40.10"
+  val testcontainersScalaVersion = "0.43.6"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"
   val slf4jVersion               = "1.7.32"
@@ -32,5 +32,5 @@ object V {
   }
 
   val Scala213: String = versions.getOrElse("2.13", "2.13.18")
-  val Scala3: String   = versions.getOrElse("3.10", "3.10.0")
+  val Scala3: String   = versions.getOrElse("3.3", "3.3.9")
 }
