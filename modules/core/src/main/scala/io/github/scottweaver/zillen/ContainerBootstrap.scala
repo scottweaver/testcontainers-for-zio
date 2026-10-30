@@ -47,13 +47,22 @@ abstract class ContainerBootstrap[RI, RO, ME <: ContainerBootstrap[RI, RO, ME]](
 
   def layer(implicit ev2: Tag[ME]): ZLayer[RI0, Nothing, RO] = ZLayer.fromZIOEnvironment {
 
+    def requireReady(ready: Boolean, what: String, id: ContainerId) =
+      ZIO.unless(ready)(
+        Docker.failReadinessTimeout(
+          s"Container '$id' ($containerName) did not become $what within the configured retries."
+        )
+      )
+
     val out = for {
       containerAndPromise             <- makeCommand.flatMap(Docker.makeScopedContainer[ME])
       (createResponse, runningPromise) = containerAndPromise
-      _                               <- runningPromise.await
+      running                         <- runningPromise.await
+      _                               <- requireReady(running, "running", createResponse.id)
       container                       <- Docker.inspectContainer(createResponse.id)
       readyPromise                    <- Docker.makeReadyCheckPromise[RI, ME](createResponse.id, readyCheck)
-      _                               <- readyPromise.await
+      ready                           <- readyPromise.await
+      _                               <- requireReady(ready, "ready", createResponse.id)
     } yield makeZEnvironment(container)
 
     out.mapError(_.asException).flatten.orDie
