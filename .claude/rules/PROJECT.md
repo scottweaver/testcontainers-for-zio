@@ -43,7 +43,10 @@ wrapup:
   docs_pr_commit_prefix: "docs(state):"
   auto_merge_carve_out_path: .claude/rules/
   state_refresh_authority: null
-  audit_doc: null
+  audit_doc:
+    path: .claude/rules/ARCHITECTURE.md
+    trigger_checklist_section: Audit triggers
+    structural_criteria_section: Structural criteria
 ---
 
 # Project bindings — testcontainers-for-zio
@@ -57,4 +60,5 @@ GitHub at `scottweaver/testcontainers-for-zio`; issues and PRs live there.
   item. `wrap-up` refreshes it after each merged PR via the docs carve-out.
 - **Branching.** Default branch is `main`. Docs-only PRs touching only
   `.claude/rules/` are auto-merge-eligible per the `wrapup` carve-out.
-- **No audit doc.** There is no secondary architecture doc to audit on merges.
+- **Audit doc.** `.claude/rules/ARCHITECTURE.md` lists audit triggers and
+  structural criteria; `wrap-up` checks each merged PR's files against them.

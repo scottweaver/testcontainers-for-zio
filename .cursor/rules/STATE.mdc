@@ -16,27 +16,23 @@ Last updated: 2026-10-30
 ## Active workstream
 
 Reviving the project after a long pause (last release 0.10.0 in Feb
-2023; since then only PR #40, a postgres image-name fix, has landed).
-The first step is the build modernization on branch
-`chore/build-modernization` (issue #52): sbt 1.13.1, sbt-scalafix
-0.14.9, cross-build exactly Scala 2.13.18 + 3.3.9, Scala 2.12
-removed everywhere (`V.scala`, `ScalaCompilerSettings`, commands, CI
-matrix), testcontainers-scala 0.43.6 with the MySQL default image
-pinned to 8.4, plus a tree-wide `clean.sh`. The binding decisions from the
-2026-10-29 bootstrap dialog are: ZIO 2.x only (1.x modules frozen,
-slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
-(`modules/core`) is the intended replacement for testcontainers-scala.
+2023). The revival's first wave landed on `main` on 2026-10-30: build
+modernization (#55: sbt 1.13.1, Scala 2.13.18 + 3.3.9, 2.12 dropped,
+testcontainers-scala 0.43.6, MySQL default image 8.4), the zillen
+ready-check hang fix (#58, issue #56), ZIO 1.x removal (#61), parallel
+container suites (#59) and the Liquibase module revived (#60). CI is
+green at about 2.5-3 min per run (was 5.5, and 30-min timeouts before
+that). Binding decisions from the 2026-10-29 bootstrap dialog hold: ZIO
+2.x only, Scala 2.13 + one Scala 3 line (3.3 LTS until the ZIO bump),
+and `zillen` (`modules/core`) is the intended replacement for
+testcontainers-scala. Next wave: triage the community PRs, bump ZIO to
+2.1.x, cut a release, then plan the first zillen migration.
 
 ## Branches in flight
 
 | Branch | Purpose | Status |
 |---|---|---|
-| `main` | trunk | at `7305385` (rules layer bootstrap) |
-| `chore/build-modernization` | issue #52: sbt / Scala / scalafix / CI modernization, drop 2.12, MySQL fix, per-test timeouts | PR #55 was **green** at `90dc1ed` (5.5 min); the docs-only push `0145ccd` then timed out at 30 min (see #56). Timeouts + pre-pull removal pushed; **awaiting a green re-run**, then owner review and merge; closes #52, #54 |
-| `chore/remove-zio-1x` | delete the six ZIO 1.x modules + `ZIOSeries` switch; resolves the ARCHITECTURE TBD | PR #57, **stacked on #55** (base `chore/build-modernization`); CI pending; GitHub retargets to `main` once #55 merges |
-| `fix/zillen-ready-check-promise` | #56: ready-check promise always completes; release = stop → remove; bootstrap fails typed on not-ready | PR #58 into `chore/build-modernization`; CI pending; **merge first** so #55 can go green |
-| `perf/parallel-container-tests` | 4 forked test JVMs at once, 1 GB test heap, unique container names / ephemeral port in zillen suites | PR #59 into `chore/remove-zio-1x`; CI pending; local aggregate `test` went from ~3 min serial to 22 s |
-| `fix/liquibase-module-path` | `build.sbt` path for `liquibaseAspect` fixed; module compiles and its 2 tests pass again | PR #60 into `perf/parallel-container-tests`; CI pending |
+| `main` | trunk | at `f5c17e3` (PR #60 merged; CI green, ~2.5 min) |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -45,32 +41,38 @@ deletion once confirmed merged.
 
 ## Next up
 
-1. Confirm PR #55 is green again, review, merge; then `/wrap-up 55`.
-   Release note: MySQL `Settings.default` image moved from `latest`
-   to `8.4`.
-2. Triage the five pre-revival community PRs: #51 (testcontainers-scala
+1. Triage the five pre-revival community PRs: #51 (testcontainers-scala
    0.44.1, superseded by the 0.43.6 choice; close or fold into the
    0.44 migration), #43 and #45 (ZIO / zio-kafka bumps, overlap with
-   item 4), #41 (LocalStack, issue #42) and #32 (k3s) as new layer-3
-   modules once the build is stable.
-3. Land the stack in order: #58 → `chore/build-modernization`; #55 →
-   `main` (`/wrap-up 55`); merge `main` into #57, then #57 → `main`
-   (`/wrap-up 57`); #59 → `main` (`/wrap-up 59`); #60 → `main`
-   (`/wrap-up 60`).
-4. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
+   item 2), #41 (LocalStack, issue #42) and #32 (k3s) as new layer-3
+   modules.
+2. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
    `V.scala`; then move the Scala 3 line from 3.3 LTS to the current
    3.x and drop `-source:3.3` if `with` is gone. testcontainers-scala
    0.44 (testcontainers-java 2.0) is a separate package-rename
    migration.
-5. From #56: a per-request HTTP timeout in zillen is still worth
-   adding (the hang is fixed; this is defence in depth).
-6. Plan the first zillen migration (`postgresql-zio-2.0` already
+3. Cut release 0.11.0. Release notes owed: MySQL `Settings.default`
+   image `latest` → `8.4`; ZIO 1.x artifacts discontinued at 0.10.0;
+   Liquibase aspect published again; Scala 2.12 dropped. Verify the
+   `GPG_PASSPHRASE` / `GPG_PASSWORD` secret name first (loose ends).
+4. zillen hardening from #56: a per-request HTTP timeout in
+   `NettyRequestHandler`, surfaced as a typed failure.
+5. Plan the first zillen migration (`postgresql-zio-2.0` already
    depends on `core`): design note, then PR.
-7. Prune stale remote branches; update README artifact coordinates for
+6. Prune stale remote branches; update README artifact coordinates for
    the next release.
 
 ## Most recent meaningful progress
 
+- **2026-10-30 — Revival stack landed on `main` (#55, #58, #61, #59,
+  #60).** Merged in that order with merge commits. #57 was closed by
+  GitHub when its base branch was deleted and continued as #61; the
+  later PRs were retargeted to `main` before their base branches were
+  removed. CI per run: 5.5 min → ~2.5 min; the zillen hang is gone
+  (#56 closed). Why: one coherent wave, each PR green on its own.
+  Risk: PR #59's 4-way parallelism has only a few green runs behind
+  it; if Cassandra or Kafka flake under contention, lower
+  `SBT_FORKED_TEST_GROUPS` before adding retries.
 - **2026-10-30 (late) — #56 root-caused and fixed (PR #58); suites
   parallelised (PR #59).** The hang: `ReadyCheckLive` forked a poll
   whose inspect failure left the promise incomplete, and the release
@@ -80,7 +82,7 @@ deletion once confirmed merged.
   runs hung; the serial test phase was most of the job. Risk: the
   stack is four PRs deep (#55 ← #58, #55 ← #57 ← #59); merge order
   matters and #57 needs `main` merged in after #55 lands.
-- **2026-10-30 (late) — ZIO 1.x removed (PR #57).** Six frozen
+- **2026-10-30 (late) — ZIO 1.x removed (PR #57, landed as #61).** Six frozen
   modules, the `ZIOSeries` switch, zio-magic and the 1.x zio-kafka line
   deleted; one `V.zioVersion`. Also fixed the ZIO 2 cassandra aspect
   pinning zio-test to 1.x. Why: half the CI test phase ran frozen
@@ -121,7 +123,6 @@ deletion once confirmed merged.
 
 ## Blocked / waiting
 
-- PR #55 waits on owner review and merge.
 - A fully green local `sbt build` waits on #53 (zillen socket path);
   CI runners have `/var/run/docker.sock` so CI is unaffected. Locally
   the other suites pass with
@@ -133,10 +134,9 @@ deletion once confirmed merged.
 ## Session handoff
 <!-- transient; owned by the checkpoint skill -->
 
-**Resume here:** land the stack per "Next up" item 3. #58 must be
-green and merged into `chore/build-modernization` before #55 can go
-green; #57 goes red on the zillen hang until `main` (with #58) is
-merged into it. #59 carries everything and is the final shape.
+**Resume here:** `main` is green and the stack is closed out. Start
+"Next up" item 1 (triage community PRs #51, #43, #45, #41, #32) or item
+2 (ZIO 2.1.x bump). Nothing is in flight.
 
 Decisions made 2026-10-30, all recorded in PR #55 / ARCHITECTURE.md:
 - Scala 3 line is 3.3 LTS, not 3.10, until ZIO leaves 2.0.x
@@ -158,17 +158,15 @@ Open questions for the owner:
   Consider pruning old caches or accepting slower runs for now.
 
 Loose ends noticed, not acted on:
+- `PROJECT.md` had `wrapup.audit_doc: null` although ARCHITECTURE.md
+  carries an audit-trigger list; bound on 2026-10-30 so `wrap-up`
+  audits it automatically from now on.
 - `modules/zio-2.0-liquibase-aspect/` is an untracked stale `target/`
   left from the wrong `build.sbt` path (fixed in PR #60); `clean.sh` or
   `rm -rf` it locally.
 - `paths-ignore` on `pull_request` is evaluated against the whole PR
   diff, not the latest push, so a docs-only commit on a mixed PR still
   runs CI. The carve-out only skips PRs that are docs-only end to end.
-- The pre-pull step was dropped on 2026-10-30; it had been measured as
-  a wash (cost 29-50 s, saved ~20 s).
-- Two pre-fix workflow runs may still show "queued" (the `main` push
-  `7305385` and PR run `40984606588`); cancel by hand, they target the
-  retired `ubuntu-20.04` image and will never start.
 - Local `~/.testcontainers.properties` pins
   `UnixSocketClientProviderStrategy`; combined with Docker Desktop's
   default-socket setting off, local runs need the env vars listed in
