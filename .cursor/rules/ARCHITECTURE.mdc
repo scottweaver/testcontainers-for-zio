@@ -123,7 +123,7 @@ release note.
 ## Build and release
 
 - The build is sbt with the in-repo `ZioEcosystemProjectPlugin`
-  (`project/`) providing `stdSettings`, `zioSeries`, `needsZio`, the
+  (`project/`) providing `stdSettings`, `needsZio`, the
   `build` / `lint` / `fix` / `fmt` / `build-all` / `publish-all`
   composable commands, and the welcome banner. New modules opt in
   automatically (`trigger = allRequirements`).
