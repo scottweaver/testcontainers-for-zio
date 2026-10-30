@@ -1,9 +1,26 @@
+/*
+ * Copyright 2021 io.github.scottweaver
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.github.scottweaver.zio.aspect
 
-import zio.test._
+import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
 import zio._
 import zio.test.TestAspect._
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
+import zio.test._
+
 import java.sql.Connection
 
 object LiquibaseAspectSpec extends ZIOSpecDefault {
@@ -36,17 +53,17 @@ object LiquibaseAspectSpec extends ZIOSpecDefault {
   val verificationScript = (ZIO
     .serviceWithZIO[Connection] { conn =>
       ZIO.attemptBlocking {
-        val stmt  = conn.createStatement()
+        val stmt = conn.createStatement()
         stmt.execute("INSERT INTO state (id) VALUES ('TX')")
         stmt.execute(
           "INSERT INTO person (firstname, lastname, state, username) VALUES ('Jane', 'Doe', 'TX', 'jane.doe')"
         )
-        val rs    = stmt.executeQuery("SELECT * FROM state")
+        val rs = stmt.executeQuery("SELECT * FROM state")
         rs.next()
         val texas = rs.getString("id")
         val rs1   = stmt.executeQuery("SELECT * FROM person")
         rs1.next()
-        val jane  =
+        val jane =
           (rs1.getString("firstname"), rs1.getString("lastname"), rs1.getString("state"), rs1.getString("username"))
         (texas, jane)
       }
