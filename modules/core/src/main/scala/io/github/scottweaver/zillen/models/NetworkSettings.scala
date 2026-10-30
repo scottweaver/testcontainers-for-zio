@@ -25,6 +25,7 @@ final case class NetworkSettings(
 )
 
 object NetworkSettings {
+  import PortMap.PortMapCodec
   implicit val networkSettingsCodec: JsonCodec[NetworkSettings] =
     DeriveJsonCodec.gen[NetworkSettings]
 }

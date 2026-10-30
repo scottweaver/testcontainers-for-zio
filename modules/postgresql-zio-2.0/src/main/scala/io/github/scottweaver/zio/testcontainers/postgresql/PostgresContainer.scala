@@ -51,6 +51,8 @@ final class PostgresContainer
     }
 
   private def makeUrl(portMap: PortMap, settings: PostgresContainer.Settings) = {
+    import io.github.scottweaver.zillen.models.PortMap.Syntax
+
     val hostInterface = portMap.findExternalHostPort(5432, Docker.protocol.TCP)
     val user          = settings.username.getOrElse("postgres")
     val databaseName  = settings.databaseName.getOrElse(user)
@@ -112,6 +114,7 @@ object PostgresContainer {
     additionalEnv: Env,
     imageName: String = "postgres"
   ) {
+    import io.github.scottweaver.zillen.models.Env.Syntax
 
     private[postgresql] def toEnv: Env =
       Docker

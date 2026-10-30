@@ -18,6 +18,7 @@ package io.github.scottweaver.zio.testcontainers.postgres
 
 import io.github.scottweaver.models.JdbcInfo
 import io.github.scottweaver.zillen.Docker
+import io.github.scottweaver.zillen.models.PortMap.{Syntax => PortMapSyntax}
 import io.github.scottweaver.zillen.models._
 import io.github.scottweaver.zio.testcontainers.postgresql._
 import zio._

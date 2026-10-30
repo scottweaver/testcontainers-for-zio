@@ -52,5 +52,6 @@ object HostInterface {
   private[zillen] def makeUnsafeFromPort(hostPort: Int): HostInterface =
     HostInterface(None, HostPort.unsafeMake(hostPort))
 
+  import HostPort.hostPortCodec
   implicit val hostInterfaceCode: JsonCodec[HostInterface] = DeriveJsonCodec.gen[HostInterface]
 }
