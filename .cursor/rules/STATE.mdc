@@ -34,6 +34,8 @@ slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
 | `main` | trunk | at `7305385` (rules layer bootstrap) |
 | `chore/build-modernization` | issue #52: sbt / Scala / scalafix / CI modernization, drop 2.12, MySQL fix, per-test timeouts | PR #55 was **green** at `90dc1ed` (5.5 min); the docs-only push `0145ccd` then timed out at 30 min (see #56). Timeouts + pre-pull removal pushed; **awaiting a green re-run**, then owner review and merge; closes #52, #54 |
 | `chore/remove-zio-1x` | delete the six ZIO 1.x modules + `ZIOSeries` switch; resolves the ARCHITECTURE TBD | PR #57, **stacked on #55** (base `chore/build-modernization`); CI pending; GitHub retargets to `main` once #55 merges |
+| `fix/zillen-ready-check-promise` | #56: ready-check promise always completes; release = stop → remove; bootstrap fails typed on not-ready | PR #58 into `chore/build-modernization`; CI pending; **merge first** so #55 can go green |
+| `perf/parallel-container-tests` | 4 forked test JVMs at once, 1 GB test heap, unique container names / ephemeral port in zillen suites | PR #59 into `chore/remove-zio-1x`; CI pending; local aggregate `test` went from ~3 min serial to 22 s |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -50,19 +52,17 @@ deletion once confirmed merged.
    0.44 migration), #43 and #45 (ZIO / zio-kafka bumps, overlap with
    item 4), #41 (LocalStack, issue #42) and #32 (k3s) as new layer-3
    modules once the build is stable.
-3. Merge PR #57 (ZIO 1.x removal) after #55; `/wrap-up 57`.
-   Then parallelise the remaining container suites (plan drafted
-   2026-10-30: raise sbt's `ForkedTestGroup` limit, unique container
-   names and ephemeral ports in the zillen suites, smaller test heap).
+3. Land the stack in order: #58 → `chore/build-modernization`; #55 →
+   `main` (`/wrap-up 55`); merge `main` into #57, then #57 → `main`
+   (`/wrap-up 57`); #59 → `main` (`/wrap-up 59`).
 4. Bump ZIO to 2.1.x (plus zio-json, zio-prelude, zio-kafka) in
    `V.scala`; then move the Scala 3 line from 3.3 LTS to the current
    3.x and drop `-source:3.3` if `with` is gone. testcontainers-scala
    0.44 (testcontainers-java 2.0) is a separate package-rename
    migration.
-5. Fix #56 (zillen Docker Engine requests have no timeout; the
-   `makeScopedContainer` release can await a removed container).
-   Small, self-contained, and a prerequisite for trusting zillen in
-   CI.
+5. Fix the Liquibase module path in `build.sbt` (see loose ends) and
+   get `LiquibaseAspectSpec` running. Then, from #56: a per-request
+   HTTP timeout in zillen is still worth adding.
 6. Plan the first zillen migration (`postgresql-zio-2.0` already
    depends on `core`): design note, then PR.
 7. Prune stale remote branches; update README artifact coordinates for
@@ -70,6 +70,15 @@ deletion once confirmed merged.
 
 ## Most recent meaningful progress
 
+- **2026-10-30 (late) — #56 root-caused and fixed (PR #58); suites
+  parallelised (PR #59).** The hang: `ReadyCheckLive` forked a poll
+  whose inspect failure left the promise incomplete, and the release
+  polled after a forced remove (404). Fixed with a deterministic
+  `ReadyCheckSpec`. Parallel: sbt `ForkedTestGroup` limit 4, 1 GB test
+  heap, Docker-assigned names for `PostgresContainer`. Why: 2 of 3 CI
+  runs hung; the serial test phase was most of the job. Risk: the
+  stack is four PRs deep (#55 ← #58, #55 ← #57 ← #59); merge order
+  matters and #57 needs `main` merged in after #55 lands.
 - **2026-10-30 (late) — ZIO 1.x removed (PR #57).** Six frozen
   modules, the `ZIOSeries` switch, zio-magic and the 1.x zio-kafka line
   deleted; one `V.zioVersion`. Also fixed the ZIO 2 cassandra aspect
@@ -123,10 +132,10 @@ deletion once confirmed merged.
 ## Session handoff
 <!-- transient; owned by the checkpoint skill -->
 
-**Resume here:** confirm CI is green on PR #55 (timeouts + pre-pull
-removal) and on PR #57 (ZIO 1.x removal, stacked on #55). Merge #55,
-`/wrap-up 55`; then merge #57, `/wrap-up 57`. Next: the test
-parallelisation plan ("Next up" item 3) or #56.
+**Resume here:** land the stack per "Next up" item 3. #58 must be
+green and merged into `chore/build-modernization` before #55 can go
+green; #57 goes red on the zillen hang until `main` (with #58) is
+merged into it. #59 carries everything and is the final shape.
 
 Decisions made 2026-10-30, all recorded in PR #55 / ARCHITECTURE.md:
 - Scala 3 line is 3.3 LTS, not 3.10, until ZIO leaves 2.0.x
