@@ -13,26 +13,32 @@ on:
     types:
       - published
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
     - name: Checkout current branch
-      uses: actions/checkout@v3.0.2
+      uses: actions/checkout@v4
     - name: Setup Java
-      uses: actions/setup-java@v2.5.0
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 17
+        java-version: 21
         check-latest: true
+    - name: Setup sbt
+      uses: sbt/setup-sbt@v1
     - name: Cache scala dependencies
       uses: coursier/cache-action@v6
     - name: Lint code
       run: sbt lint
 
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: true
       max-parallel: 1
@@ -40,38 +46,42 @@ jobs:
         scala: ['2.13.18', '3.10.0']
     steps:
       - name: Checkout current branch
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v4
       - name: Setup Java
-        uses: actions/setup-java@v2.5.0
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           check-latest: true
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
       - name: Run tests for Scala ${{ matrix.scala }}
         run: sbt ++${{ matrix.scala }}! enableStrictCompile test
 
   publish:
-    runs-on: ubuntu-20.04
-    environment: SONATYPE_PUBLISHING 
+    runs-on: ubuntu-24.04
+    environment: SONATYPE_PUBLISHING
     needs: [lint, test]
     if: github.ref_type == 'tag'
     steps:
       - name: Checkout current branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Import GPG key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v5
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }} 
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Setup Java
-        uses: actions/setup-java@v2.5.0
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           check-latest: true
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
       - name: Cache scala dependencies
         uses: coursier/cache-action@v6
       - name: Release artifacts

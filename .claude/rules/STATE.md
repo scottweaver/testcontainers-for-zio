@@ -51,8 +51,10 @@ deletion once confirmed merged.
   1.13.1, sbt-scalafix 0.14.9, Scala 2.13.18 + 3.10.0 only, 2.12
   removed from every build file and the CI matrix. Why: on JDK 21 the
   old 2.13.8 compiler could not even build the Zinc bridge, so nothing
-  compiled. Risk: CI has not yet run on the new matrix; `ci.yml` still
-  uses old action versions. Local `sbt build` still fails in `core`
+  compiled. The workflow also moved off the retired `ubuntu-20.04`
+  runner (jobs queued forever) to `ubuntu-24.04`, JDK 21, and current
+  actions. Risk: CI has not yet gone green on the new matrix; the
+  MySQL suites will fail there too (#54). Local `sbt build` fails in `core`
   and `postgresql-zio-2.0` (zillen hardcodes `/var/run/docker.sock`,
   #53) and in the MySQL suites (`mysql:latest` rejects
   `--skip-host-cache` from testcontainers 1.17, #54); neither is
