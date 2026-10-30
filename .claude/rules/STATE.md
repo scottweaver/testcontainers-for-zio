@@ -26,7 +26,7 @@ slated for deletion), Scala 2.13 + current Scala 3, and `zillen`
 | Branch | Purpose | Status |
 |---|---|---|
 | `main` | trunk | at `7305385` (rules layer bootstrap) |
-| `chore/build-modernization` | issue #52: sbt / Scala / scalafix / CI modernization, drop 2.12, MySQL fix | PR #55 **CI green** on 2.13.18 + 3.3.9 at `90dc1ed` (5.5 min wall clock); awaiting owner review and merge; closes #52, #54 |
+| `chore/build-modernization` | issue #52: sbt / Scala / scalafix / CI modernization, drop 2.12, MySQL fix, per-test timeouts | PR #55 was **green** at `90dc1ed` (5.5 min); the docs-only push `0145ccd` then timed out at 30 min (see #56). Timeouts + pre-pull removal pushed; **awaiting a green re-run**, then owner review and merge; closes #52, #54 |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -35,8 +35,9 @@ deletion once confirmed merged.
 
 ## Next up
 
-1. Review and merge PR #55; then `/wrap-up 55`. Release note: MySQL
-   `Settings.default` image moved from `latest` to `8.4`.
+1. Confirm PR #55 is green again, review, merge; then `/wrap-up 55`.
+   Release note: MySQL `Settings.default` image moved from `latest`
+   to `8.4`.
 2. Triage the five pre-revival community PRs: #51 (testcontainers-scala
    0.44.1, superseded by the 0.43.6 choice; close or fold into the
    0.44 migration), #43 and #45 (ZIO / zio-kafka bumps, overlap with
@@ -49,13 +50,26 @@ deletion once confirmed merged.
    3.x and drop `-source:3.3` if `with` is gone. testcontainers-scala
    0.44 (testcontainers-java 2.0) is a separate package-rename
    migration.
-5. Plan the first zillen migration (`postgresql-zio-2.0` already
+5. Fix #56 (zillen Docker Engine requests have no timeout; the
+   `makeScopedContainer` release can await a removed container).
+   Small, self-contained, and a prerequisite for trusting zillen in
+   CI.
+6. Plan the first zillen migration (`postgresql-zio-2.0` already
    depends on `core`): design note, then PR.
-6. Prune stale remote branches; update README artifact coordinates for
+7. Prune stale remote branches; update README artifact coordinates for
    the next release.
 
 ## Most recent meaningful progress
 
+- **2026-10-30 (late) — CI timeout diagnosed, guarded (#56).** The
+  docs-only push to PR #55 ran CI anyway and both test jobs hit the
+  30 min job limit: `ContainerSpec` in `core` hung after its container
+  stopped, and the coursier cache failed to restore ("Egress is over
+  the account limit"), adding ~10 min. Added `TestAspect.timeout(5
+  minutes)` to every ZIO 2 container suite, dropped the pre-pull step
+  (measured as a wash), filed #56 for the zillen hang (no HTTP request
+  timeout in zillen). Why: a flake must cost one test, not the whole
+  job. Risk: the timeout only bounds the symptom; #56 is the fix.
 - **2026-10-30 — PR #55 made CI-viable.** Runner moved off retired
   `ubuntu-20.04`; Scala 3 line set to 3.3 LTS because ZIO 2.0.9's
   trace macro fails on 3.4+ (ARCHITECTURE.md updated); `-source:3.3`
@@ -85,15 +99,18 @@ deletion once confirmed merged.
 - A fully green local `sbt build` waits on #53 (zillen socket path);
   CI runners have `/var/run/docker.sock` so CI is unaffected. Locally
   the other suites pass with
-  `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock` and
-  `TESTCONTAINERS_DOCKER_CLIENT_STRATEGY=org.testcontainers.dockerclient.EnvironmentAndSystemPropertyClientProviderStrategy`.
+  `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock`,
+  `TESTCONTAINERS_DOCKER_CLIENT_STRATEGY=org.testcontainers.dockerclient.EnvironmentAndSystemPropertyClientProviderStrategy`
+  and `TESTCONTAINERS_RYUK_DISABLED=true` (Ryuk mounts
+  `/var/run/docker.sock`, which does not exist here).
 
 ## Session handoff
 <!-- transient; owned by the checkpoint skill -->
 
-**Resume here:** review PR #55 (green at `90dc1ed`), merge, run
-`/wrap-up 55`; then start "Next up" item 2 (triage old PRs) or 3
-(delete ZIO 1.x modules).
+**Resume here:** check that the CI run on PR #55's latest push is
+green (timeouts + pre-pull removal), review, merge, run `/wrap-up 55`;
+then start "Next up" item 2 (triage old PRs), 3 (delete ZIO 1.x
+modules), or 5 (#56, zillen request timeout).
 
 Decisions made 2026-10-30, all recorded in PR #55 / ARCHITECTURE.md:
 - Scala 3 line is 3.3 LTS, not 3.10, until ZIO leaves 2.0.x
@@ -107,12 +124,19 @@ Decisions made 2026-10-30, all recorded in PR #55 / ARCHITECTURE.md:
   touched the workflow file the PR already rewrote.
 
 Open questions for the owner:
-- Drop the `Pre-pull container images` step in `ci.yml`? Measured as a
-  wash (costs 29-50 s, saves ~20 s). Recommendation: drop.
 - `paths-ignore` skips docs-only PRs entirely; if branch protection
   with required checks is ever added, revisit.
+- GitHub Actions cache egress for the account is exhausted ("Egress
+  is over the account limit" on 2026-10-30; the repo holds ~1.9 GB in
+  9 caches). Runs re-download dependencies until the quota resets.
+  Consider pruning old caches or accepting slower runs for now.
 
 Loose ends noticed, not acted on:
+- `paths-ignore` on `pull_request` is evaluated against the whole PR
+  diff, not the latest push, so a docs-only commit on a mixed PR still
+  runs CI. The carve-out only skips PRs that are docs-only end to end.
+- The pre-pull step was dropped on 2026-10-30; it had been measured as
+  a wash (cost 29-50 s, saved ~20 s).
 - Two pre-fix workflow runs may still show "queued" (the `main` push
   `7305385` and PR run `40984606588`); cancel by hand, they target the
   retired `ubuntu-20.04` image and will never start.

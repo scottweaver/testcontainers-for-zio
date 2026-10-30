@@ -35,5 +35,5 @@ object ZSolrContainerSpec extends ZIOSpecDefault {
           resp.status == Status.Ok
         )
       }.provideShared(ZSolrContainer.Settings.default >>> ZSolrContainer.live, Client.default)
-    )
+    ) @@ TestAspect.timeout(5.minutes)
 }

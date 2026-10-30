@@ -76,5 +76,5 @@ object ZKafkaContainerSpec extends ZIOSpecDefault {
         ZKafkaContainer.live,
         ZKafkaContainer.defaultConsumerSettings,
         ZKafkaContainer.defaultProducerSettings
-      ) @@ withLiveClock
+      ) @@ withLiveClock @@ timeout(5.minutes)
 }

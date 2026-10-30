@@ -65,5 +65,5 @@ object ZMySQLContainerSpec extends ZIOSpecDefault {
     ).provideShared(
       ZMySQLContainer.Settings.default,
       ZMySQLContainer.live
-    )
+    ) @@ TestAspect.timeout(5.minutes)
 }

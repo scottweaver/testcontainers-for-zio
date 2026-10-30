@@ -81,6 +81,6 @@ object LiquibaseAspectSpec extends ZIOSpecDefault {
         ZPostgreSQLContainer.live,
         LiquibaseAspect.Settings.default,
         changeLog
-      ) @@ sequential
+      ) @@ sequential @@ timeout(5.minutes)
 
 }
