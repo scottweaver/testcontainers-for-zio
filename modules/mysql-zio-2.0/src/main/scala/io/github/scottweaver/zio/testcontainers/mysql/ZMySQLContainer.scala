@@ -35,7 +35,7 @@ object ZMySQLContainer {
   object Settings {
     val default = ZLayer.succeed(
       Settings(
-        "latest",
+        "8.4",
         MySQLContainer.defaultDatabaseName,
         MySQLContainer.defaultUsername,
         MySQLContainer.defaultPassword

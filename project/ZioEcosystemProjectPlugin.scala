@@ -97,7 +97,7 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
   )
 
   def stdSettings: Seq[Setting[_]] = Seq(
-    crossScalaVersions     := Seq(V.Scala212, V.Scala213, V.Scala3),
+    crossScalaVersions     := Seq(V.Scala213, V.Scala3),
     scalaVersion           := V.Scala213,
     zioSeries              := ZIOSeries.Series2X,
     needsZio               := true,
@@ -114,13 +114,13 @@ object ZioEcosystemProjectPlugin extends AutoPlugin {
       else Seq.empty
     },
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    semanticdbEnabled := scalaVersion.value != V.Scala3, // enable SemanticDB
+    semanticdbEnabled := CrossVersion
+      .partialVersion(scalaVersion.value)
+      .exists(_._1 == 2), // scalafix needs it on 2.13 only
     semanticdbOptions += "-P:semanticdb:synthetics:on",
-    semanticdbVersion                      := scalafixSemanticdb.revision, // use Scalafix compatible version
-    ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value),
+    semanticdbVersion := scalafixSemanticdb.revision, // use Scalafix compatible version
     ThisBuild / scalafixDependencies ++= List(
-      "com.github.liancheng" %% "organize-imports" % "0.6.0",
-      "com.github.vovapolu"  %% "scaluzzi"         % "0.1.23"
+      "com.github.vovapolu" %% "scaluzzi" % "0.1.23"
     ),
     Test / parallelExecution := true,
     incOptions ~= (_.withLogRecompileOnMacro(false)),

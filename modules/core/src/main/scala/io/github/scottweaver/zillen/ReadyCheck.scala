@@ -67,10 +67,16 @@ final case class ReadyCheckLive(
       .provide(ZLayer.succeed(interpreter))
       .flatMap(insulatedCheck)
 
+    // The poll must always complete the promise. A failing inspect (e.g. the container was
+    // removed under us) used to kill the forked fiber and leave every awaiter hanging (#56).
+    val pollAborted = (failure: DockerContainerFailure) =>
+      ZIO.logWarning(s"Ready check for container '${containerId}' aborted: ${failure}.") *> ZIO.succeed(false)
+
     for {
       checkPromise <- Promise.make[Nothing, Boolean]
       _ <- check
              .repeat[R, Boolean](schedule)
+             .catchAll(pollAborted)
              .flatMap(checkPromise.succeed)
              .fork
 

@@ -37,6 +37,6 @@ object ZCassandraContainerSpec extends ZIOSpecDefault {
 
       testCase
     }
-  ).provideShared(ZCassandraContainer.Settings.default, ZCassandraContainer.live)
+  ).provideShared(ZCassandraContainer.Settings.default, ZCassandraContainer.live) @@ TestAspect.timeout(5.minutes)
 
 }

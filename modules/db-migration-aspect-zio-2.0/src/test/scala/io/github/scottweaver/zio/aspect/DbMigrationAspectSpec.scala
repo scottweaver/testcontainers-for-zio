@@ -82,5 +82,5 @@ object DbMigrationAspectSpec extends ZIOSpecDefault {
     .provideShared(
       ZMySQLContainer.Settings.default,
       ZMySQLContainer.live
-    ) @@ sequential
+    ) @@ sequential @@ TestAspect.timeout(5.minutes)
 }

@@ -53,15 +53,12 @@ private[zillen] trait ContainerOps { self: ReadyCheckOps =>
       runningPromise <- readyWhenRunningPromise[T](response.id)
     } yield (response, runningPromise)
 
+    // StopContainer returns once the container has exited, so no exited/dead poll is needed
+    // before the forced remove; polling after the remove raced a 404 and hung the release (#56).
     val release: (
       (CreateContainerResponse, Promise[Nothing, Boolean])
     ) => URIO[ContainerSettings[T] with Interpreter with ReadyCheck, Unit] = { case (response, _) =>
-      (for {
-        _           <- stopContainer(response.id)
-        donePromise <- doneWhenDeadOrExitedPromise[T](response.id)
-        _           <- removeContainer(response.id)
-        _           <- donePromise.await
-      } yield ()).mapError(_.asException).orDie
+      (stopContainer(response.id) *> removeContainer(response.id)).unit.mapError(_.asException).orDie
     }
 
     ZIO.acquireRelease(acquire)(release)

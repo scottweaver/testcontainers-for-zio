@@ -6,7 +6,7 @@ ThisBuild / organization  := "io.github.scottweaver"
 ThisBuild / description   := "Provides ZIO ZLayer wrappers around Scala Testcontainers"
 ThisBuild / homepage      := Some(url("https://github.com/scottweaver/testcontainers-for-zio"))
 ThisBuild / startYear     := Some(2021)
-ThisBuild / licenses      := List("Apache-2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / licenses      := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/scottweaver/testcontainers-for-zio"),

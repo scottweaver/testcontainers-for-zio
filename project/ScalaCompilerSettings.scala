@@ -46,7 +46,9 @@ object ScalaCompilerSettings {
     //  "-language:implicitConversions",   // Allow definition of implicit functions called views. Disabled, as it might be dropped in Scala 3. Instead use extension methods (implemented as implicit class Wrapper(val inner: Foo) extends AnyVal {}
   )
 
-  private val scala3Settings: Seq[String] = Seq("-Xignore-scala2-macros", "-noindent")
+  // `with` as a type operator is an error from Scala 3.4's source level on, but the source is
+  // shared with 2.13, which has no `&`. Stay on the 3.3 source level until 2.13 is dropped.
+  private val scala3Settings: Seq[String] = Seq("-Xignore-scala2-macros", "-noindent", "-source:3.3")
 
   // RECOMMENDED SETTINGS: https://tpolecat.github.io/2017/04/25/scalac-flags.html
   private val scala213Settings: Seq[String] = baseSettings ++ Seq(
@@ -68,27 +70,22 @@ object ScalaCompilerSettings {
     "-Wvalue-discard"            // Warn when non-Unit expression results are unused.
   )
 
-  val scala212Settings: Seq[String] = baseSettings ++ Seq(
-    "-explaintypes",
-    "-Yrangepos",
-    "-Xlint:_,-missing-interpolator,-type-parameter-shadow",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-macros:after",
-    "-Ywarn-unused:-implicits"
-  )
-
   def stdScalacOptions(scalaVersion: String) = {
     val versionedSettings = CrossVersion.partialVersion(scalaVersion) match {
       case Some((3, _))  => scala3Settings
       case Some((2, 13)) => scala213Settings
-      case Some((2, 12)) => scala212Settings
       case _             => Seq.empty
     }
 
     val strictCompilation = sys.props.get("enable.strict.compilation").map(_.toBoolean).getOrElse(false)
 
+    val fatalWarnings = CrossVersion.partialVersion(scalaVersion) match {
+      case Some((3, _)) => "-Werror"
+      case _            => "-Xfatal-warnings"
+    }
+
     val finalSettings = if (sys.env.contains("CI") || strictCompilation) {
-      versionedSettings :+ "-Xfatal-warnings"
+      versionedSettings :+ fatalWarnings
     } else {
       versionedSettings
     }

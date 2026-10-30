@@ -78,5 +78,5 @@ object PostgresContainerSpec extends ZIOSpecDefault {
     suite("PostgresContainerSpec")(
       imageSpec("postgres"),
       imageSpec("timescale/timescaledb", "latest-pg14")
-    ) @@ TestAspect.sequential
+    ) @@ TestAspect.sequential @@ TestAspect.timeout(5.minutes)
 }

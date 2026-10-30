@@ -72,6 +72,6 @@ object InterpreterSpec extends ZIOSpecDefault {
         Docker.layer()
       )
     }
-  ) @@ TestAspect.sequential @@ TestAspect.withLiveClock
+  ) @@ TestAspect.sequential @@ TestAspect.withLiveClock @@ TestAspect.timeout(5.minutes)
 
 }

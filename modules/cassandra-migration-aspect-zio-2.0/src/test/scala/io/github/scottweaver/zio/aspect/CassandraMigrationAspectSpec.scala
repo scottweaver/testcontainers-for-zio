@@ -62,5 +62,5 @@ object CassandraMigrationAspectSpec extends ZIOSpecDefault {
     .provideShared(
       ZCassandraContainer.Settings.default,
       ZCassandraContainer.live
-    ) @@ sequential
+    ) @@ sequential @@ TestAspect.timeout(5.minutes)
 }
