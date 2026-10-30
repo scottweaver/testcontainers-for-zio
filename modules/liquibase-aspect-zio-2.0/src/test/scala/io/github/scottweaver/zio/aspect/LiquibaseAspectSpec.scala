@@ -16,10 +16,11 @@
 
 package io.github.scottweaver.zio.aspect
 
-import zio.test._
+import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
 import zio._
 import zio.test.TestAspect._
-import io.github.scottweaver.zio.testcontainers.postgres.ZPostgreSQLContainer
+import zio.test._
+
 import java.sql.Connection
 
 object LiquibaseAspectSpec extends ZIOSpecDefault {

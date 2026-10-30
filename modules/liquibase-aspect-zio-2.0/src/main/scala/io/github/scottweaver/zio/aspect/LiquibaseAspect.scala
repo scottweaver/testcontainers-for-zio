@@ -16,15 +16,16 @@
 
 package io.github.scottweaver.zio.aspect
 
+import liquibase.changelog._
 import liquibase.database._
+import liquibase.database.jvm.JdbcConnection
+import liquibase.parser._
+import liquibase.resource._
+import liquibase.{Contexts, LabelExpression, Liquibase}
 import zio._
 import zio.test.TestAspect.{before, beforeAll}
+
 import java.sql.Connection
-import liquibase.database.jvm.JdbcConnection
-import liquibase.{Contexts, LabelExpression, Liquibase}
-import liquibase.changelog._
-import liquibase.resource._
-import liquibase.parser._
 import java.util.logging._
 
 object LiquibaseAspect {
