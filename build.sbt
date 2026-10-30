@@ -45,7 +45,8 @@ lazy val root = project
     cassandraZio2,
     `cassandra-migration-aspect`,
     `cassandra-migration-aspect-Zio2`,
-    solrZio2
+    solrZio2,
+    localstackZio2
     // docs
   )
 
@@ -266,6 +267,29 @@ lazy val solrZio2 =
       libraryDependencies ++= Seq(
         "com.dimafeng" %% "testcontainers-scala-solr" % V.testcontainersScalaVersion,
         "dev.zio"      %% "zio-http"                  % V.zioHttpVersion % Test
+      )
+    )
+
+lazy val localstackZio2 =
+  project
+    .in(file("modules/localstack-zio-2.0"))
+    .settings(
+      zioSeries := ZIOSeries.Series2X,
+      testcontainersScalaSettings,
+      name := "zio-2.0-testcontainers-localstack",
+      libraryDependencies ++= Seq(
+        "com.dimafeng" %% "testcontainers-scala-localstack" % V.testcontainersScalaVersion,
+        "com.amazonaws" % "aws-java-sdk-s3"                 % V.awsV1Version  % Provided,
+        "com.amazonaws" % "aws-java-sdk-sqs"                % V.awsV1Version  % Provided,
+        "dev.zio"      %% "zio-aws-s3"                      % V.zioAwsVersion % Test,
+        "dev.zio"      %% "zio-aws-netty"                   % V.zioAwsVersion % Test
+      )
+    )
+    .settings(
+      Test / envVars ++= Map(
+        "AWS_ACCESS_KEY_ID"     -> "local",
+        "AWS_SECRET_ACCESS_KEY" -> "secret",
+        "AWS_REGION"            -> "us-east-1"
       )
     )
 
