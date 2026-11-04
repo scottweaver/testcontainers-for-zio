@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: sbt
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 5
+    groups:
+      zio:
+        patterns:
+          - "dev.zio:*"
+      netty:
+        patterns:
+          - "io.netty:*"
+      testcontainers:
+        patterns:
+          - "com.dimafeng:*"
+    ignore:
+      # 0.44+ requires the separately planned Testcontainers Java 2 migration.
+      - dependency-name: "com.dimafeng:*"
+        versions: [">=0.44.0"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 2
+    groups:
+      github-actions:
+        patterns: ["*"]

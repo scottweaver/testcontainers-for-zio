@@ -1,10 +1,10 @@
 object V {
   val cassandraDriverVersion     = "4.14.1"
-  val zioVersion                 = "2.0.9"
-  val zioJsonVersion             = "0.4.2"
-  val zioPreludeVersion          = "1.0.0-RC15"
-  val zioKafkaVersion            = "2.0.0"
-  val zioHttpVersion             = "0.0.4"
+  val zioVersion                 = "2.1.27"
+  val zioJsonVersion             = "1.1.1"
+  val zioPreludeVersion          = "1.0.0-RC48"
+  val zioKafkaVersion            = "3.8.1"
+  val zioHttpVersion             = "3.11.6"
   val testcontainersScalaVersion = "0.43.6"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"
@@ -29,5 +29,5 @@ object V {
   }
 
   val Scala213: String = versions.getOrElse("2.13", "2.13.18")
-  val Scala3: String   = versions.getOrElse("3.3", "3.3.9")
+  val Scala3: String   = versions.getOrElse("3.10", "3.10.0")
 }

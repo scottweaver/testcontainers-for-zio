@@ -19,21 +19,22 @@ package io.github.scottweaver.zio.testcontainers.solr
 import com.dimafeng.testcontainers.SolrContainer
 import zio._
 import zio.http._
-import zio.http.model._
 import zio.test._
 
 object ZSolrContainerSpec extends ZIOSpecDefault {
   override val spec =
     suite("ZSolrContainerSpec")(
       test("Should start up a Solr container that is ready") {
-        for {
-          container <- ZIO.service[SolrContainer]
-          client    <- ZIO.service[Client]
-          resp <-
-            client.host(container.host).port(container.solrPort).get(s"/solr/${container.collectionName}/admin/ping")
-        } yield assertTrue(
-          resp.status == Status.Ok
-        )
+        ZIO.scoped {
+          for {
+            container <- ZIO.service[SolrContainer]
+            client    <- ZIO.service[Client]
+            resp <-
+              client.host(container.host).port(container.solrPort).get(s"/solr/${container.collectionName}/admin/ping")
+          } yield assertTrue(
+            resp.status == Status.Ok
+          )
+        }
       }.provideShared(ZSolrContainer.Settings.default >>> ZSolrContainer.live, Client.default)
     ) @@ TestAspect.timeout(5.minutes)
 }
