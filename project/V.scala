@@ -8,7 +8,7 @@ object V {
   val testcontainersScalaVersion = "0.43.6"
   val mysqlConnnectorJVersion    = "8.0.29"
   val postgresqlDriverVersion    = "42.3.3"
-  val slf4jVersion               = "1.7.32"
+  val slf4jVersion               = "2.0.20"
   val logbackVersion             = "1.2.6"
   val flywayVersion              = "8.1.0"
   val cassandraMigrationsVersion = "2.5.0_v4"
