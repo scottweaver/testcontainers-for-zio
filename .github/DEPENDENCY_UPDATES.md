@@ -6,6 +6,10 @@ grouped by family; Actions updates form a separate group. Updates go
 through normal PR review and the two-version CI matrix; no auto-merge
 is configured.
 
+SLF4J and Logback updates are grouped together. Updating either across
+the 1.x/2.x binding boundary alone can silently disable logging even
+when functional tests pass; the Kafka suite checks the actual provider.
+
 The sbt ecosystem supports `build.sbt`, `project/plugins.sbt`,
 `project/build.properties`, and `project/*.scala`. Its parser resolves
 dotted version references such as `V.zioVersion` to literal values in
@@ -55,3 +59,12 @@ consumer uses the library's default fetch strategy. Earliest-offset
 retrieval is now explicit to preserve consumption of records produced
 before subscription. Do not describe this
 as binary-compatible with zio-kafka 2.
+
+The CI repair upgrades SLF4J/Logback together, Flyway to 13.12.0 and
+Liquibase to 5.0.4. Flyway database support is now modular: consumers
+must add the Flyway database module matching their JDBC database and
+Flyway version (for example, `org.flywaydb:flyway-mysql`). The generic
+aspect keeps MySQL support in test scope only. Liquibase retains support
+for existing `classpath://` changelog paths by normalizing the prefix
+before parser lookup. CI limits concurrent container suites to two;
+the existing timeouts and assertions remain enabled.
