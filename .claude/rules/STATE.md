@@ -20,16 +20,17 @@ that). Binding decisions from the 2026-10-29 bootstrap dialog hold: ZIO
 2.x only, Scala 2.13 + one Scala 3 line,
 and `zillen` (`modules/core`) is the intended replacement for
 testcontainers-scala. Community PR triage is complete: #51 is closed;
-#43 and #45 are being replaced by a coordinated ZIO ecosystem upgrade
-and Dependabot setup on `codex/zio-upgrade-dependabot`. Then cut a
-release and plan the first zillen migration.
+#43 and #45 are closed with attribution after their replacement landed
+in #63. ZIO 2.1, Scala 3.10, and Dependabot are on `main`; CI is green.
+Next: review the initial automated updates, prepare a release, and plan
+the first zillen migration.
 
 ## Branches in flight
 
 | Branch | Purpose | Status |
 |---|---|---|
-| `main` | trunk | at `46b2166` (post-revival state refresh, #62) |
-| `codex/zio-upgrade-dependabot` | ZIO ecosystem upgrade, #43/#45 replacement, Dependabot | local implementation; build and Scala 3 tests pass; includes triage handoff |
+| `main` | trunk | at `cc4f9da` (#63 merged; lint and both Scala test jobs green) |
+| `dependabot/*` | automated dependency updates | #64–#71 open; mixed CI results, not merged |
 
 Stale remote branches (`cassandra-support`, `circle-ci-work`,
 `readme-cleanup`, `release-publishing`, `release/0.7.0`,
@@ -38,19 +39,12 @@ deletion once confirmed merged.
 
 ## Next up
 
-1. Finish and review `codex/zio-upgrade-dependabot`: ZIO 2.1.27,
-   zio-json 1.1.1, Prelude RC48, zio-kafka 3.8.1, test-only zio-http
-   3.11.6, Scala 3.10.0. Keep `-source:3.3` for shared `with` types.
-   #43's explicit imports are unnecessary on the supported compilers;
-   #45's Kafka API migration is adapted to service-instance calls.
-   Preserve earliest-offset consumption explicitly: new Kafka settings
-   otherwise overwrite the old property with Auto's Latest default.
-   Weekly Dependabot covers sbt and Actions, grouping ZIO/Netty and
-   retaining the intentional Testcontainers <0.44 constraint. Scala's
-   computed CI matrix remains manual. Verify the first hosted Dependabot
-   run after merge; see `.github/DEPENDENCY_UPDATES.md` for coverage,
-   attribution, and release compatibility notes. Close #43/#45 with
-   attribution only after the tested replacement lands.
+1. Triage the first Dependabot PRs #64–#71 individually. Hosted sbt
+   and Actions runs succeeded, and #64 demonstrates correct `V.scala`
+   edits. Some update PRs fail CI; do not bulk merge, especially major
+   logging/migration-library upgrades. Scala's computed matrix remains
+   manual; Testcontainers >=0.44 stays intentionally ignored. Coverage
+   and compatibility notes live in `.github/DEPENDENCY_UPDATES.md`.
 2. Preserve #41 (LocalStack, issue #42) and #32 (k3s) for modernization
    as new layer-3 modules; neither feature exists on `main`. Remove
    obsolete build wiring and ZIO 1 support when adapting them.
@@ -59,7 +53,8 @@ deletion once confirmed merged.
    upgrade.
 3. Cut release 0.11.0. Release notes owed: MySQL `Settings.default`
    image `latest` → `8.4`; ZIO 1.x artifacts discontinued at 0.10.0;
-   Liquibase aspect published again; Scala 2.12 dropped. Verify the
+   Liquibase aspect published again; Scala 2.12 dropped; ZIO 2.1,
+   zio-kafka 3, and Scala 3.10 compatibility changes. Verify the
    `GPG_PASSPHRASE` / `GPG_PASSWORD` secret name first (loose ends).
 4. zillen hardening from #56: a per-request HTTP timeout in
    `NettyRequestHandler`, surfaced as a typed failure.
@@ -69,6 +64,13 @@ deletion once confirmed merged.
    the next release.
 
 ## Most recent meaningful progress
+
+- **2026-11-04 — #63 merged; #43/#45 closed with contributor credit.**
+  ZIO ecosystem upgrade and weekly dependency automation are on `main`.
+  PR lint and both Scala jobs passed (~3 minutes); post-merge CI also
+  passed. Hosted Dependabot runs succeeded and opened #64–#71, including
+  verified centralized-version edits. Risk: several proposed dependency
+  updates fail CI and need individual review; they are not part of #63.
 
 - **2026-11-04 — ZIO upgrade and Dependabot implemented locally.**
   `sbt build` and Scala 3.10 strict compile/test both pass locally. Kafka 3 requires instance accessors and explicit earliest
@@ -142,7 +144,7 @@ deletion once confirmed merged.
   ARCHITECTURE constraints were set in one dialog and have not yet
   been exercised by a real PR; the two TBDs there are open.
 
-## Validation on the upgrade branch
+## Validation of #63
 
 - `sbt build`: lint, strict compilation, and Scala 2.13 tests passed
   (25 passed, 1 existing ignored test).
@@ -151,8 +153,9 @@ deletion once confirmed merged.
   tests remain under `src/test/scala-2`, so their runtime coverage is on
   Scala 2.13; the Kafka production module compiles on both.
 - Dependabot YAML parses; version/property resolution and ignore-range
-  support checked against upstream sbt parser. Hosted execution awaits
-  merge to the default branch. Rule mirrors and diff whitespace checked.
+  support checked against upstream sbt parser. First hosted sbt and
+  Actions runs succeeded; #64 updates `project/V.scala` correctly. Rule
+  mirrors and diff whitespace checked.
 
 ## Blocked / waiting
 
@@ -164,15 +167,15 @@ deletion once confirmed merged.
 ## Session handoff
 <!-- transient; owned by the checkpoint skill -->
 
-**Resume here:** `codex/zio-upgrade-dependabot` contains the combined
-upgrade and dependency automation, plus the #51 closure handoff. Changes
-are local and uncommitted. Build and Scala 3 runtime checks pass; review
-and open a PR next;
-#43/#45 remain open until this replacement lands. #41/#32 remain retained.
+**Resume here:** #63 is merged with green PR and main CI. #43/#45
+are closed with attribution; #51 was closed earlier. Upgrade branch
+cleanup is complete. Dependabot is active with #64–#71 awaiting review;
+#41/#32 remain open as useful new modules. Next work is automated-update
+triage or release preparation, not redoing the ZIO upgrade.
 
 Decisions made 2026-10-30, all recorded in PR #55 / ARCHITECTURE.md:
 - Historical Scala 3 restriction: 3.3 LTS while on ZIO 2.0.x. The
-  current upgrade branch moves to 3.10 with ZIO 2.1; `-source:3.3` remains.
+  merged upgrade uses 3.10 with ZIO 2.1; `-source:3.3` remains.
 - testcontainers-scala 0.43.6, not 0.44.1: 0.44 drags testcontainers-
   java 2.0 package renames across every module (own PR).
 - MySQL default image pinned to `8.4` (testcontainers 1.21 my.cnf uses
