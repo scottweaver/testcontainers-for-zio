@@ -16,7 +16,9 @@
 
 package io.github.scottweaver.zio.testcontainers.kafka
 
+import ch.qos.logback.classic.LoggerContext
 import com.dimafeng.testcontainers.KafkaContainer
+import org.slf4j.LoggerFactory
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import zio._
@@ -31,6 +33,9 @@ import TestAspect._
 object ZKafkaContainerSpec extends ZIOSpecDefault {
   def spec =
     suite("ZKafkaContainerSpec")(
+      test("SLF4J uses the configured Logback provider") {
+        assertTrue(LoggerFactory.getILoggerFactory.isInstanceOf[LoggerContext])
+      },
       test("Should start a Kafka container and provide the expected producer and consumer settings.") {
         val testCase = for {
           container        <- ZIO.service[KafkaContainer]

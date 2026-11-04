@@ -12,6 +12,10 @@ updates:
       zio:
         patterns:
           - "dev.zio:*"
+      logging:
+        patterns:
+          - "org.slf4j:*"
+          - "ch.qos.logback:*"
       netty:
         patterns:
           - "io.netty:*"

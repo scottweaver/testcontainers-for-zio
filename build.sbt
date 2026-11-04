@@ -76,8 +76,9 @@ lazy val `db-migration-aspect-Zio2` = project
     publishSettings,
     name := "zio-2.0-db-migration-aspect",
     libraryDependencies ++= Seq(
-      "org.flywaydb" % "flyway-core" % V.flywayVersion,
-      "dev.zio"     %% "zio-test"    % V.zioVersion
+      "org.flywaydb" % "flyway-core"  % V.flywayVersion,
+      "org.flywaydb" % "flyway-mysql" % V.flywayVersion % Test,
+      "dev.zio"     %% "zio-test"     % V.zioVersion
     )
   )
   .dependsOn(models, mysqlZio2 % "test->test")
@@ -180,7 +181,7 @@ def testSettings: Seq[Setting[_]] = Seq(
 
 def testcontainersScalaSettings =
   testSettings ++ Seq(
-    // Prevent slf4j 2.x from ruining EVERYTHING :(
+    // Keep the logging API aligned with the configured provider.
     dependencyOverrides ++= Seq(
       "org.slf4j" % "slf4j-api" % V.slf4jVersion
     ),

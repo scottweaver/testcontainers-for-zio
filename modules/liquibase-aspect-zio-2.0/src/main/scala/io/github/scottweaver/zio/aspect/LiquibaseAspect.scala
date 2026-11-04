@@ -49,9 +49,12 @@ object LiquibaseAspect {
   def unsafeMakeDatabaseChangeLog(pathToChangeLog: String, settings: Settings) = {
     // You can't just pass in the path directly to the DatabaseChangeLog constructor.  Instead
     // you have to actually parse the file to generate the DatabaseChangeLog.
-    val parser = ChangeLogParserFactory.getInstance().getParser(pathToChangeLog, settings.resourceAccessor)
+    val resourcePath =
+      if (pathToChangeLog.startsWith("classpath:")) pathToChangeLog.stripPrefix("classpath:").dropWhile(_ == '/')
+      else pathToChangeLog
+    val parser = ChangeLogParserFactory.getInstance().getParser(resourcePath, settings.resourceAccessor)
     val clp    = new ChangeLogParameters(settings.database)
-    parser.parse(pathToChangeLog, clp, settings.resourceAccessor)
+    parser.parse(resourcePath, clp, settings.resourceAccessor)
   }
 
   def makeDatabaseChangeLog(pathToChangeLog: String) =
