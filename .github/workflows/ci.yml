@@ -55,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scala: ['2.13.18', '3.3.9']
+        scala: ['2.13.18', '3.10.0']
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v4

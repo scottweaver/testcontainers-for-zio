@@ -17,6 +17,8 @@
 package io.github.scottweaver.zio.testcontainers.kafka
 
 import com.dimafeng.testcontainers.KafkaContainer
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.producer.ProducerConfig
 import zio._
 import zio.kafka.consumer.{Consumer, ConsumerSettings, Subscription}
 import zio.kafka.producer.{Producer, ProducerSettings}
@@ -35,9 +37,14 @@ object ZKafkaContainerSpec extends ZIOSpecDefault {
           consumerSettings <- ZIO.service[ConsumerSettings]
           producerSettings <- ZIO.service[ProducerSettings]
         } yield {
-          val expectedBootstrapServers = container.bootstrapServers.split(',').toList
-          assert(consumerSettings.bootstrapServers)(equalTo(expectedBootstrapServers)) &&
-          assert(producerSettings.bootstrapServers)(equalTo(expectedBootstrapServers))
+          val expectedBootstrapServers = Some(container.bootstrapServers)
+          assert(consumerSettings.properties.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG))(
+            equalTo(expectedBootstrapServers)
+          ) &&
+          assert(producerSettings.properties.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG))(
+            equalTo(expectedBootstrapServers)
+          ) &&
+          assert(consumerSettings.properties.get(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG))(equalTo(Some("earliest")))
         }
 
         testCase
@@ -55,10 +62,11 @@ object ZKafkaContainerSpec extends ZIOSpecDefault {
         }
 
         val testCase = for {
-          _ <- Producer.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
-          result <- Consumer
-                      .subscribeAnd(Subscription.topics("test-topic"))
-                      .plainStream(Serde.string, Serde.string)
+          producerService <- ZIO.service[Producer]
+          consumerService <- ZIO.service[Consumer]
+          _               <- producerService.produce("test-topic", "test-key", "test-value", Serde.string, Serde.string)
+          result <- consumerService
+                      .plainStream(Subscription.topics("test-topic"), Serde.string, Serde.string)
                       .take(1)
                       .runLast
                       .map {
