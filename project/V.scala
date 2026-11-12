@@ -10,7 +10,7 @@ object V {
   val postgresqlDriverVersion    = "42.3.3"
   val slf4jVersion               = "1.7.32"
   val logbackVersion             = "1.2.6"
-  val flywayVersion              = "8.1.0"
+  val flywayVersion              = "13.12.0"
   val cassandraMigrationsVersion = "2.5.0_v4"
   val liquibaseVersion           = "4.13.0"
   val nettyVersion               = "4.1.79.Final"
