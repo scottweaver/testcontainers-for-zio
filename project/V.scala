@@ -1,5 +1,5 @@
 object V {
-  val cassandraDriverVersion     = "4.14.1"
+  val cassandraDriverVersion     = "4.17.0"
   val zioVersion                 = "2.1.27"
   val zioJsonVersion             = "1.1.1"
   val zioPreludeVersion          = "1.0.0-RC48"
